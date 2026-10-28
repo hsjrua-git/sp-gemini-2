@@ -1,0 +1,54 @@
+{
+  "title": "Financial reports",
+  "hint": "All reports read posted entries only; voided ones have no effect.",
+  "range": "Range",
+  "from": "From",
+  "to": "To",
+  "asOf": "As of",
+  "moneyUnit": "Toman",
+  "tabs": {
+    "trialBalance": "Trial balance",
+    "incomeStatement": "Income statement",
+    "balanceSheet": "Balance sheet",
+    "ledger": "General ledger"
+  },
+  "trialBalance": {
+    "account": "Account",
+    "debit": "Debit",
+    "credit": "Credit",
+    "totals": "Totals",
+    "empty": "No movement in this range."
+  },
+  "incomeStatement": {
+    "income": "Income",
+    "expense": "Expenses",
+    "totalIncome": "Total income",
+    "totalExpense": "Total expenses",
+    "netProfit": "Net profit",
+    "netLoss": "Net loss",
+    "empty": "No income or expenses posted in this range."
+  },
+  "balanceSheet": {
+    "assets": "Assets",
+    "liabilities": "Liabilities",
+    "equity": "Equity",
+    "totalAssets": "Total assets",
+    "totalLiabilities": "Total liabilities",
+    "totalEquity": "Total equity",
+    "retainedEarnings": "Retained earnings",
+    "balanced": "Balanced: assets = liabilities + equity + retained earnings.",
+    "unbalanced": "Out of balance — please report this."
+  },
+  "ledger": {
+    "pickAccount": "Pick an account",
+    "pickHint": "Choose an account to see its movement with a row-by-row running balance.",
+    "entryNo": "No.",
+    "date": "Date",
+    "memo": "Memo",
+    "debit": "Debit",
+    "credit": "Credit",
+    "balance": "Balance",
+    "closing": "Closing balance",
+    "empty": "No movement for this account in this range."
+  }
+}

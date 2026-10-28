@@ -1,0 +1,347 @@
+{
+  "shared": {
+    "period": "Period",
+    "periodNumber": "Period {{number}}",
+    "currentSuffix": " (current)",
+    "parameter": "Parameter",
+    "score": "Score",
+    "of": "{{a}} of {{b}}",
+    "allStudents": "All students",
+    "noParametersYet": "No parameters are in use yet. Add some on the Parameters page.",
+    "notUsedThisPeriod": "Not used in this period",
+    "periodLabel": "{{label}}"
+  },
+  "setup": {
+    "title": "Set up the calendar",
+    "goToSettings": "Go to Settings",
+    "notSetUpTitle": "Not set up yet",
+    "adminNeeded": "An administrator needs to set the period start date first.",
+    "notStartedTitle": "Period 1 hasn't started"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "errorTitle": "Couldn't load the dashboard",
+    "setupHint": "Set the period start date to begin tracking scores.",
+    "notStartedHint": "Once the first period begins, results will show up here.",
+    "enterScores": "Enter scores",
+    "periodLine": "«{{assignment}}» — period {{seq}} ({{start}} – {{end}})",
+    "truncated": "Only the first {{shown}} of {{total}} students are included.",
+    "noStudentsTitle": "No students yet",
+    "noStudentsHint": "Add students to start entering and reviewing scores.",
+    "goToStudents": "Go to Students",
+    "nothingMeasuredTitle": "Nothing measured this period",
+    "nothingMeasuredHint": "No parameters were used in this period, and no scores were entered yet.",
+    "needsScoring": "Needs scoring",
+    "optionsTitle": "Field of view",
+    "optionsHint": "Choose which assignment period the class field shows, which dimension feeds it, and what counts as answered. Saved with your preferences.",
+    "assignmentLabel": "Assignment",
+    "periodLabel": "Period",
+    "periodOption": "Period {{seq}} · {{answered}} answered",
+    "dimensionLabel": "Dimension",
+    "basisLabel": "Answered means",
+    "value": "a value was entered",
+    "valueOrComment": "a value or comment was entered"
+  },
+  "results": {
+    "title": "Results",
+    "errorTitle": "Couldn't load results",
+    "setupHint": "Set the period start date first, then results will appear here.",
+    "notStartedHint": "Once the first period begins, results will appear here.",
+    "subtitle": "Compare all students in one period. Filter, sort, and save the setup as a named view.",
+    "searchPlaceholder": "Search by name or code",
+    "searchLabel": "Search students",
+    "showChange": "Show change vs previous period",
+    "exportCsv": "Export this table (CSV)",
+    "columnsSummary": "Columns ({{chosen}} of {{total}})",
+    "summaryLine": "«{{assignment}}» — period {{seq}} ({{start}} – {{end}}) · Showing {{shown}} of {{total}} targets",
+    "truncated": "Only the first {{shown}} of {{total}} students are included.",
+    "ignoredFilters_one": "{{count}} filter refers to parameters this period does not use, and is ignored.",
+    "ignoredFilters_other": "{{count}} filters refer to parameters this period does not use, and are ignored.",
+    "noParameters": "No parameters were used in this period and no scores were entered.",
+    "noMatch": "No students match.",
+    "clearFilters": "Clear filters and search",
+    "promptName": "Name for this view (up to 60 characters):",
+    "promptRename": "New name:",
+    "confirmDelete": "Delete the view \"{{name}}\"?",
+    "assignmentLabel": "Assignment",
+    "periodLabel": "Period",
+    "dimensionLabel": "Dimension",
+    "quality": "Quality",
+    "quantity": "Quantity",
+    "periodOption": "Period {{seq}} · {{answered}} answered",
+    "noAssignments": "No assignments yet",
+    "noAssignmentsHint": "Results appear once a class assignment with sessions exists.",
+    "goToSchedule": "Go to Schedule"
+  },
+  "export": {
+    "title": "Export Center",
+    "errorTitle": "Couldn't open the Export Center",
+    "openInCenter": "Open in Export Center",
+    "setupHint": "An administrator needs to set the period start date before there is anything to export.",
+    "notStartedHint": "Once the first period begins there will be data to export.",
+    "subtitle": "Export any slice of the data — pick the students, parameters, and periods, choose what to include (scores, changes, charts) and a format, then run it. A single selection downloads one file; several are bundled into one ZIP.",
+    "noPeriods": "No periods selected yet.",
+    "loadingData": "Loading data…",
+    "loadingChanges": "Loading change history…",
+    "truncated": "This export is capped at {{count}} students — narrow the scope (a group or a selection) to include everyone.",
+    "chooseSomething": "Choose something to export to see a preview.",
+    "preparingCsv": "Preparing...",
+    "dimensionTitle": "Dimension",
+    "pickDates": "Pick the date range to load data.",
+    "pickPeriods": "Pick at least one period to load data."
+  },
+  "savedViews": {
+    "label": "View",
+    "unsaved": "Unsaved view",
+    "saveAs": "Save as new…",
+    "update": "Update view",
+    "rename": "Rename…",
+    "delete": "Delete view",
+    "dirty": "Changed since saved"
+  },
+  "groupFilter": {
+    "label": "Group"
+  },
+  "periodPicker": {
+    "previous": "Previous",
+    "next": "Next",
+    "range": "{{start}} to {{end}}"
+  },
+  "periodRange": {
+    "legend": "Periods",
+    "all": "All periods",
+    "range": "Range",
+    "pick": "Pick periods",
+    "from": "From",
+    "to": "To",
+    "lowToHigh": "The range will be read low-to-high."
+  },
+  "pickers": {
+    "selected": "{{count}} selected",
+    "clear": "Clear",
+    "searchStudentsPlaceholder": "Search by name or code",
+    "searchStudentsLabel": "Search students",
+    "searchParameters": "Search parameters",
+    "loadingStudents": "Loading students…",
+    "noStudentsMatch": "No students match.",
+    "noParametersMatch": "No parameters match.",
+    "studentsLegend": "Students",
+    "byGroup": "By group",
+    "pickStudents": "Pick students",
+    "parametersLegend": "Parameters",
+    "allParameters": "All parameters",
+    "pickParameters": "Pick parameters"
+  },
+  "filter": {
+    "title": "Filters",
+    "parameterAria": "Parameter",
+    "conditionAria": "Condition",
+    "valueAria": "Value",
+    "unknownParameter": "Unknown parameter",
+    "remove": "Remove",
+    "none": "No filters. Every student is shown.",
+    "add": "Add filter",
+    "max": "Maximum of {{count}} filters."
+  },
+  "filterEditor": {
+    "operators": {
+      "lt": "is below",
+      "lte": "is at most",
+      "gt": "is above",
+      "gte": "is at least",
+      "eq": "equals",
+      "missing": "was not measured",
+      "present": "was measured"
+    }
+  },
+  "includePicker": {
+    "legend": "Include",
+    "dataLabel": "Scores (data)",
+    "dataHint": "The measured values themselves.",
+    "deltaLabel": "Changes vs previous period",
+    "deltaHint": "Each score alongside how much it moved since the period before.",
+    "auditTrailLabel": "Edit audit trail",
+    "auditTrailHint": "The recorded history of who changed what."
+  },
+  "formatPicker": {
+    "legend": "Format",
+    "fileFormat": "File format",
+    "scoresLayout": "Scores layout",
+    "format": {
+      "csv": "CSV (one file per section)",
+      "json": "JSON",
+      "xlsx": "Excel (.xlsx, one sheet per section)"
+    },
+    "layout": {
+      "wide": "Wide — one column per parameter",
+      "long": "Long — one row per score"
+    }
+  },
+  "charts": {
+    "kind": {
+      "trend": "Trend over periods",
+      "distribution": "Score distribution",
+      "comparison": "Parameter comparison",
+      "heatmap": "Heatmap matrix"
+    },
+    "shape": {
+      "bar": "Grouped bars",
+      "radar": "Radar"
+    },
+    "axis": {
+      "period": "Periods across, one parameter",
+      "parameter": "Parameters across, one period"
+    },
+    "averageLabel": "Average",
+    "seriesClassAverage": "Class average",
+    "classAverageTitle": "Class average over time",
+    "spreadTitle": "How scores are spread",
+    "seriesStudents": "Students",
+    "compareNeedParameter": "Choose at least one parameter to compare.",
+    "trendNeedParameter": "Choose at least one parameter to plot.",
+    "chooseParameter": "Choose a parameter to chart.",
+    "chooseParameterPlaceholder": "Choose a parameter…",
+    "noPeriods": "No periods in range.",
+    "noScoresFor": "No scores for {{name}} in period {{number}}.",
+    "chartLabel": "Chart",
+    "imageLabel": "Image",
+    "layoutLabel": "Layout",
+    "noParametersAvailable": "No parameters available.",
+    "remove": "Remove",
+    "paramsToPlot": "Parameters to plot",
+    "shapeLabel": "Shape",
+    "firstAvailable": "First available",
+    "legend": "Charts",
+    "empty": "No charts. Add one to include a chart image in the export.",
+    "add": "Add chart",
+    "max": "Maximum of {{count}} charts."
+  },
+  "heatmap": {
+    "empty": "Nothing to chart for this scope.",
+    "captionParameter": "Period {{number}} · columns are parameters",
+    "captionPeriod": "{{name}} · columns are periods",
+    "aria": "Heatmap — {{caption}}",
+    "cellNoScore": "{{row}} — {{column}}: no score",
+    "cellScore": "{{row}} — {{column}}: {{value}}"
+  },
+  "exportPreview": {
+    "counts": "{{students}} students · {{parameters}} parameters · {{periods}} periods",
+    "scoresTitle": "Scores preview",
+    "noRows": "No rows for the current scope.",
+    "moreRows": "+ {{count}} more rows in the file.",
+    "nothingSelected": "Nothing selected to export yet."
+  },
+  "exportRun": {
+    "button": "Export",
+    "preparing": "Preparing…",
+    "nothing": "Nothing selected to export.",
+    "downloadedOne": "Downloaded {{name}}.",
+    "downloadedZip": "Downloaded export.zip · {{count}} files.",
+    "failed": "Export failed.",
+    "captureFailed": "Couldn't capture chart {{index}}. Keep the preview visible and try again."
+  },
+  "cohort": {
+    "heroLabel": "Class measurement overview",
+    "classSummary": "Class summary",
+    "openDetails": " — open details",
+    "stateFull": "{{name}} — fully measured",
+    "statePartial": "{{name}} — {{measured}} of {{inUse}} measured",
+    "stateNone": "{{name}} — not measured yet",
+    "nothingYet": "Nothing measured this period yet.",
+    "headRecorded": "{{completion}}% of expected scores recorded.",
+    "recordedTail": "of expected scores recorded — {{measured}} of {{expected}} across {{students}} students and {{parametersInUse}} parameters in use.",
+    "who_one": "{{count}} student: {{full}} fully measured, {{partial}} partly, {{none}} not yet",
+    "who_other": "{{count}} students: {{full}} fully measured, {{partial}} partly, {{none}} not yet",
+    "measuredPct": "{{pct}}% measured",
+    "measured": "measured",
+    "kpiStudents": "Students",
+    "kpiFull": "Fully measured",
+    "kpiPartial": "Partly",
+    "kpiNone": "Not yet",
+    "fullyMeasured": "Fully measured",
+    "partlyMeasured": "Partly measured",
+    "notStarted": "Not started",
+    "students": "Students",
+    "satelliteLabel_one": "{{name}}: {{measured}} of {{count}} student measured — open details",
+    "satelliteLabel_other": "{{name}}: {{measured}} of {{count}} students measured — open details",
+    "paramMeasured": "{{name}}: {{pct}}% measured — open details"
+  },
+  "unmeasured": {
+    "clear": "Every student has a score for every parameter in use.",
+    "needsScore_one": "{{count}} student still needs a score.",
+    "needsScore_other": "{{count}} students still need a score — most incomplete first.",
+    "more": "+{{count}} more"
+  },
+  "studentDrawer": {
+    "measuredThisPeriod": "measured this period",
+    "noParameters": "No parameters are in use this period.",
+    "change": "Change"
+  },
+  "parameterDrawer": {
+    "noScores": "No scores in this period yet.",
+    "lowestLabel": "Lowest",
+    "highestLabel": "Highest",
+    "measuredCount": "{{count}} measured",
+    "vsPrevious": "vs previous period ({{students}})",
+    "studentsPaired_one": "{{count}} student measured both times",
+    "studentsPaired_other": "{{count}} students measured both times",
+    "trendError": "The history chart could not be loaded: {{error}}"
+  },
+  "resultsTable": {
+    "studentCol": "Student",
+    "notInUse": " (not in use)",
+    "average": "Average",
+    "measured": "Measured",
+    "groupRow": "Whole group"
+  },
+  "headlineCards": {
+    "students": "Students",
+    "scoresEntered": "Scores entered",
+    "fullyMeasured": "Fully measured",
+    "notMeasuredAtAll": "Not measured at all",
+    "parametersInUse_one": "{{count}} parameter in use",
+    "parametersInUse_other": "{{count}} parameters in use",
+    "ofExpected": "{{measured}} of {{expected}}",
+    "ofStudents_one": "of {{count}} student",
+    "ofStudents_other": "of {{count}} students",
+    "partlyMeasured": "{{count}} partly measured"
+  },
+  "byParameter": {
+    "noScores": "No scores for {{name}} yet.",
+    "latest": "Latest",
+    "sinceFirst": "Since first score",
+    "scoreCount_one": "{{count}} score",
+    "scoreCount_other": "{{count}} scores",
+    "onDate": "on {{date}}"
+  },
+  "byPeriod": {
+    "empty": "No parameters were used in Period {{number}}, and no scores were entered.",
+    "withinRange": "Within range",
+    "changeVsPrevious": "Change vs previous period",
+    "notUsedSuffix": " (not used this period)",
+    "assignment": "Assignment",
+    "period": "Period",
+    "periodOption": "Period {{seq}}"
+  },
+  "history": {
+    "showAll": "Show all sessions",
+    "legend": "Sessions before the first answer are hidden. \"·\" means selected but unanswered; \"—\" means not selected. * marks a value carried from the whole-group row.",
+    "sessionCol": "Session",
+    "notSelected": "Not selected for this student",
+    "selectedNotAnswered": "Selected, not answered yet",
+    "viaGroup": "Value carried from the whole-group row",
+    "noSessions": "No evaluated sessions yet."
+  },
+  "scopePicker": {
+    "legend": "Scope",
+    "assignment": "Assignment",
+    "allAssignments": "All assignments",
+    "allLabel": "The whole calendar",
+    "rangeLabel": "A session-date range",
+    "selectionLabel": "Chosen periods",
+    "from": "From",
+    "to": "To",
+    "seqNeedsAssignment": "Pick an assignment first — period numbers are per assignment.",
+    "seqOption": "Period {{seq}} · {{answered}} answered"
+  }
+}

@@ -1,0 +1,25 @@
+# One-shot service that runs a single database backup. Paired with
+# student-panel-backup.timer for a nightly schedule.
+#
+# Install alongside the timer:
+#   sudo cp deploy/student-panel-backup.service /etc/systemd/system/
+#   sudo cp deploy/student-panel-backup.timer   /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now student-panel-backup.timer
+
+[Unit]
+Description=Student Panel database backup
+After=postgresql.service
+
+[Service]
+Type=oneshot
+User=student-panel
+Group=student-panel
+WorkingDirectory=/opt/student-panel
+ExecStart=/opt/student-panel/deploy/backup.sh
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/student-panel/backups

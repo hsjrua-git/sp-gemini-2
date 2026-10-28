@@ -1,0 +1,8 @@
+{
+  "appId": "app.studentpanel.mobile",
+  "appName": "Student Panel",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  }
+}

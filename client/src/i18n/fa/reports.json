@@ -1,0 +1,347 @@
+{
+  "shared": {
+    "period": "دوره",
+    "periodNumber": "دوره {{number}}",
+    "currentSuffix": " (جاری)",
+    "parameter": "شاخص",
+    "score": "نمره",
+    "of": "{{a}} از {{b}}",
+    "allStudents": "همه دانش‌آموزان",
+    "noParametersYet": "هنوز شاخصی در حال استفاده نیست. از صفحه شاخص‌ها اضافه کنید.",
+    "notUsedThisPeriod": "در این دوره استفاده نشده",
+    "periodLabel": "{{label}}"
+  },
+  "setup": {
+    "title": "راه‌اندازی تقویم دوره‌ها",
+    "goToSettings": "رفتن به تنظیمات",
+    "notSetUpTitle": "هنوز راه‌اندازی نشده است",
+    "adminNeeded": "ابتدا یک مدیر باید تاریخ مبدأ دوره‌ها را تنظیم کند.",
+    "notStartedTitle": "دوره 1 هنوز آغاز نشده است"
+  },
+  "dashboard": {
+    "title": "داشبورد",
+    "errorTitle": "داشبورد بارگذاری نشد",
+    "setupHint": "برای شروع ثبت و پیگیری نمره‌ها، تاریخ مبدأ دوره‌ها را تنظیم کنید.",
+    "notStartedHint": "با آغاز دوره اول، نتایج اینجا نمایش داده می‌شوند.",
+    "enterScores": "ثبت نمرات",
+    "periodLine": "«{{assignment}}» — دورهٔ {{seq}} ({{start}} تا {{end}})",
+    "truncated": "فقط {{shown}} نفر از {{total}} دانش‌آموز در این نتایج لحاظ شده‌اند.",
+    "noStudentsTitle": "هنوز دانش‌آموزی نیست",
+    "noStudentsHint": "برای ثبت و بررسی نمره‌ها، دانش‌آموزان را اضافه کنید.",
+    "goToStudents": "رفتن به دانش‌آموزان",
+    "nothingMeasuredTitle": "در این دوره چیزی ثبت نشده است",
+    "nothingMeasuredHint": "در این دوره شاخصی استفاده نشده و هنوز نمره‌ای هم ثبت نشده است.",
+    "needsScoring": "در انتظار ثبت نمره",
+    "optionsTitle": "میدان دید",
+    "optionsHint": "تعیین کنید میدان کلاس کدام دورهٔ کدام تخصیص را نشان دهد، کدام بُعد ملاک باشد و چه چیزی «پاسخ‌داده‌شده» شمرده شود. در تنظیمات شما ذخیره می‌شود.",
+    "assignmentLabel": "تخصیص",
+    "periodLabel": "دوره",
+    "periodOption": "دورهٔ {{seq}} · {{answered}} ثبت‌شده",
+    "dimensionLabel": "بُعد",
+    "basisLabel": "پاسخ‌داده‌شده یعنی",
+    "value": "مقداری ثبت شده باشد",
+    "valueOrComment": "مقدار یا یادداشتی ثبت شده باشد"
+  },
+  "results": {
+    "title": "نتایج",
+    "errorTitle": "نتایج بارگذاری نشد",
+    "setupHint": "اول تاریخ مبدأ دوره‌ها را تنظیم کنید؛ آن‌گاه نتایج اینجا نمایش داده می‌شوند.",
+    "notStartedHint": "با آغاز دوره اول، نتایج اینجا نمایش داده می‌شوند.",
+    "subtitle": "همه دانش‌آموزان را در یک دوره مقایسه کنید. فیلتر کنید، مرتب کنید و این چیدمان را به‌صورت نمای نامدار ذخیره کنید.",
+    "searchPlaceholder": "جست‌وجو بر اساس نام یا کد",
+    "searchLabel": "جست‌وجوی دانش‌آموزان",
+    "showChange": "نمایش تغییر نسبت به دوره قبل",
+    "exportCsv": "خروجی از این جدول (CSV)",
+    "columnsSummary": "ستون‌ها ({{chosen}} از {{total}})",
+    "summaryLine": "«{{assignment}}» — دورهٔ {{seq}} ({{start}} تا {{end}}) · نمایش {{shown}} از {{total}} مورد",
+    "truncated": "فقط {{shown}} نفر از {{total}} دانش‌آموز در این نتایج لحاظ شده‌اند.",
+    "ignoredFilters_one": "{{count}} فیلتر به شاخص‌هایی اشاره دارد که در این دوره استفاده نمی‌شوند و نادیده گرفته می‌شود.",
+    "ignoredFilters_other": "{{count}} فیلتر به شاخص‌هایی اشاره دارد که در این دوره استفاده نمی‌شوند و نادیده گرفته می‌شوند.",
+    "noParameters": "در این دوره شاخصی استفاده نشده و نمره‌ای ثبت نشده است.",
+    "noMatch": "دانش‌آموزی مطابق نیست.",
+    "clearFilters": "پاک کردن فیلترها و جست‌وجو",
+    "promptName": "نام این نما (حداکثر 60 نویسه):",
+    "promptRename": "نام جدید:",
+    "confirmDelete": "نمای «{{name}}» حذف شود؟",
+    "assignmentLabel": "تخصیص",
+    "periodLabel": "دوره",
+    "dimensionLabel": "بُعد",
+    "quality": "کیفیت",
+    "quantity": "کمیت",
+    "periodOption": "دورهٔ {{seq}} · {{answered}} ثبت‌شده",
+    "noAssignments": "هنوز تخصیصی نیست",
+    "noAssignmentsHint": "با ساخت تخصیص کلاسی و برگزاری جلسه‌ها، نتیجه‌ها اینجا دیده می‌شوند.",
+    "goToSchedule": "رفتن به برنامه‌ریزی"
+  },
+  "export": {
+    "title": "مرکز خروجی",
+    "errorTitle": "مرکز خروجی باز نشد",
+    "openInCenter": "باز کردن در مرکز خروجی",
+    "setupHint": "پیش از آنکه داده‌ای برای خروجی گرفتن باشد، یک مدیر باید تاریخ مبدأ دوره‌ها را تنظیم کند.",
+    "notStartedHint": "با آغاز دوره اول، داده‌ای برای خروجی گرفتن وجود خواهد داشت.",
+    "subtitle": "از هر بخشی از داده‌ها خروجی بگیرید — دانش‌آموزان، شاخص‌ها و دوره‌ها را انتخاب کنید، مشخص کنید چه چیزهایی (نمره‌ها، تغییرها، نمودارها) و با چه قالبی در خروجی بیاید و اجرا کنید. یک انتخاب تنها یک فایل می‌سازد؛ چند مورد در یک ZIP بسته‌بندی می‌شوند.",
+    "noPeriods": "هنوز دوره‌ای انتخاب نشده است.",
+    "loadingData": "در حال بارگذاری داده‌ها…",
+    "loadingChanges": "در حال بارگذاری سابقه تغییرها…",
+    "truncated": "این خروجی به {{count}} دانش‌آموز محدود است — برای شامل شدن همه، محدوده را کوچک‌تر کنید (یک گروه یا انتخاب دستی).",
+    "chooseSomething": "برای دیدن پیش‌نمایش، چیزی برای خروجی انتخاب کنید.",
+    "preparingCsv": "در حال آماده‌سازی...",
+    "dimensionTitle": "بُعد",
+    "pickDates": "برای بارگیری داده‌ها، بازهٔ تاریخ را انتخاب کنید.",
+    "pickPeriods": "برای بارگیری داده‌ها، دست‌کم یک دوره انتخاب کنید."
+  },
+  "savedViews": {
+    "label": "نما",
+    "unsaved": "نمای ذخیره‌نشده",
+    "saveAs": "ذخیره به‌عنوان نمای جدید…",
+    "update": "به‌روزرسانی نما",
+    "rename": "تغییر نام…",
+    "delete": "حذف نما",
+    "dirty": "از زمان ذخیره تغییر کرده است"
+  },
+  "groupFilter": {
+    "label": "گروه"
+  },
+  "periodPicker": {
+    "previous": "قبلی",
+    "next": "بعدی",
+    "range": "{{start}} تا {{end}}"
+  },
+  "periodRange": {
+    "legend": "دوره‌ها",
+    "all": "همه دوره‌ها",
+    "range": "بازه",
+    "pick": "انتخاب دوره‌ها",
+    "from": "از",
+    "to": "تا",
+    "lowToHigh": "بازه از کم به زیاد در نظر گرفته می‌شود."
+  },
+  "pickers": {
+    "selected": "{{count}} مورد انتخاب شده",
+    "clear": "پاک کردن",
+    "searchStudentsPlaceholder": "جست‌وجو بر اساس نام یا کد",
+    "searchStudentsLabel": "جست‌وجوی دانش‌آموزان",
+    "searchParameters": "جست‌وجوی شاخص‌ها",
+    "loadingStudents": "در حال بارگذاری دانش‌آموزان…",
+    "noStudentsMatch": "دانش‌آموزی مطابق نیست.",
+    "noParametersMatch": "شاخصی مطابق نیست.",
+    "studentsLegend": "دانش‌آموزان",
+    "byGroup": "بر اساس گروه",
+    "pickStudents": "انتخاب دانش‌آموزان",
+    "parametersLegend": "شاخص‌ها",
+    "allParameters": "همه شاخص‌ها",
+    "pickParameters": "انتخاب شاخص‌ها"
+  },
+  "filter": {
+    "title": "فیلترها",
+    "parameterAria": "شاخص",
+    "conditionAria": "شرط",
+    "valueAria": "مقدار",
+    "unknownParameter": "شاخص ناشناخته",
+    "remove": "حذف",
+    "none": "فیلتری وجود ندارد؛ همه دانش‌آموزان نمایش داده می‌شوند.",
+    "add": "افزودن فیلتر",
+    "max": "حداکثر {{count}} فیلتر."
+  },
+  "filterEditor": {
+    "operators": {
+      "lt": "پایین‌تر از",
+      "lte": "حداکثر",
+      "gt": "بالاتر از",
+      "gte": "حداقل",
+      "eq": "برابر با",
+      "missing": "اندازه‌گیری نشده",
+      "present": "اندازه‌گیری شده"
+    }
+  },
+  "includePicker": {
+    "legend": "درج در خروجی",
+    "dataLabel": "نمره‌ها (داده‌ها)",
+    "dataHint": "خودِ مقادیر اندازه‌گیری‌شده.",
+    "deltaLabel": "تغییرها نسبت به دوره قبل",
+    "deltaHint": "هر نمره به‌همراه میزان تغییرش از دوره پیشین.",
+    "auditTrailLabel": "سابقه ویرایش‌ها",
+    "auditTrailHint": "تاریخچه ثبت‌شده اینکه چه کسی چه چیزی را تغییر داده است."
+  },
+  "formatPicker": {
+    "legend": "قالب",
+    "fileFormat": "قالب فایل",
+    "scoresLayout": "چیدمان نمره‌ها",
+    "format": {
+      "csv": "CSV (یک فایل برای هر بخش)",
+      "json": "JSON",
+      "xlsx": "Excel (.xlsx، یک برگه برای هر بخش)"
+    },
+    "layout": {
+      "wide": "عرضی — یک ستون برای هر شاخص",
+      "long": "طولی — یک ردیف برای هر نمره"
+    }
+  },
+  "charts": {
+    "kind": {
+      "trend": "روند در طول دوره‌ها",
+      "distribution": "توزیع نمره‌ها",
+      "comparison": "مقایسه شاخص‌ها",
+      "heatmap": "ماتریس حرارتی"
+    },
+    "shape": {
+      "bar": "میله‌های گروهی",
+      "radar": "راداری"
+    },
+    "axis": {
+      "period": "دوره‌ها در عرض، یک شاخص",
+      "parameter": "شاخص‌ها در عرض، یک دوره"
+    },
+    "averageLabel": "میانگین",
+    "seriesClassAverage": "میانگین کلاس",
+    "classAverageTitle": "میانگین کلاس در گذر زمان",
+    "spreadTitle": "پراکندگی نمره‌ها",
+    "seriesStudents": "دانش‌آموزان",
+    "compareNeedParameter": "برای مقایسه دست‌کم یک شاخص انتخاب کنید.",
+    "trendNeedParameter": "برای رسم نمودار دست‌کم یک شاخص انتخاب کنید.",
+    "chooseParameter": "یک شاخص برای نمودار انتخاب کنید.",
+    "chooseParameterPlaceholder": "یک شاخص انتخاب کنید…",
+    "noPeriods": "دوره‌ای در این بازه نیست.",
+    "noScoresFor": "در دوره {{number}} نمره‌ای برای {{name}} ثبت نشده است.",
+    "chartLabel": "نمودار",
+    "imageLabel": "تصویر",
+    "layoutLabel": "چیدمان",
+    "noParametersAvailable": "شاخصی موجود نیست.",
+    "remove": "حذف",
+    "paramsToPlot": "شاخص‌هایی که رسم می‌شوند",
+    "shapeLabel": "شکل",
+    "firstAvailable": "اولین مورد موجود",
+    "legend": "نمودارها",
+    "empty": "نموداری نیست. برای افزودن تصویر نمودار به خروجی، یکی اضافه کنید.",
+    "add": "افزودن نمودار",
+    "max": "حداکثر {{count}} نمودار."
+  },
+  "heatmap": {
+    "empty": "چیزی برای رسم در این محدوده نیست.",
+    "captionParameter": "دوره {{number}} · ستون‌ها شاخص‌ها هستند",
+    "captionPeriod": "{{name}} · ستون‌ها دوره‌ها هستند",
+    "aria": "نقشه حرارتی — {{caption}}",
+    "cellNoScore": "{{row}} — {{column}}: بدون نمره",
+    "cellScore": "{{row}} — {{column}}: {{value}}"
+  },
+  "exportPreview": {
+    "counts": "{{students}} دانش‌آموز · {{parameters}} شاخص · {{periods}} دوره",
+    "scoresTitle": "پیش‌نمایش نمره‌ها",
+    "noRows": "ردیفی برای محدوده فعلی نیست.",
+    "moreRows": "+ {{count}} ردیف دیگر در فایل.",
+    "nothingSelected": "هنوز چیزی برای خروجی انتخاب نشده است."
+  },
+  "exportRun": {
+    "button": "گرفتن خروجی",
+    "preparing": "در حال آماده‌سازی…",
+    "nothing": "چیزی برای خروجی انتخاب نشده است.",
+    "downloadedOne": "{{name}} دریافت شد.",
+    "downloadedZip": "export.zip دریافت شد · {{count}} فایل.",
+    "failed": "خروجی گرفتن شکست خورد.",
+    "captureFailed": "نمودار {{index}} ضبط نشد. پیش‌نمایش را در دید نگه دارید و دوباره تلاش کنید."
+  },
+  "cohort": {
+    "heroLabel": "نمای کلی اندازه‌گیری کلاس",
+    "classSummary": "خلاصه کلاس",
+    "openDetails": " — باز کردن جزئیات",
+    "stateFull": "{{name}} — ثبت کامل",
+    "statePartial": "{{name}} — {{measured}} از {{inUse}} ثبت شده",
+    "stateNone": "{{name}} — هنوز اندازه‌گیری نشده",
+    "nothingYet": "هنوز چیزی در این دوره ثبت نشده است.",
+    "headRecorded": "{{completion}}% از نمره‌های موردانتظار ثبت شده است.",
+    "recordedTail": "از نمره‌های موردانتظار ثبت شده — {{measured}} از {{expected}} در میان {{students}} دانش‌آموز و {{parametersInUse}} شاخص در حال استفاده.",
+    "who_one": "{{count}} دانش‌آموز: {{full}} ثبت کامل، {{partial}} ثبت بخشی، {{none}} بدون ثبت",
+    "who_other": "{{count}} دانش‌آموز: {{full}} ثبت کامل، {{partial}} ثبت بخشی، {{none}} بدون ثبت",
+    "measuredPct": "{{pct}}% ثبت شده",
+    "measured": "ثبت‌شده",
+    "kpiStudents": "دانش‌آموزان",
+    "kpiFull": "ثبت کامل",
+    "kpiPartial": "ثبت بخشی",
+    "kpiNone": "بدون ثبت",
+    "fullyMeasured": "ثبت کامل",
+    "partlyMeasured": "ثبت بخشی",
+    "notStarted": "بدون ثبت",
+    "students": "دانش‌آموزان",
+    "satelliteLabel_one": "{{name}}: {{measured}} از {{count}} دانش‌آموز ثبت شده — باز کردن جزئیات",
+    "satelliteLabel_other": "{{name}}: {{measured}} از {{count}} دانش‌آموز ثبت شده — باز کردن جزئیات",
+    "paramMeasured": "{{name}}: {{pct}}% ثبت شده — باز کردن جزئیات"
+  },
+  "unmeasured": {
+    "clear": "همه دانش‌آموزان برای همه شاخص‌های در حال استفاده نمره دارند.",
+    "needsScore_one": "{{count}} دانش‌آموز هنوز نمره لازم دارد.",
+    "needsScore_other": "{{count}} دانش‌آموز هنوز نمره لازم دارند — ابتدا ناقص‌ترین‌ها.",
+    "more": "+{{count}} مورد دیگر"
+  },
+  "studentDrawer": {
+    "measuredThisPeriod": "در این دوره ثبت شده",
+    "noParameters": "در این دوره شاخصی در حال استفاده نیست.",
+    "change": "تغییر"
+  },
+  "parameterDrawer": {
+    "noScores": "هنوز نمره‌ای در این دوره ثبت نشده است.",
+    "lowestLabel": "کمینه",
+    "highestLabel": "بیشینه",
+    "measuredCount": "{{count}} نمره ثبت شده",
+    "vsPrevious": "نسبت به دوره قبل ({{students}})",
+    "studentsPaired_one": "{{count}} دانش‌آموز در هر دو دوره نمره دارد",
+    "studentsPaired_other": "{{count}} دانش‌آموز در هر دو دوره نمره دارند",
+    "trendError": "نمودار سابقه بارگذاری نشد: {{error}}"
+  },
+  "resultsTable": {
+    "studentCol": "دانش‌آموز",
+    "notInUse": " (در حال استفاده نیست)",
+    "average": "میانگین",
+    "measured": "ثبت‌شده",
+    "groupRow": "کل گروه"
+  },
+  "headlineCards": {
+    "students": "دانش‌آموزان",
+    "scoresEntered": "نمره‌های ثبت‌شده",
+    "fullyMeasured": "ثبت کامل",
+    "notMeasuredAtAll": "بدون هیچ ثبت",
+    "parametersInUse_one": "{{count}} شاخص در حال استفاده",
+    "parametersInUse_other": "{{count}} شاخص در حال استفاده",
+    "ofExpected": "{{measured}} از {{expected}}",
+    "ofStudents_one": "از {{count}} دانش‌آموز",
+    "ofStudents_other": "از {{count}} دانش‌آموز",
+    "partlyMeasured": "{{count}} دانش‌آموز با ثبت بخشی"
+  },
+  "byParameter": {
+    "noScores": "هنوز نمره‌ای برای {{name}} ثبت نشده است.",
+    "latest": "آخرین",
+    "sinceFirst": "از اولین نمره",
+    "scoreCount_one": "{{count}} نمره",
+    "scoreCount_other": "{{count}} نمره",
+    "onDate": "در تاریخ {{date}}"
+  },
+  "byPeriod": {
+    "empty": "در دوره {{number}} شاخصی استفاده نشده و نمره‌ای ثبت نشده است.",
+    "withinRange": "در بازه",
+    "changeVsPrevious": "تغییر نسبت به دوره قبل",
+    "notUsedSuffix": " (در این دوره استفاده نشده)",
+    "assignment": "تخصیص",
+    "period": "دوره",
+    "periodOption": "دورهٔ {{seq}}"
+  },
+  "history": {
+    "showAll": "نمایش همهٔ جلسه‌ها",
+    "legend": "جلسه‌های پیش از نخستین پاسخ پنهان‌اند. «·» یعنی انتخاب‌شده ولی بی‌پاسخ؛ «—» یعنی انتخاب نشده. * مقدارِ گرفته‌شده از سطر کل گروه را نشان می‌دهد.",
+    "sessionCol": "جلسه",
+    "notSelected": "برای این دانش‌آموز انتخاب نشده",
+    "selectedNotAnswered": "انتخاب‌شده، هنوز بی‌پاسخ",
+    "viaGroup": "مقدار از سطر کل گروه",
+    "noSessions": "هنوز جلسهٔ ارزیابی‌شده‌ای نیست."
+  },
+  "scopePicker": {
+    "legend": "گستره",
+    "assignment": "تخصیص",
+    "allAssignments": "همهٔ تخصیص‌ها",
+    "allLabel": "همهٔ تقویم",
+    "rangeLabel": "بازهٔ تاریخ جلسه‌ها",
+    "selectionLabel": "دوره‌های انتخابی",
+    "from": "از",
+    "to": "تا",
+    "seqNeedsAssignment": "ابتدا یک تخصیص انتخاب کنید — شمارهٔ دوره‌ها برای هر تخصیص جداگانه است.",
+    "seqOption": "دورهٔ {{seq}} · {{answered}} ثبت‌شده"
+  }
+}

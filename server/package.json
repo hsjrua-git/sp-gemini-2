@@ -1,0 +1,31 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "test:core": "node --test --test-concurrency=2 src/core/**/*.test.js",
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "migrate": "node src/db/migrate.js",
+    "create-user": "node src/scripts/createUser.js",
+    "seed-sample": "node src/scripts/seedSample.js",
+    "reset-data": "node src/scripts/resetData.js",
+    "verify-pglite": "node src/db/verifyPglite.mjs",
+    "test-permissions": "RUN_INTEGRATION=1 node --test test/permissions.test.js"
+  },
+  "keywords": [],
+  "type": "module",
+  "dependencies": {
+    "@electric-sql/pglite": "^0.5.8",
+    "@node-rs/argon2": "^2.0.2",
+    "connect-pg-simple": "^10.0.0",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.7.0",
+    "express-session": "^1.19.0",
+    "helmet": "^8.3.0",
+    "morgan": "^1.12.1",
+    "pg": "^8.23.0"
+  }
+}

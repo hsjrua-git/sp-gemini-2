@@ -1,0 +1,69 @@
+{
+  "accounts": {
+    "title": "Chart of accounts",
+    "hint": "System accounts anchor the cafe's auto-posting; their code and type stay fixed.",
+    "code": "Code",
+    "name": "Account name",
+    "type": "Type",
+    "parent": "Parent account",
+    "noParent": "— none —",
+    "status": "Status",
+    "system": "system",
+    "newAccount": "New account",
+    "edit": "Edit",
+    "empty": "No accounts."
+  },
+  "types": {
+    "asset": "Asset",
+    "liability": "Liability",
+    "equity": "Equity",
+    "income": "Income",
+    "expense": "Expense"
+  },
+  "mappings": {
+    "title": "Cafe → journal auto-posting",
+    "hint": "Cafe events post through these account pairs. Deactivating an event only pauses its posting — the cafe keeps working.",
+    "event": "Event",
+    "debitAccount": "Debit account",
+    "creditAccount": "Credit account",
+    "active": "Active",
+    "saved": "Mapping saved.",
+    "events": {
+      "cafe.sale_walk_in": "Walk-in sale",
+      "cafe.sale_student": "Student sale",
+      "cafe.cogs": "COGS",
+      "cafe.purchase": "Cafe purchase",
+      "cafe.waste": "Waste",
+      "balance.topup": "Balance top-up",
+      "balance.refund": "Balance refund"
+    }
+  },
+  "periods": {
+    "title": "Fiscal periods",
+    "name": "Name",
+    "range": "Range",
+    "status": "Status",
+    "postedCount": "Posted entries",
+    "closedAt": "Closed at",
+    "actions": "Actions",
+    "newPeriod": "New period",
+    "startDate": "Start",
+    "endDate": "End",
+    "empty": "No periods defined.",
+    "open": "Open",
+    "closed": "Closed",
+    "close": "Close period",
+    "reopen": "Reopen period",
+    "closeConfirm": "Close this period? An automatic closing entry is posted (income and expenses move to retained earnings) and the range can no longer be posted to.",
+    "reopenConfirm": "Reopen this period? The closing entry stays; later postings land after it.",
+    "closedHint": "Closed periods cannot be edited; reopen first."
+  },
+  "opening": {
+    "title": "Opening entry",
+    "exists": "Opening entry exists: no. {{entryNo}} on {{entryDate}} for {{total}}.",
+    "missing": "No opening entry yet. Creating one books the cafe's stock (at cost) and the student balances onto the books.",
+    "date": "Opening date",
+    "create": "Create opening entry",
+    "created": "Opening entry {{entryNo}} created."
+  }
+}

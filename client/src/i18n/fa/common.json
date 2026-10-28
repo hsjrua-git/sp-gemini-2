@@ -1,0 +1,71 @@
+{
+  "appName": "پنل دانش‌آموزان",
+  "language": {
+    "fa": "فارسی",
+    "en": "English",
+    "switch": "تغییر زبان"
+  },
+  "actions": {
+    "save": "ذخیره",
+    "saving": "در حال ذخیره…",
+    "cancel": "انصراف",
+    "edit": "ویرایش",
+    "delete": "حذف",
+    "add": "افزودن",
+    "create": "ایجاد",
+    "close": "بستن",
+    "back": "بازگشت",
+    "search": "جست‌وجو",
+    "apply": "اعمال",
+    "reset": "بازنشانی",
+    "refresh": "نوسازی",
+    "restore": "بازگردانی",
+    "archive": "بایگانی",
+    "unarchive": "خروج از بایگانی",
+    "confirm": "تأیید",
+    "retry": "تلاش دوباره",
+    "view": "مشاهده",
+    "done": "انجام شد"
+  },
+  "status": {
+    "loading": "در حال بارگذاری…",
+    "empty": "چیزی اینجا نیست.",
+    "errorTitle": "مشکلی پیش آمد"
+  },
+  "table": {
+    "actions": "عملیات",
+    "name": "نام",
+    "code": "کد",
+    "note": "یادداشت",
+    "date": "تاریخ",
+    "showing": "نمایش {{count}} مورد",
+    "of": "از {{count}}",
+    "truncated": "فقط {{shown}} مورد از {{total}} مورد نمایش داده می‌شود؛ برای دیدن همه، محدوده را محدودتر کنید."
+  },
+  "date": {
+    "label": "تاریخ",
+    "gregorian": "میلادی",
+    "jalali": "شمسی",
+    "jalaliPlaceholder": "مثلاً ۱۴۰۵/۰۸/۰۳",
+    "invalidJalali": "تاریخ شمسی معتبر نیست."
+  },
+  "changes": {
+    "add": "افزوده شد",
+    "remove": "حذف شد",
+    "fromHereOn": "، از این دوره به بعد",
+    "thisOnly": "، فقط این دوره",
+    "to": "تا"
+  },
+  "login": {
+    "title": "خوش آمدید",
+    "subtitle": "برای ادامه به پنل خود وارد شوید.",
+    "username": "نام کاربری",
+    "password": "گذرواژه",
+    "submit": "ورود",
+    "submitting": "در حال ورود…"
+  },
+  "preferences": {
+    "languageTitle": "زبان",
+    "languageHint": "زبان رابط کاربری را انتخاب کنید؛ اعداد و تاریخ‌ها هم از آن پیروی می‌کنند."
+  }
+}

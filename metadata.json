@@ -1,0 +1,6 @@
+{
+  "name": "Student Panel",
+  "description": "Track students, enter periodic scores against configurable parameters, and review results and trends.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

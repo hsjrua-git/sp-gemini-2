@@ -1,0 +1,14 @@
+# Runs the database backup every night at 02:30, and catches up if the machine
+# was off at that time. Enable with:
+#   sudo systemctl enable --now student-panel-backup.timer
+# Inspect with:  systemctl list-timers student-panel-backup.timer
+
+[Unit]
+Description=Nightly Student Panel database backup
+
+[Timer]
+OnCalendar=*-*-* 02:30:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

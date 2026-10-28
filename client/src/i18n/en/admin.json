@@ -1,0 +1,669 @@
+{
+  "users": {
+    "readOnlyTitle": "Read-only access",
+    "readOnlyDescription": "You do not have permission to manage users.",
+    "title": "Users",
+    "hint": "Accounts are never deleted, only deactivated, so the history stays accurate. You cannot change your own role or deactivate yourself.",
+    "addTitle": "Add a user",
+    "allTitle": "All users",
+    "colUsername": "Username",
+    "colFullName": "Full name",
+    "colRole": "Role",
+    "colStatus": "Status",
+    "colLastLogin": "Last sign-in",
+    "form": {
+      "username": "Username",
+      "usernamePlaceholder": "e.g. tina.t",
+      "fullName": "Full name",
+      "role": "Role",
+      "creating": "Creating…",
+      "submit": "Create account"
+    },
+    "row": {
+      "you": "(you)",
+      "fullNameLabel": "Full name of {{name}}",
+      "roleLabel": "Role of {{name}}",
+      "active": "Active",
+      "inactive": "Inactive",
+      "mustChangePassword": "Must change password",
+      "never": "Never",
+      "resetPassword": "Reset password",
+      "deactivate": "Deactivate",
+      "reactivate": "Reactivate",
+      "deactivateConfirm": "Deactivate {{name}}? They will be signed out and cannot sign in until you reactivate the account.",
+      "resetConfirm": "Reset the password of {{name}}? They will be signed out everywhere and must choose a new password at their next sign-in."
+    }
+  },
+  "roles": {
+    "readOnlyTitle": "Read-only access",
+    "readOnlyDescription": "You do not have permission to manage roles.",
+    "title": "Roles",
+    "newRole": "New role",
+    "editRole": "Edit {{name}}",
+    "hint": "A role is a named set of permissions. Give people the role that matches what they should be able to do. Ticking a permission automatically ticks anything it depends on.",
+    "colRole": "Role",
+    "colDescription": "Description",
+    "colPermissions": "Permissions",
+    "colPeople": "People",
+    "builtIn": "built-in",
+    "locked": "Locked",
+    "deleteConfirm": "Delete the \"{{name}}\" role? This cannot be undone.",
+    "deleteBlocked": "Move its people to another role first",
+    "loadErrorTitle": "Couldn't load roles",
+    "editor": {
+      "name": "Role name",
+      "description": "Description",
+      "adminLocked": "This is the built-in Administrator role and cannot be changed.",
+      "systemEditable": "This is a built-in role. You can rename it and adjust its permissions, but it cannot be deleted.",
+      "create": "Create role",
+      "save": "Save changes"
+    }
+  },
+  "permissions": {
+    "students": {
+      "view": "View students",
+      "create": "Add students",
+      "edit": "Edit students",
+      "delete": "Delete students"
+    },
+    "groups": {
+      "manage": "Create and organise groups",
+      "assign": "Put students in groups"
+    },
+    "teachers": {
+      "view": "View teachers",
+      "manage": "Manage teachers"
+    },
+    "schedule": {
+      "view": "View the schedule",
+      "manage": "Manage assignments and intervals"
+    },
+    "cafe": {
+      "view": "See the cafe pages",
+      "sell": "Record cafe sales",
+      "balance": "Top up and refund student balances",
+      "supplies": "Record purchases and manage suppliers",
+      "inventory": "Record waste and adjust stock",
+      "manage": "Manage cafe products"
+    },
+    "scores": {
+      "view": "See scores",
+      "enter": "Enter and change scores",
+      "override": "Override locked scores"
+    },
+    "parameters": {
+      "view": "See parameters",
+      "manage": "Add and edit parameters"
+    },
+    "fields": {
+      "manage": "Define custom student fields",
+      "view_restricted": "See restricted custom fields"
+    },
+    "dashboard": {
+      "view": "See the dashboard"
+    },
+    "data": {
+      "export": "Export data to CSV",
+      "import": "Import students from CSV"
+    },
+    "views": {
+      "share": "Share saved views with others"
+    },
+    "settings": {
+      "manage": "Change settings"
+    },
+    "users": {
+      "manage": "Manage user accounts"
+    },
+    "roles": {
+      "manage": "Manage roles and permissions"
+    },
+    "audit": {
+      "view": "Read the audit log"
+    },
+    "accounting.view": "See the journal and reports",
+    "accounting.enter": "Draft journal entries",
+    "accounting.post": "Post and void journal entries",
+    "accounting.close": "Close and reopen fiscal periods",
+    "accounting.manage": "Manage the chart of accounts and mappings"
+  },
+  "permissionGroups": {
+    "Students": "Students",
+    "Groups": "Groups",
+    "Teachers": "Teachers",
+    "Scheduling": "Scheduling",
+    "Cafe": "Cafe",
+    "Scores": "Scores",
+    "Parameters": "Parameters",
+    "Custom fields": "Custom fields",
+    "Reports": "Reports",
+    "Administration": "Administration",
+    "Accounting": "Accounting",
+    "AI": "AI"
+  },
+  "audit": {
+    "readOnlyTitle": "Read-only access",
+    "readOnlyDescription": "You do not have permission to see the audit log.",
+    "title": "Audit log",
+    "hint": "A record of who changed what, and when. Passwords are never recorded.",
+    "categoryLabel": "Category",
+    "actorPlaceholder": "Filter by username",
+    "actorLabel": "Filter by username",
+    "emptyTitle": "Nothing to show",
+    "emptyDescription": "No audit entries match your filters yet.",
+    "colWhen": "When",
+    "colWho": "Who",
+    "colWhat": "What",
+    "details": "Details",
+    "previous": "Previous",
+    "next": "Next",
+    "pageStatus": "Page {{page}} of {{totalPages}} ({{total}} entries)",
+    "categories": {
+      "all": "Everything",
+      "scores": "Scores",
+      "student": "Students",
+      "parameter": "Parameters",
+      "parameter_change": "Parameter changes",
+      "settings": "Settings",
+      "user": "Users",
+      "role": "Roles",
+      "group": "Groups",
+      "field": "Custom fields",
+      "teacher": "Teachers",
+      "interval": "Schedule intervals",
+      "assignment": "Schedule assignments",
+      "session": "Sessions",
+      "task": "Session tasks",
+      "task_template": "Task templates",
+      "alert": "Session alerts",
+      "cafe_product": "Cafe products",
+      "cafe_supplier": "Cafe suppliers",
+      "cafe_purchase": "Cafe purchases",
+      "cafe_sale": "Cafe sales",
+      "cafe_inventory": "Cafe inventory",
+      "cafe_balance": "Cafe student balances",
+      "accounting": "Accounting",
+      "accounting_period": "Fiscal periods",
+      "agent": "Voice agent",
+      "auth": "Sign-in and passwords",
+      "api": "Other changes"
+    },
+    "changes": {
+      "student": "Student",
+      "parameter": "Parameter",
+      "from": "From",
+      "to": "To",
+      "overridden": "Locked, overridden",
+      "moreChanges_one": "…and {{count}} more change.",
+      "moreChanges_other": "…and {{count}} more changes.",
+      "wholeGroup": "Whole group",
+      "removed": "Cell removed",
+      "override": "Override"
+    },
+    "joiner": ", ",
+    "actions": {
+      "student": {
+        "create": "Added student {{name}}{{code}}",
+        "update": "Renamed student to {{name}}{{code}}",
+        "deleteNamed": "Deleted student {{name}}{{code}}",
+        "deleteUnnamed": "Deleted a student",
+        "import_one": "Imported {{count}} student from a file",
+        "import_other": "Imported {{count}} students from a file",
+        "importSkipped_one": "{{count}} row skipped",
+        "importSkipped_other": "{{count}} rows skipped"
+      },
+      "teacher": {
+        "create": "Added a teacher",
+        "update": "Updated a teacher",
+        "archive": "Archived a teacher"
+      },
+      "interval": {
+        "create": "Added a schedule interval",
+        "update": "Updated a schedule interval",
+        "archive": "Archived a schedule interval"
+      },
+      "assignment": {
+        "create": "Added a schedule assignment",
+        "update": "Updated a schedule assignment",
+        "archive": "Archived a schedule assignment"
+      },
+      "session": {
+        "generate_one": "Generated {{count}} planned session up to {{until}}",
+        "generate_other": "Generated {{count}} planned sessions up to {{until}}",
+        "update": "Updated a session"
+      },
+      "task": {
+        "create": "Added a task",
+        "update": "Updated a task",
+        "delete": "Deleted a task",
+        "assign_template": "Added tasks to a session from a template"
+      },
+      "task_template": {
+        "create": "Added a task template",
+        "update": "Updated a task template",
+        "archive": "Archived a task template"
+      },
+      "alert": {
+        "scan": "Scanned sessions: {{raised}} alerts raised, {{resolved}} resolved",
+        "update": "Updated an alert"
+      },
+      "parameter": {
+        "create": "Added parameter {{name}}, used from Period {{period}} on",
+        "update": "Edited parameter {{name}}"
+      },
+      "parameter_change": {
+        "create": {
+          "add": {
+            "thisPeriod": "Added {{name}} for this period only, Period {{periodNumber}}",
+            "fromHereOn": "Added {{name}} from this period on, Period {{periodNumber}}"
+          },
+          "remove": {
+            "thisPeriod": "Removed {{name}} for this period only, Period {{periodNumber}}",
+            "fromHereOn": "Removed {{name}} from this period on, Period {{periodNumber}}"
+          }
+        },
+        "delete": "Undid a parameter change"
+      },
+      "settings": {
+        "period_anchor": "Set the period start date to {{date}}"
+      },
+      "scores": {
+        "save": {
+          "saved_one": "Saved {{count}} cell in session {{sessionCode}}",
+          "saved_other": "Saved {{count}} cells in session {{sessionCode}}",
+          "imported_one": "Imported {{count}} cell from a file into session {{sessionCode}}",
+          "imported_other": "Imported {{count}} cells from a file into session {{sessionCode}}",
+          "overrideSuffix": "including locked scores changed with an override: \"{{reason}}\""
+        }
+      },
+      "auth": {
+        "login": "Signed in",
+        "login_failed": "Failed sign-in attempt for \"{{username}}\"",
+        "logout": "Signed out",
+        "password_change": "Changed their password"
+      },
+      "api": {
+        "change": "{{method}} {{path}}"
+      },
+      "user": {
+        "create": "Created {{role}} account \"{{username}}\" ({{fullName}})",
+        "update": "Updated user \"{{username}}\"",
+        "updateRole": "role {{from}} → {{to}}",
+        "updateReactivated": "reactivated",
+        "updateDeactivated": "deactivated",
+        "updateRenamed": "renamed to {{name}}",
+        "updateNone": "no changes",
+        "password_reset": "Reset the password of \"{{username}}\""
+      },
+      "role": {
+        "create": "Created role \"{{name}}\"",
+        "update": "Updated role \"{{name}}\"",
+        "updateRenamed": "Renamed role \"{{from}}\" to \"{{name}}\"",
+        "delete": "Deleted role \"{{name}}\""
+      },
+      "group": {
+        "create": "Created group \"{{name}}\"",
+        "update": "Updated group \"{{name}}\"",
+        "archive": "Archived group \"{{name}}\"",
+        "members": "Group \"{{name}}\" members",
+        "membersAdded_one": "{{count}} added",
+        "membersAdded_other": "{{count}} added",
+        "membersRemoved_one": "{{count}} removed",
+        "membersRemoved_other": "{{count}} removed",
+        "membersNone": "Group \"{{name}}\" members: no change"
+      },
+      "field": {
+        "create": "Added custom field \"{{label}}\"",
+        "update": "Updated custom field \"{{label}}\"",
+        "archive": "Archived custom field \"{{label}}\""
+      },
+      "cafe_product": {
+        "create": "Added cafe product \"{{name}}\"",
+        "update": "Updated cafe product \"{{name}}\""
+      },
+      "cafe_supplier": {
+        "create": "Added cafe supplier \"{{name}}\"",
+        "update": "Updated cafe supplier \"{{name}}\""
+      },
+      "cafe_purchase": {
+        "create": "Recorded cafe purchase ({{lineCount}} lines, {{total}} Toman)"
+      },
+      "cafe_sale": {
+        "create": "Recorded cafe sale ({{lineCount}} lines, {{total}} Toman)",
+        "void": "Voided cafe sale ({{total}} Toman)"
+      },
+      "cafe_waste": {
+        "create": "Recorded cafe waste (qty {{qty}}, value {{costValue}} Toman)"
+      },
+      "cafe_adjustment": {
+        "create": "Recorded cafe stock adjustment ({{qty}})"
+      },
+      "cafe_balance": {
+        "topup": "Topped up cafe balance by {{amount}} Toman (after: {{balanceAfter}})",
+        "refund": "Refunded cafe balance by {{amount}} Toman (after: {{balanceAfter}})",
+        "adjustment": "Adjusted cafe balance by {{amount}} Toman (after: {{balanceAfter}})"
+      },
+      "accounting": {
+        "opening_balance": "Generated opening balance entry #{{entryNumber}}"
+      },
+      "accounting_account": {
+        "create": "Added account \"{{name}}\" ({{code}})",
+        "update": "Updated an account"
+      },
+      "accounting_mapping": {
+        "update": "Updated accounting mapping \"{{eventKey}}\""
+      },
+      "accounting_entry": {
+        "create": "Created journal entry #{{entryNumber}}",
+        "update": "Updated draft journal entry",
+        "post": "Posted journal entry",
+        "void": "Voided journal entry: \"{{reason}}\"",
+        "delete": "Deleted draft journal entry"
+      },
+      "accounting_period": {
+        "create": "Created fiscal period \"{{name}}\"",
+        "close": "Closed fiscal period \"{{name}}\" (net income: {{netIncome}} Toman)"
+      }
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "periodsTitle": "Periods",
+    "periodsIntro": "Evaluations are grouped into periods. Each period is one week, from Saturday to Friday, numbered from Period 1. Period 1 starts on the date below.",
+    "saved": "Saved."
+  },
+  "fields": {
+    "readOnlyTitle": "Read-only access",
+    "readOnlyDescription": "You do not have permission to manage custom fields.",
+    "title": "Custom fields",
+    "hint": "Add your own fields to student records — a phone number, a join date, a squad. Restricted fields are hidden from people without permission to see them.",
+    "addTitle": "Add a field",
+    "listTitle": "Fields",
+    "label": "Field label",
+    "type": "Type",
+    "types": {
+      "text": "Short text",
+      "long_text": "Long text",
+      "number": "Number",
+      "date": "Date",
+      "yes_no": "Yes / No",
+      "choice": "Choice"
+    },
+    "choices": "Choices (one per line)",
+    "restricted": "Restricted — only people allowed to see restricted fields can view this",
+    "restrictedShort": "Restricted",
+    "typeHint": "The type cannot be changed after the field is created. Pick carefully.",
+    "adding": "Adding…",
+    "submit": "Add field",
+    "empty": "No custom fields yet.",
+    "archiveConfirm": "Archive the \"{{label}}\" field?",
+    "colLabel": "Label",
+    "colType": "Type",
+    "colChoices": "Choices",
+    "colVisibility": "Visibility"
+  },
+  "groups": {
+    "readOnlyTitle": "Read-only access",
+    "readOnlyDescription": "You do not have permission to manage groups.",
+    "title": "Groups",
+    "hint": "Organise students into groups and subgroups (any depth). Filtering by a group includes everyone in its subgroups too.",
+    "addTitle": "Add a group",
+    "listTitle": "Groups",
+    "name": "Group name",
+    "inside": "Inside",
+    "topLevel": "(top level)",
+    "adding": "Adding…",
+    "submit": "Add group",
+    "empty": "No groups yet.",
+    "colGroup": "Group",
+    "colMembers": "Members",
+    "membersTitle": "Members of {{name}}",
+    "inThisGroup": "In this group",
+    "noStudents": "No students yet.",
+    "remove": "Remove",
+    "pastMembers": "Past members",
+    "reAdd": "Re-add",
+    "addStudents": "Add students",
+    "searchPlaceholder": "Search by name or code",
+    "searchLabel": "Search students to add",
+    "rename": "Rename",
+    "renameLabel": "Rename {{name}}",
+    "moveLabel": "Move {{name}}",
+    "move": "Move",
+    "members": "Members",
+    "archiveConfirm": "Archive \"{{name}}\"?"
+  },
+  "teachers": {
+    "title": "Teachers",
+    "hint": "The teaching staff, each with a full identity record.",
+    "addTitle": "Add a teacher",
+    "searchPlaceholder": "Search by name, code or national ID",
+    "searchLabel": "Search teachers",
+    "includeArchived": "Include archived",
+    "emptyTitle": "No teachers",
+    "emptyDescription": "Add the first teacher with the form above.",
+    "colFullName": "Full name",
+    "colBirthDate": "Birth date",
+    "colNationalId": "National ID",
+    "fullName": "Full name",
+    "birthDate": "Birth date",
+    "nationalId": "National ID",
+    "saveEdit": "Save teacher",
+    "addSubmit": "Add teacher",
+    "added": "Added {{name}}."
+  },
+  "schedule": {
+    "title": "Schedule",
+    "hint": "Recurring assignments: a teacher meets a group or one student, on a rhythm, from a start date.",
+    "addTitle": "Add an assignment",
+    "includeArchived": "Include archived",
+    "emptyTitle": "No assignments yet",
+    "emptyCanForm": "Add the first recurring assignment with the form above.",
+    "emptyNoForm": "An administrator needs to set up the schedule first.",
+    "colName": "Name",
+    "colTeacher": "Teacher",
+    "colTarget": "Target",
+    "colEvery": "Every",
+    "colAnchor": "Anchor",
+    "colNext": "Next",
+    "everyMonth_one": "{{count}} month",
+    "everyMonth_other": "{{count}} months",
+    "everyDay_one": "{{count}} day",
+    "everyDay_other": "{{count}} days",
+    "targetGroup": "Group {{name}}",
+    "targetStudent": "{{student}} ({{group}})",
+    "form": {
+      "teacher": "Teacher",
+      "chooseTeacher": "Choose a teacher…",
+      "every": "Every",
+      "chooseInterval": "Choose an interval…",
+      "anchor": "Starting from (anchor date)",
+      "nameOptional": "Name (optional)",
+      "namePlaceholder": "e.g. Monday maths",
+      "targetEditHint": "Target: {{target}} — archive this assignment and create a new one to change the target.",
+      "target": "Target",
+      "wholeGroup": "Whole group",
+      "oneStudent": "One student",
+      "group": "Group",
+      "chooseGroup": "Choose a group…",
+      "student": "Student",
+      "searchPlaceholder": "Search by name or code",
+      "choose": "Choose",
+      "membershipLabel": "Which group membership",
+      "whichGroup": "Which group?…",
+      "change": "Change",
+      "noLiveGroup": "This student is not currently in any live group.",
+      "save": "Save assignment",
+      "add": "Add assignment",
+      "added": "Assignment added."
+    },
+    "intervals": {
+      "title": "Session intervals",
+      "colName": "Name",
+      "colEvery": "Every",
+      "newName": "New interval name",
+      "namePlaceholder": "e.g. Weekly",
+      "everyLabel": "Every",
+      "unitLabel": "Unit",
+      "unitDays": "days",
+      "unitMonths": "months",
+      "adding": "Adding…",
+      "add": "Add interval"
+    }
+  },
+  "sessions": {
+    "title": "Sessions",
+    "hint": "The generated occurrences of the schedule: move, cancel or annotate them as reality shifts.",
+    "generate": {
+      "title": "Generate sessions",
+      "untilLabel": "Create planned sessions until",
+      "button": "Generate",
+      "generating": "Generating…",
+      "allExist": "Everything in that range already exists.",
+      "created_one": "Created {{count}} session.",
+      "created_other": "Created {{count}} sessions."
+    },
+    "scan": {
+      "button": "Scan for unconfirmed sessions",
+      "scanning": "Scanning…",
+      "hint": "Flag past sessions that have no record — not canceled, no note, no tasks.",
+      "nothing": "Nothing to report — every past session has a record.",
+      "result_one": "Raised {{raised}} new alert, resolved {{resolved}}.",
+      "result_other": "Raised {{raised}} new alerts, resolved {{resolved}}."
+    },
+    "from": "From",
+    "to": "To",
+    "allTeachers": "All teachers",
+    "filterTeacher": "Filter by teacher",
+    "canceled": "Canceled",
+    "archived": "Archived",
+    "truncated": "Showing the first 500 sessions; narrow the date range to see more.",
+    "emptyTitle": "No sessions in this range",
+    "emptyCanManage": "Generate the planned sessions with the button above.",
+    "emptyNoManage": "Ask an administrator to generate the schedule.",
+    "colDate": "Date",
+    "colTeacher": "Teacher",
+    "colTarget": "Target",
+    "colPeriod": "Period",
+    "colNote": "Note",
+    "targetGroup": "Group {{name}}",
+    "movedFrom": "(moved from {{date}})",
+    "canceledMark": " — canceled",
+    "unconfirmed": "Unconfirmed",
+    "periodValue": "№ {{number}}",
+    "tasksButton": "Tasks ({{count}})",
+    "resolveAlert": "Resolve alert",
+    "edit": {
+      "takesPlaceOn": "Takes place on",
+      "keepPlanned": "Leave empty to keep the planned date ({{date}}).",
+      "canceled": "Canceled",
+      "note": "Note",
+      "save": "Save session"
+    },
+    "tasksPanel": {
+      "title": "Tasks for {{date}} ({{code}})",
+      "empty": "No tasks yet for this session.",
+      "newTask": "New task",
+      "titlePlaceholder": "e.g. Homework check",
+      "descOptional": "Description (optional)",
+      "adding": "Adding…",
+      "add": "Add task",
+      "fromTemplateLabel": "Add from a template",
+      "fromTemplatePlaceholder": "From a template…",
+      "addFromTemplate": "Add from template"
+    },
+    "templates": {
+      "title": "Task templates",
+      "empty": "No templates yet — add one below, then attach it to any session.",
+      "colTitle": "Title",
+      "colDescription": "Description",
+      "newTemplate": "New template",
+      "titlePlaceholder": "e.g. Weekly quiz",
+      "descOptional": "Description (optional)",
+      "adding": "Adding…",
+      "add": "Add template"
+    },
+    "alertsCard": {
+      "title": "Sessions needing attention",
+      "hint": "These sessions have passed with no record — not canceled, no note, no tasks.",
+      "resolve": "Resolve",
+      "showing_one": "Showing the first {{shown}} of {{total}} open alert.",
+      "showing_other": "Showing the first {{shown}} of {{total}} open alerts.",
+      "sessionsLink": "Sessions",
+      "scanNow": "Scan now",
+      "scanning": "Scanning…"
+    }
+  },
+  "password": {
+    "title": "Change password",
+    "tempNotice": "You are using a temporary password. Choose a new one to continue.",
+    "current": "Current password",
+    "new": "New password",
+    "repeat": "Repeat new password",
+    "submit": "Change password",
+    "saving": "Saving…",
+    "tooShort": "The new password must be at least {{min}} characters.",
+    "mismatch": "The two new passwords do not match.",
+    "success": "Password changed. Your other sessions were signed out.",
+    "hint": "Use at least {{min}} characters. Several random words work well."
+  },
+  "preferences": {
+    "title": "Preferences",
+    "hint": "These settings are yours alone, and follow you to any computer. Changes are saved as soon as you make them.",
+    "statusSaving": "Saving…",
+    "statusSaveError": "Could not save: {{message}}",
+    "statusResetError": "Could not reset: {{message}}",
+    "statusSaved": "Saved.",
+    "appearance": "Appearance",
+    "appearanceHint": "Choose light or dark, then pick a palette that recolors the whole app.",
+    "theme": "Theme",
+    "themes": {
+      "system": "Match my device",
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "palette": "Palette",
+    "paletteHint": "Recolors the whole interface — the sidebar, surfaces, and highlight color. Each palette has a light and a dark version, so the theme setting above still applies.",
+    "palettes": {
+      "aurora": "Aurora",
+      "gradebook": "Gradebook",
+      "midnight": "Midnight",
+      "ember": "Ember",
+      "meadow": "Meadow",
+      "cobalt": "Cobalt",
+      "crimson": "Crimson"
+    },
+    "studentsList": "Students list",
+    "rowsPerPage": "Rows per page",
+    "sortBy": "Sort by",
+    "sorts": {
+      "newest": "Newest first",
+      "oldest": "Oldest first",
+      "name": "Name (A to Z)",
+      "code": "Student code"
+    },
+    "showCode": "Show the code column",
+    "showAdded": "Show the \"Added\" column",
+    "sortHint": "The sort order also applies on the Evaluate page.",
+    "studentPage": "Student page",
+    "openOn": "Open on",
+    "tabs": {
+      "overview": "Overview",
+      "period": "By period",
+      "parameter": "By parameter"
+    },
+    "showAllPeriods": "Show all periods in the overview, not just from the first score",
+    "parametersShown": "Parameters shown in the overview",
+    "noParameters": "No parameters yet.",
+    "hiddenStillShown": "Hidden parameters still appear in the \"By period\" and \"By parameter\" views.",
+    "export": "Spreadsheet export",
+    "separator": "Separator between columns",
+    "sepComma": "Comma ( , )",
+    "sepSemicolon": "Semicolon ( ; )",
+    "exportHint": "If your spreadsheet opens an export with everything in one column, switch to the other separator. Programs set up for regions that write decimals with commas usually expect semicolons.",
+    "resetTitle": "Reset preferences",
+    "resetHint": "Put every preference above back to its default. This only affects your own settings.",
+    "resetBtn": "Reset all to defaults",
+    "resetConfirm": "Reset all your preferences to the defaults?"
+  }
+}

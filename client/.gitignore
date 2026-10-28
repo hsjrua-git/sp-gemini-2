@@ -1,0 +1,30 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Capacitor native platforms (regenerated locally with `npx cap add <platform>`
+# — see MOBILE.md). They are build outputs derived from dist/ + capacitor.config,
+# so they are not tracked. Delete these two lines if you prefer to commit them.
+android
+ios

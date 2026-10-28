@@ -1,0 +1,68 @@
+{
+  "title": "Cafe",
+  "hint": "Manage the cafe's products and suppliers. Deactivated items are kept and come back when reactivated.",
+  "includeInactive": "Include inactive",
+  "money": {
+    "unit": "Toman"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "actions": {
+    "deactivate": "Deactivate",
+    "reactivate": "Reactivate"
+  },
+  "products": {
+    "title": "Products",
+    "emptyTitle": "No products yet",
+    "emptyDescription": "Add the first product with the form above.",
+    "colPrice": "Price",
+    "colAvgCost": "Average cost",
+    "colStatus": "Status",
+    "name": "Product name",
+    "price": "Price ({{unit}})",
+    "pricePlaceholder": "e.g. 25000",
+    "sortOrder": "Sort order (optional)",
+    "sortOrderPlaceholder": "e.g. 10",
+    "saveEdit": "Save product",
+    "addSubmit": "Add product",
+    "added": "Added \"{{name}}\".",
+    "invalidPrice": "The price must be a whole number of Toman (0 or more).",
+    "invalidSortOrder": "The sort order must be a whole number of 0 or more."
+  },
+  "suppliers": {
+    "title": "Suppliers",
+    "emptyTitle": "No suppliers yet",
+    "emptyDescription": "Add the first supplier with the form above.",
+    "colPhone": "Phone",
+    "colStatus": "Status",
+    "name": "Supplier name",
+    "phone": "Phone (optional)",
+    "note": "Note (optional)",
+    "saveEdit": "Save supplier",
+    "addSubmit": "Add supplier",
+    "added": "Added \"{{name}}\"."
+  },
+  "balance": {
+    "title": "Cafe balance",
+    "current": "Current balance",
+    "inDebt": "In debt",
+    "kind": "Transaction type",
+    "kinds": {
+      "topup": "Top-up",
+      "refund": "Refund",
+      "adjustment": "Adjustment",
+      "charge": "Charge"
+    },
+    "amount": "Amount (Toman)",
+    "amountHint": "Whole Toman; for an adjustment include the sign (e.g. -5000).",
+    "note": "Note (optional)",
+    "submit": "Record",
+    "saved": "Recorded; new balance: {{balance}}",
+    "when": "When",
+    "kindCol": "Type",
+    "after": "Balance after",
+    "truncated": "Only the last 100 transactions are shown."
+  }
+}

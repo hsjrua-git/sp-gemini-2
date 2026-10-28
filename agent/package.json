@@ -1,0 +1,16 @@
+{
+  "name": "student-panel-voice-agent",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Fully-local Persian voice agent for the Student Panel cafe counter (see docs/voice-agent-architecture.md)",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "start:text": "node src/index.js --text",
+    "test": "node --test test/*.test.js",
+    "smoke": "node scripts/liveSmoke.mjs"
+  }
+}

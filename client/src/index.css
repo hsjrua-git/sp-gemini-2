@@ -1,0 +1,4453 @@
+/* ============================================================================
+   Student Panel — interface styles
+
+   The signature aesthetic (the out-of-box default, dark-first): a neutral
+   grey/charcoal spine beside a workspace lit by a faint top-edge ambient glow,
+   with glass surfaces floating over it and one accent hue (orange by default;
+   cool-blue in Cobalt, crimson in Crimson). Type is Manrope (self-hosted
+   variable font). Everything is driven by the design tokens below, so
+   light/dark theming, the selectable palettes (see section 1), and future
+   tweaks happen in one place. Motion is soft and slow, and fully removed under
+   prefers-reduced-motion (see the end of file).
+
+   Sections:
+     1. Design tokens (light + dark) + palettes
+     2. Base elements (typography, forms, tables, buttons)
+     3. App shell (sidebar, drawer, topbar, account menu)
+     4. Components (cards, tabs, panels, evaluation grid, badges, charts …)
+     5. Utilities, focus, motion
+   ============================================================================ */
+
+/* ------------------------------------------------------------------- font - */
+/* Manrope — self-hosted variable font (latin subset, weight axis 200–800).
+   Served from our own origin by Vite's asset pipeline, so it satisfies the
+   `font-src 'self'` CSP with no external requests (works on an offline LAN).
+   `font-display: swap` paints the fallback stack immediately, then swaps —
+   no invisible-text flash. One file covers every weight the UI uses. */
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url('./assets/fonts/manrope-variable.woff2') format('woff2');
+}
+
+/* Vazirmatn — self-hosted Persian face (four static weights; the project's
+   weights land on 400/500/600/700 and the browser snaps the few in-between
+   micro-weights to the nearest). Same self-origin story as Manrope: no
+   external requests, CSP font-src 'self' holds on an offline LAN. It only
+   leads the stack while <html lang> is Persian — see the [lang='fa'] block
+   below the tokens. */
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./assets/fonts/vazirmatn-Regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('./assets/fonts/vazirmatn-Medium.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('./assets/fonts/vazirmatn-SemiBold.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./assets/fonts/vazirmatn-Bold.woff2') format('woff2');
+}
+
+/* ------------------------------------------------------------------ tokens - */
+:root {
+  color-scheme: light;
+
+  /* Neutral grey base (CyFocus reference): surfaces carry no warm tint — the
+     only color in the shell comes from the palette-hued top-edge glow and the
+     orange brand accent. */
+  --paper: #f4f5f7;
+  --surface: #ffffff;
+  --surface-2: #eef0f3;
+  --surface-3: #e4e7ec;
+
+  --ink: #191c21;
+  --ink-soft: #565c66;
+  /* Tuned so muted/secondary text clears WCAG AA (4.5:1) on the light grey
+     surfaces; the softer step above (--ink-soft) sits comfortably higher. */
+  --ink-faint: #6b7079;
+
+  --line: #e6e8ec;
+  --line-strong: #d2d6dd;
+
+  /* Orange is demoted to an accent + the ambient glow only — it no longer
+     tints the neutrals. */
+  --brand: #cf4c0d;
+  --brand-strong: #a83a0a;
+  --brand-ink: #ffffff;
+  --brand-soft: #fce3d0;
+  /* Warmer secondary accent (amber) used for gradients/glow only. */
+  --brand-2: #f59e0b;
+
+  --ok: #1f9d63;
+  --ok-soft: #e4f5ec;
+  --danger: #d5443a;
+  --danger-soft: #fbe8e6;
+  --warn: #b8790a;
+  --warn-soft: #fbefd3;
+
+  /* The sidebar keeps its own dark neutral spine in both themes: it is the
+     app's visual anchor. Grey, not warm-charcoal. */
+  --sidebar-bg: #16181d;
+  --sidebar-edge: #2a2d34;
+  --sidebar-ink: #e6e8ec;
+  --sidebar-ink-soft: #9aa0aa;
+  --sidebar-hover: rgba(255, 255, 255, 0.06);
+  --sidebar-active-bg: rgba(249, 130, 46, 0.2);
+  --sidebar-active-ink: #ffffff;
+  --sidebar-active-bar: #f9822e;
+
+  --radius-lg: 16px;
+  --radius: 10px;
+  --radius-sm: 8px;
+
+  --shadow-sm: 0 1px 2px rgba(18, 20, 24, 0.07);
+  --shadow-md: 0 8px 24px -10px rgba(18, 20, 24, 0.22);
+  --shadow-pop: 0 18px 44px -14px rgba(14, 16, 20, 0.32);
+
+  /* Glass + aurora glow. These reference --surface / --brand / --brand-2, and
+     custom properties resolve var() lazily at use-time against the element's
+     own computed values, so the glass surfaces and the page glow re-tint
+     automatically across every theme and palette without being restated. */
+  --glass-bg: color-mix(in srgb, var(--surface) 82%, transparent);
+  --glass-blur: saturate(1.3) blur(14px);
+  --glass-border: color-mix(in srgb, var(--line) 65%, transparent);
+  --glow-1: color-mix(in srgb, var(--brand) 15%, transparent);
+  --glow-2: color-mix(in srgb, var(--brand-2, var(--brand)) 11%, transparent);
+
+  /* Spacing scale — one 4px-based rhythm so every gap/padding/margin snaps to the
+     same ladder instead of ad-hoc rem values. Structural rules reference these
+     (--space-1 … --space-8 → 4/8/12/16/20/24/32/48px); leaf components may still
+     tune locally, but the app-wide rhythm and hierarchy come from this scale. */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-7: 2rem;
+  --space-8: 3rem;
+
+  --sidebar-w: 250px;
+  --content-max: 880px;
+
+  /* Motion is calm and slow everywhere (CyFocus reference): no fast transition
+     anywhere in the app. --t-fast covers small feedback (presses), --t the
+     everyday transitions; both sit in the slow, settled range. The universal
+     reduced-motion block at the end of the file still zeroes all of it. */
+  --t-fast: 320ms;
+  --t: 480ms;
+  --ease: cubic-bezier(0.33, 1, 0.68, 1);
+
+  /* Manrope leads; the platform UI stack is the fallback while the font swaps
+     in and the safety net if it ever fails to load. --font-numeric is the same
+     family with lining tabular figures for KPI/table numbers that must align. */
+  --font: 'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-numeric: 'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto,
+    sans-serif;
+  --font-fa: 'Vazirmatn', 'Manrope', system-ui, -apple-system, 'Segoe UI',
+    Roboto, sans-serif;
+
+  font-family: var(--font);
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+
+  /* Mobile/webview hardening: keep the browser from rescaling our text after an
+     orientation change, kill the grey tap flash on touch, and stop the whole
+     app from rubber-band scrolling behind fixed chrome (topbar/drawer). */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+
+/* While the UI language is Persian, Vazirmatn leads the interface stack (its
+   Latin glyphs companion well with its Persian). --font-numeric deliberately
+   stays Manrope-first: tabular KPI/table numbers keep lining Latin digits
+   even in the Persian UI; Persian digits appear in prose contexts only. */
+:root[lang='fa'] {
+  --font: var(--font-fa);
+}
+
+/* Dark theme: applied when the user picks Dark, or picks System and the OS is
+   dark. The sidebar tokens shift only slightly — it stays dark by design. */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --paper: #121316;
+  --surface: #1a1c20;
+  --surface-2: #212429;
+  --surface-3: #2a2e35;
+
+  --ink: #eceef1;
+  --ink-soft: #b0b5bd;
+  /* Clears WCAG AA on the dark grey surfaces; --ink-faint sits ~6:1. */
+  --ink-faint: #8b9099;
+
+  --line: #2a2d33;
+  --line-strong: #3a3e46;
+
+  --brand: #f97316;
+  --brand-strong: #fb9a4b;
+  --brand-ink: #1c1206;
+  --brand-soft: rgba(249, 115, 22, 0.18);
+  --brand-2: #f5b544;
+
+  --ok: #46c187;
+  --ok-soft: rgba(70, 193, 135, 0.14);
+  --danger: #f0776b;
+  --danger-soft: rgba(240, 119, 107, 0.14);
+  --warn: #e0a53a;
+  --warn-soft: rgba(224, 165, 58, 0.16);
+
+  --sidebar-bg: #0e0f12;
+  --sidebar-edge: #22252b;
+  --sidebar-ink: #e6e8ec;
+  --sidebar-ink-soft: #969ba4;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px -10px rgba(0, 0, 0, 0.6);
+  --shadow-pop: 0 18px 44px -14px rgba(0, 0, 0, 0.72);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme='system'] {
+    color-scheme: dark;
+
+    --paper: #121316;
+    --surface: #1a1c20;
+    --surface-2: #212429;
+    --surface-3: #2a2e35;
+
+    --ink: #eceef1;
+    --ink-soft: #b0b5bd;
+    /* Clears WCAG AA on the dark grey surfaces; --ink-faint sits ~6:1. */
+    --ink-faint: #8b9099;
+
+    --line: #2a2d33;
+    --line-strong: #3a3e46;
+
+    --brand: #f97316;
+    --brand-strong: #fb9a4b;
+    --brand-ink: #1c1206;
+    --brand-soft: rgba(249, 115, 22, 0.18);
+    --brand-2: #f5b544;
+
+    --ok: #46c187;
+    --ok-soft: rgba(70, 193, 135, 0.14);
+    --danger: #f0776b;
+    --danger-soft: rgba(240, 119, 107, 0.14);
+    --warn: #e0a53a;
+    --warn-soft: rgba(224, 165, 58, 0.16);
+
+    --sidebar-bg: #0e0f12;
+    --sidebar-edge: #22252b;
+    --sidebar-ink: #e6e8ec;
+    --sidebar-ink-soft: #969ba4;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 8px 24px -10px rgba(0, 0, 0, 0.6);
+    --shadow-pop: 0 18px 44px -14px rgba(0, 0, 0, 0.72);
+  }
+}
+
+/* -------------------------------------------------------------- palettes - */
+/* A palette recolors the WHOLE interface — neutrals, ink, lines, the brand
+   accent, and the sidebar spine — not just the highlight color. Each palette
+   ships a light and a dark variant so the Theme toggle (light/dark/system)
+   still works within it. 'aurora' is the default and sets NO [data-palette]
+   attribute, so the hand-tuned tokens at the top of this file apply untouched.
+   'gradebook' (the previous default) is now a selectable palette that restores
+   that earlier calm indigo-on-paper look exactly.
+
+   Only the tokens that differ from the base are restated; status colors
+   (ok/danger/warn), shadows, and the glass/glow tokens intentionally fall
+   through to the base light or dark blocks. --brand-ink also falls through
+   (#fff in light, near-black in dark), which suits every brand hue here.
+
+   Specificity note: :root[data-palette='x'] (0,2,0) equals :root[data-theme=
+   'dark'] (0,2,0). Placed AFTER the dark blocks, a light palette would wrongly
+   win in dark mode, so the dark variants below use the (0,3,0) selectors
+   :root[data-theme='dark'][data-palette='x'] and the matching system-dark
+   media query to reclaim dark mode. */
+:root[data-palette] {
+  --brand-soft: color-mix(in srgb, var(--brand) 14%, var(--surface));
+  --sidebar-active-bg: color-mix(in srgb, var(--brand) 24%, transparent);
+  --sidebar-active-bar: var(--brand);
+  --sidebar-active-ink: #ffffff;
+  /* Non-default palettes glow in a single hue (their own brand) rather than
+     Aurora's two-tone indigo→cyan wash, so ember/meadow/midnight stay
+     chromatically coherent. */
+  --glow-2: color-mix(in srgb, var(--brand) 7%, transparent);
+}
+
+/* Gradebook — the previous default, preserved exactly: calm indigo accent on
+   near-white paper, flat background (glow suppressed for fidelity). */
+:root[data-palette='gradebook'] {
+  --paper: #f6f7fb;
+  --surface: #ffffff;
+  --surface-2: #eef1f7;
+  --surface-3: #e6eaf2;
+  --ink: #1b2233;
+  --ink-soft: #56607a;
+  --ink-faint: #646d82;
+  --line: #e4e8f0;
+  --line-strong: #cfd6e4;
+  --brand: #4f46e5;
+  --brand-strong: #4035c9;
+  --brand-soft: #ecebfc;
+  --sidebar-bg: #171c2b;
+  --sidebar-edge: #232a3d;
+  --sidebar-ink: #d5dae7;
+  --sidebar-ink-soft: #8b94ac;
+  --sidebar-active-bg: rgba(129, 121, 245, 0.18);
+  --sidebar-active-ink: #ffffff;
+  --sidebar-active-bar: #8179f5;
+  --glow-1: transparent;
+  --glow-2: transparent;
+  /* Cards stay fully opaque so gradebook matches the previous flat look. */
+  --glass-bg: var(--surface);
+}
+
+/* Midnight — deep navy shell, clear blue brand (light). */
+:root[data-palette='midnight'] {
+  --paper: #eef2fb;
+  --surface: #ffffff;
+  --surface-2: #e7edf9;
+  --surface-3: #dbe5f6;
+  --ink: #152039;
+  --ink-soft: #47567a;
+  --ink-faint: #586790;
+  --line: #dae2f2;
+  --line-strong: #c2cee6;
+  --brand: #2563eb;
+  --brand-strong: #1d4ed8;
+  --sidebar-bg: #0e1730;
+  --sidebar-edge: #1c2848;
+}
+/* Ember — warm charcoal shell, burnt-amber brand (light). */
+:root[data-palette='ember'] {
+  --paper: #faf6f1;
+  --surface: #fffdfb;
+  --surface-2: #f3ece3;
+  --surface-3: #ece2d6;
+  --ink: #2a2015;
+  --ink-soft: #6c5d4c;
+  --ink-faint: #7e6f5c;
+  --line: #ece1d4;
+  --line-strong: #dacbb8;
+  --brand: #c2410c;
+  --brand-strong: #9a3412;
+  --sidebar-bg: #1f1a15;
+  --sidebar-edge: #332a20;
+}
+/* Meadow — crisp neutrals, deep emerald brand (light). */
+:root[data-palette='meadow'] {
+  --paper: #f2f8f4;
+  --surface: #ffffff;
+  --surface-2: #e8f2eb;
+  --surface-3: #dbeae1;
+  --ink: #152420;
+  --ink-soft: #4a6058;
+  --ink-faint: #5c716a;
+  --line: #dbeae1;
+  --line-strong: #c2dacd;
+  --brand: #047857;
+  --brand-strong: #065f46;
+  --sidebar-bg: #0e241b;
+  --sidebar-edge: #1a4030;
+}
+
+/* Cobalt & Crimson — the CyFocus-style palettes. Unlike the four above, these
+   deliberately DON'T restate the neutrals: they keep the base grey/charcoal
+   shell and only re-hue the accent (--brand / --brand-strong) and the top-edge
+   glow. --brand drives --glow-1 (15% wash) and the derived --glow-2 / sidebar
+   accents via the common [data-palette] block above; --brand-2 must be set too
+   because the login screen's glow reads it directly (otherwise amber leaks). */
+
+/* Cobalt (palette "5") — charcoal shell, cool-blue accent + glow (light). */
+:root[data-palette='cobalt'] {
+  --brand: #1d6fe0;
+  --brand-strong: #1857b8;
+  --brand-2: #5aa2f5;
+}
+/* Crimson (palette "4") — near-black shell, crimson-red accent + glow (light). */
+:root[data-palette='crimson'] {
+  --brand: #d21f3c;
+  --brand-strong: #b01730;
+  --brand-2: #f2555a;
+}
+
+
+/* Dark variants: (0,3,0) selectors reclaim dark mode from the light palette
+   blocks above. Each restates the full neutral/ink/line/brand/sidebar set,
+   tuned for dark surfaces; status colors and --brand-ink fall through to the
+   dark base blocks. */
+:root[data-theme='dark'][data-palette='gradebook'] {
+  --paper: #0f131c;
+  --surface: #171c28;
+  --surface-2: #1e2432;
+  --surface-3: #262d3d;
+  --ink: #e7ebf3;
+  --ink-soft: #a6b0c4;
+  --ink-faint: #7f8aa2;
+  --line: #283040;
+  --line-strong: #384258;
+  --brand: #8b83f6;
+  --brand-strong: #a49dff;
+  --brand-soft: rgba(139, 131, 246, 0.16);
+  --sidebar-bg: #10141e;
+  --sidebar-edge: #1d2433;
+  --sidebar-ink: #d5dae7;
+  --sidebar-ink-soft: #828ca6;
+}
+:root[data-theme='dark'][data-palette='midnight'] {
+  --paper: #0a0f1e;
+  --surface: #111a30;
+  --surface-2: #172440;
+  --surface-3: #212f52;
+  --ink: #e7ecfa;
+  --ink-soft: #a6b3d2;
+  --ink-faint: #8090b3;
+  --line: #243250;
+  --line-strong: #334162;
+  --brand: #60a5fa;
+  --brand-strong: #93c5fd;
+  --sidebar-bg: #080d1c;
+  --sidebar-edge: #172340;
+}
+:root[data-theme='dark'][data-palette='ember'] {
+  --paper: #14100b;
+  --surface: #1e1812;
+  --surface-2: #29211a;
+  --surface-3: #352b20;
+  --ink: #f1e9df;
+  --ink-soft: #c4b5a2;
+  --ink-faint: #9d8f7c;
+  --line: #33291f;
+  --line-strong: #473a2b;
+  --brand: #fb923c;
+  --brand-strong: #fdba74;
+  --sidebar-bg: #100c07;
+  --sidebar-edge: #241d14;
+}
+:root[data-theme='dark'][data-palette='meadow'] {
+  --paper: #0a130f;
+  --surface: #101c16;
+  --surface-2: #16261e;
+  --surface-3: #203328;
+  --ink: #e5f0ea;
+  --ink-soft: #a5bdb1;
+  --ink-faint: #7f988c;
+  --line: #1e3228;
+  --line-strong: #2c4636;
+  --brand: #34d399;
+  --brand-strong: #6ee7b7;
+  --sidebar-bg: #081109;
+  --sidebar-edge: #163024;
+}
+
+/* Cobalt (dark) — the base charcoal neutrals fall through unchanged; only the
+   cool-blue accent is brightened for dark surfaces. */
+:root[data-theme='dark'][data-palette='cobalt'] {
+  --brand: #4f9df7;
+  --brand-strong: #7db4f9;
+  --brand-2: #4f9df7;
+}
+/* Crimson (dark) — a near-black shell (darker than the base charcoal) with a
+   luminous crimson accent + glow. */
+:root[data-theme='dark'][data-palette='crimson'] {
+  --paper: #0b0b0d;
+  --surface: #141416;
+  --surface-2: #1b1b1e;
+  --surface-3: #242427;
+  --ink: #ececee;
+  --ink-soft: #b0b2b6;
+  --ink-faint: #85888e;
+  --line: #262629;
+  --line-strong: #35353a;
+  --brand: #f2555a;
+  --brand-strong: #f57e82;
+  --brand-2: #f2555a;
+  --sidebar-bg: #08080a;
+  --sidebar-edge: #1e1e22;
+}
+
+@media (prefers-color-scheme: dark) {
+  /* System theme following the OS into dark: same dark palette tokens. */
+  :root[data-theme='system'][data-palette='gradebook'] {
+    --paper: #0f131c;
+    --surface: #171c28;
+    --surface-2: #1e2432;
+    --surface-3: #262d3d;
+    --ink: #e7ebf3;
+    --ink-soft: #a6b0c4;
+    --ink-faint: #7f8aa2;
+    --line: #283040;
+    --line-strong: #384258;
+    --brand: #8b83f6;
+    --brand-strong: #a49dff;
+    --brand-soft: rgba(139, 131, 246, 0.16);
+    --sidebar-bg: #10141e;
+    --sidebar-edge: #1d2433;
+    --sidebar-ink: #d5dae7;
+    --sidebar-ink-soft: #828ca6;
+  }
+  :root[data-theme='system'][data-palette='midnight'] {
+    --paper: #0a0f1e;
+    --surface: #111a30;
+    --surface-2: #172440;
+    --surface-3: #212f52;
+    --ink: #e7ecfa;
+    --ink-soft: #a6b3d2;
+    --ink-faint: #8090b3;
+    --line: #243250;
+    --line-strong: #334162;
+    --brand: #60a5fa;
+    --brand-strong: #93c5fd;
+    --sidebar-bg: #080d1c;
+    --sidebar-edge: #172340;
+  }
+  :root[data-theme='system'][data-palette='ember'] {
+    --paper: #14100b;
+    --surface: #1e1812;
+    --surface-2: #29211a;
+    --surface-3: #352b20;
+    --ink: #f1e9df;
+    --ink-soft: #c4b5a2;
+    --ink-faint: #9d8f7c;
+    --line: #33291f;
+    --line-strong: #473a2b;
+    --brand: #fb923c;
+    --brand-strong: #fdba74;
+    --sidebar-bg: #100c07;
+    --sidebar-edge: #241d14;
+  }
+  :root[data-theme='system'][data-palette='meadow'] {
+    --paper: #0a130f;
+    --surface: #101c16;
+    --surface-2: #16261e;
+    --surface-3: #203328;
+    --ink: #e5f0ea;
+    --ink-soft: #a5bdb1;
+    --ink-faint: #7f988c;
+    --line: #1e3228;
+    --line-strong: #2c4636;
+    --brand: #34d399;
+    --brand-strong: #6ee7b7;
+    --sidebar-bg: #081109;
+    --sidebar-edge: #163024;
+  }
+  /* Cobalt following the OS into dark: charcoal base falls through, blue accent. */
+  :root[data-theme='system'][data-palette='cobalt'] {
+    --brand: #4f9df7;
+    --brand-strong: #7db4f9;
+    --brand-2: #4f9df7;
+  }
+  /* Crimson following the OS into dark: near-black shell + crimson accent. */
+  :root[data-theme='system'][data-palette='crimson'] {
+    --paper: #0b0b0d;
+    --surface: #141416;
+    --surface-2: #1b1b1e;
+    --surface-3: #242427;
+    --ink: #ececee;
+    --ink-soft: #b0b2b6;
+    --ink-faint: #85888e;
+    --line: #262629;
+    --line-strong: #35353a;
+    --brand: #f2555a;
+    --brand-strong: #f57e82;
+    --brand-2: #f2555a;
+    --sidebar-bg: #08080a;
+    --sidebar-edge: #1e1e22;
+  }
+}
+
+/* -------------------------------------------------------------- base els - */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  /* Top-edge ambient glow (CyFocus reference): a wide, soft band of palette-hued
+     light spills down from the top edge over the neutral grey base. --glow-1/-2
+     are palette-tinted (orange→amber on the default, single-hue on other
+     palettes, transparent on gradebook), so the ambient light re-tints with the
+     theme. background-attachment: fixed anchors it to the viewport as content
+     scrolls, like a light source above the interface. */
+  background:
+    radial-gradient(
+      135% 52% at 50% -22%,
+      var(--glow-1),
+      transparent 60%
+    ),
+    radial-gradient(
+      80% 40% at 50% -12%,
+      var(--glow-2),
+      transparent 58%
+    ),
+    var(--paper);
+  background-attachment: fixed;
+  color: var(--ink);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  color: var(--ink);
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+}
+
+h1 {
+  font-size: 1.7rem;
+  font-weight: 750;
+  margin: 0 0 var(--space-4);
+}
+
+/* A .hint that sits directly under the page title is the page-intro subtitle:
+   pull it up so it hugs the title (~8px) instead of reading as a detached
+   paragraph. Only matches the bare-h1 intro pages — where the title lives in a
+   .page-head flex row, the hint is a sibling of that wrapper, not of the h1. */
+h1 + .hint {
+  margin-top: calc(var(--space-2) - var(--space-4));
+}
+
+h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0 0 var(--space-3);
+}
+
+h3 {
+  font-size: 1rem;
+  font-weight: 680;
+}
+
+a {
+  color: var(--brand);
+  text-underline-offset: 2px;
+}
+
+main {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-6) var(--space-8);
+}
+
+main.wide {
+  max-width: 1180px;
+}
+
+main.narrow {
+  max-width: 460px;
+}
+
+/* ---- sign-in screen ---- */
+/* The login route renders outside the app shell (no sidebar/topbar), so the
+   card floats on the aurora page wash. It reuses the same --glass-* family as
+   the topbar and cards, so the frosted look is consistent from the very first
+   screen a visitor sees. */
+main.auth-screen {
+  max-width: none;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem 1.25rem;
+  position: relative;
+  overflow: hidden;
+  /* The sign-in screen leads with the same palette-hued top-edge glow as the
+     app shell, over the neutral grey base, so the signature is consistent from
+     the first screen. Static — no drift. */
+  background:
+    radial-gradient(
+      130% 55% at 50% -20%,
+      color-mix(in srgb, var(--brand) 26%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      85% 42% at 50% -8%,
+      color-mix(in srgb, var(--brand-2, var(--brand)) 20%, transparent),
+      transparent 60%
+    ),
+    var(--paper);
+}
+
+/* A soft static glow sits high behind the card for a little extra depth — no
+   motion (the background stays still per the reference; the login glow does not
+   drift). */
+main.auth-screen::before {
+  content: '';
+  position: absolute;
+  inset: -25%;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(
+    620px 460px at 50% 8%,
+    color-mix(in srgb, var(--brand) 14%, transparent),
+    transparent 62%
+  );
+}
+
+.auth-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 400px;
+  padding: 2.25rem 2rem;
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: calc(var(--radius) + 4px);
+  box-shadow: var(--shadow-pop);
+  animation: auth-card-in 640ms var(--ease) both;
+}
+
+/* Pre-login language switcher, pinned to the card's top corner. Logical
+   insets only, so it mirrors automatically in RTL. */
+.auth-language {
+  position: absolute;
+  inset-inline-end: 1.25rem;
+  top: 1rem;
+  font-size: 0.78rem;
+}
+
+/* The dual-calendar date field: native Gregorian input + Jalali text input,
+   side by side, wrapping when narrow. The Jalali box is dir="ltr" so the
+   yyyy/mm/dd shape reads consistently in both languages. */
+.jalali-date-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+@keyframes auth-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+}
+
+.auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.5rem;
+}
+
+.auth-brand-name {
+  font-weight: 680;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.auth-title {
+  margin: 0 0 0.35rem;
+  font-size: 1.75rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+}
+
+.auth-subtitle {
+  margin: 0 0 1.75rem;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+
+section {
+  margin-bottom: 2rem;
+}
+
+/* Give stacked sections a clear seam so they read as distinct blocks rather
+   than one long run of content. Only between siblings, so a page's first
+   section still sits flush under its heading. */
+section + section {
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--line);
+}
+
+/* When a full section follows a run of control clusters (toolbars, the Columns
+   panel, a period picker), give it clear separation so the section's own
+   heading doesn't crowd the controls above it — this is the "filters sitting
+   too close under the view controls" gap. */
+:is(.toolbar, .views-bar, .filters, .panel, .period-picker) + section {
+  margin-top: 1.75rem;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* ------------------------------------------------------------- controls - */
+input,
+select,
+textarea {
+  font: inherit;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  transition:
+    border-color var(--t-fast) var(--ease),
+    box-shadow var(--t-fast) var(--ease),
+    background-color var(--t) var(--ease);
+}
+
+input {
+  flex: 1;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--ink-faint);
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+  border-color: var(--brand);
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-soft);
+}
+
+input:disabled,
+select:disabled,
+textarea:disabled {
+  background: var(--surface-2);
+  color: var(--ink-faint);
+  cursor: not-allowed;
+}
+
+select {
+  cursor: pointer;
+}
+
+/* Buttons. The neutral surface style is the default so pages don't fill up with
+   loud accent buttons; the genuinely primary action in each form is a submit
+   button, which gets the filled indigo treatment (add `.primary` to promote a
+   non-submit button). Specific components below (.tab, .link, .note-toggle,
+   .sort, and the shell buttons) reset this entirely. */
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  font: inherit;
+  font-weight: 560;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.9rem;
+  cursor: pointer;
+  transition:
+    background-color var(--t) var(--ease),
+    border-color var(--t) var(--ease),
+    box-shadow var(--t) var(--ease),
+    color var(--t) var(--ease),
+    transform var(--t-fast) var(--ease);
+}
+
+button:hover {
+  background: var(--surface-2);
+  border-color: var(--brand);
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  border-color: var(--line-strong);
+  background: var(--surface);
+}
+
+button[type='submit'],
+button.primary {
+  color: var(--brand-ink);
+  background: var(--brand);
+  border-color: transparent;
+  box-shadow:
+    0 1px 2px color-mix(in srgb, var(--brand) 22%, transparent),
+    0 3px 10px -3px color-mix(in srgb, var(--brand) 30%, transparent);
+}
+
+button[type='submit']:hover,
+button.primary:hover {
+  background: var(--brand-strong);
+  border-color: transparent;
+  transform: translateY(-1px);
+  box-shadow:
+    0 2px 4px color-mix(in srgb, var(--brand) 24%, transparent),
+    0 8px 18px -5px color-mix(in srgb, var(--brand) 34%, transparent);
+}
+
+/* Press settles from the hover-lift. The base `button:active` (translateY(1px))
+   is lower specificity than the primary :hover above, so without this the lift
+   would win while the button is both hovered and pressed; restate it here at
+   matching specificity, after :hover, so a click reads as a real press. */
+button[type='submit']:active,
+button.primary:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--brand) 22%, transparent);
+}
+
+button[type='submit']:disabled,
+button.primary:disabled {
+  background: var(--brand);
+  border-color: transparent;
+  box-shadow: none;
+}
+
+/* Destructive actions: outlined in the danger colour so they read as their own
+   tier, distinct from both the neutral secondary buttons and the filled
+   primary one. */
+button.danger {
+  color: var(--danger);
+  background: var(--surface);
+  border-color: color-mix(in srgb, var(--danger) 45%, var(--line-strong));
+}
+
+button.danger:hover {
+  color: var(--danger);
+  background: var(--danger-soft);
+  border-color: var(--danger);
+}
+
+/* Link styled as a button: a <Link>/<a> that is really a primary navigation
+   action ("Add student", "Enter scores", "Go to Settings") should read as a
+   button, not as body-text underline. Mirrors the button tiers — .btn is the
+   neutral surface tier, .btn.primary the filled accent. */
+a.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font: inherit;
+  font-weight: 560;
+  text-decoration: none;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.9rem;
+  cursor: pointer;
+  transition:
+    background-color var(--t) var(--ease),
+    border-color var(--t) var(--ease),
+    box-shadow var(--t) var(--ease),
+    color var(--t) var(--ease),
+    transform var(--t-fast) var(--ease);
+}
+
+a.btn:hover {
+  color: var(--ink);
+  background: var(--surface-2);
+  border-color: var(--brand);
+}
+
+a.btn:active {
+  transform: translateY(1px);
+}
+
+a.btn.primary {
+  color: var(--brand-ink);
+  background: var(--brand);
+  border-color: transparent;
+  box-shadow:
+    0 1px 2px color-mix(in srgb, var(--brand) 22%, transparent),
+    0 3px 10px -3px color-mix(in srgb, var(--brand) 30%, transparent);
+}
+
+a.btn.primary:hover {
+  color: var(--brand-ink);
+  background: var(--brand-strong);
+  border-color: transparent;
+  transform: translateY(-1px);
+  box-shadow:
+    0 2px 4px color-mix(in srgb, var(--brand) 24%, transparent),
+    0 8px 18px -5px color-mix(in srgb, var(--brand) 34%, transparent);
+}
+
+/* Same press-settle as the primary <button>: restate :active after :hover at
+   matching specificity so a click overrides the hover-lift. */
+a.btn.primary:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--brand) 22%, transparent);
+}
+
+/* Quiet tier: low-emphasis actions (Reset, Remove) and navigation "options"
+   (pager Previous/Next). No resting border or fill, so they sit visually below
+   the bordered secondary buttons and clearly aren't primary commands. */
+button.quiet,
+.pager button,
+.period-picker button {
+  color: var(--ink-soft);
+  background: transparent;
+  border-color: transparent;
+  font-weight: 540;
+}
+
+button.quiet:hover,
+.pager button:hover,
+.period-picker button:hover {
+  color: var(--ink);
+  background: var(--surface-2);
+  border-color: transparent;
+}
+
+button.quiet:disabled,
+.pager button:disabled,
+.period-picker button:disabled {
+  background: transparent;
+  border-color: transparent;
+}
+
+/* On a --surface-2 tray, a quiet button's hover needs the step-up surface so
+   the hover is still visible against the tray. */
+.toolbar button.quiet:hover,
+.views-bar button.quiet:hover,
+.period-picker button:hover {
+  background: var(--surface-3);
+}
+
+/* ---------------------------------------------------------------- tables - */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+th,
+td {
+  text-align: start;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--line);
+}
+
+th {
+  font-size: 0.82rem;
+  font-weight: 620;
+  color: var(--ink-soft);
+  letter-spacing: 0.01em;
+}
+
+/* A quiet header band, so every table gets the same defined top the results
+   table has — column headers sit on --surface-2 above a firmer rule. Scoped to
+   thead so row-header cells (th[scope='row']) stay unfilled. */
+thead th {
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line-strong);
+}
+
+tbody tr {
+  transition: background-color var(--t-fast) var(--ease);
+}
+
+tbody tr:hover {
+  background: var(--surface-2);
+}
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.table-wrap table {
+  min-width: max-content;
+  width: 100%;
+}
+
+.table-wrap th,
+.table-wrap td {
+  white-space: nowrap;
+}
+
+tr.inactive,
+.stale {
+  opacity: 0.55;
+}
+
+/* --------------------------------------------------------- text + inline - */
+.code {
+  font-family: ui-monospace, 'SF Mono', 'Cascadia Code', monospace;
+  white-space: nowrap;
+}
+
+.error {
+  color: var(--danger);
+}
+
+.success {
+  color: var(--ok);
+}
+
+.hint,
+.small {
+  font-size: 0.86rem;
+  color: var(--ink-soft);
+}
+
+.muted {
+  color: var(--ink-faint);
+}
+
+.na {
+  color: var(--ink-faint);
+  font-size: 0.85rem;
+}
+
+.num {
+  text-align: end;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.search {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: var(--space-4);
+}
+
+.actions {
+  white-space: nowrap;
+}
+
+.actions button + button {
+  margin-inline-start: var(--space-2);
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--space-4);
+}
+
+/* --------------------------------------------------------- form layouts - */
+.form-grid {
+  display: grid;
+  /* min(11rem, 100%) — never let a column demand more than the container's
+     width, so a narrow card can't be forced wider (the old fixed 160px minimum
+     caused horizontal scrolling on the Add-parameter card and on phones). */
+  grid-template-columns: repeat(auto-fit, minmax(min(11rem, 100%), 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.form-grid label,
+.edit-form label {
+  display: grid;
+  gap: var(--space-1);
+  font-size: 0.9rem;
+  font-weight: 560;
+  color: var(--ink-soft);
+  /* A grid item defaults to min-width:auto, which is the input's intrinsic
+     width — number inputs reserve space for spin buttons and won't shrink,
+     which overflowed the track. Let the cell shrink and size the field to it. */
+  min-width: 0;
+}
+
+.form-grid input,
+.form-grid select,
+.form-grid textarea {
+  width: 100%;
+  min-width: 0;
+}
+
+
+.edit-form {
+  display: grid;
+  gap: var(--space-3);
+}
+
+/* Control clusters. A toolbar is a light "tray" that visually holds a set of
+   related controls, so a group reads as one object; stacked trays then read as
+   separate objects rather than one undifferentiated run of controls. The tray
+   fill is --surface-2, so the --surface inputs and buttons inside sit a step
+   above it. */
+.toolbar,
+.views-bar,
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-3) var(--space-3);
+  margin-bottom: var(--space-5);
+  background: var(--surface-2);
+  border-radius: var(--radius);
+}
+
+/* An optional quiet label that names a tray, so control groups can carry a
+   header the way a section does — balancing areas that otherwise have a bold
+   heading against areas that have none. */
+.group-title {
+  margin: 0 0 var(--space-2);
+  font-size: 0.95rem;
+  font-weight: 640;
+  color: var(--ink);
+  letter-spacing: -0.003em;
+}
+
+/* Sub-rows that live on their own or nested inside a group stay as plain flex
+   lines with no tray of their own. */
+.period-picker,
+.filter-row,
+.columns-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.filter-row,
+.columns-list {
+  margin-bottom: var(--space-4);
+}
+
+.toolbar .search {
+  width: auto;
+  flex: 1;
+  min-width: 12rem;
+  margin-bottom: 0;
+}
+
+.filters input {
+  min-width: 10rem;
+}
+
+.filter-row input[type='number'] {
+  width: 6rem;
+  flex: none;
+}
+
+.columns-list {
+  gap: var(--space-2) var(--space-4);
+}
+
+/* ============================================================= app shell = */
+/* Registered so the rail width can animate: an unregistered custom property is
+   not interpolable, so grid-template-columns would snap on collapse. The
+   transition below drives the desktop expand/collapse glide (250px <-> 74px);
+   reduced-motion is handled by the blanket kill switch at the end of the file. */
+@property --sidebar-w {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 250px;
+}
+
+.app-shell {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+  min-height: 100vh;
+  transition: --sidebar-w var(--t) var(--ease);
+}
+
+/* ---- sidebar ---- */
+.sidebar {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem 0.75rem 1.5rem;
+  /* Keep the brand + nav clear of the notch/home-indicator when the sidebar is
+     a full-height drawer or the fixed rail runs edge to edge. */
+  padding-top: calc(1rem + env(safe-area-inset-top));
+  padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
+  padding-inline-start: calc(0.75rem + env(safe-area-inset-left));
+  background: var(--sidebar-bg);
+  border-inline-end: 1px solid var(--sidebar-edge);
+  color: var(--sidebar-ink);
+}
+
+/* A single soft brand glow at the top of the rail — the "one glowing accent"
+   note from the NeuroBank reference. `scroll` attachment pins it to the top of
+   the sidebar box, so it stays put when a long nav scrolls. The flat classic
+   "gradebook" palette opts out to stay identical to the pre-Aurora look. */
+:root:not([data-palette='gradebook']) .sidebar {
+  background:
+    radial-gradient(
+      120% 52% at 50% -10%,
+      color-mix(in srgb, var(--brand) 20%, transparent),
+      transparent 68%
+    ),
+    var(--sidebar-bg);
+}
+
+/* The rail's top row: the collapse/expand toggle followed by the wordmark
+   (ref 5 "Outcrowd" — the control lives at the top, in place of the old brand
+   square). Pinned; the nav below it is the only scrolling region. */
+.sidebar-top {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.35rem 0.85rem;
+}
+
+.brand-name {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-weight: 680;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+  color: #fff;
+}
+
+.brand-mark {
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 7px;
+  flex: none;
+  /* Tinted from the brand color so the logo mark tracks the chosen palette
+     along with the rest of the interface. The lighter stop keeps it
+     legible on the always-dark sidebar. */
+  background: linear-gradient(
+    140deg,
+    color-mix(in srgb, var(--brand) 65%, white),
+    var(--brand) 70%
+  );
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+}
+
+.sidebar-nav {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+/* ---- two-level panel menu ---- */
+/* The expanded sidebar first lists the main panels; selecting one swaps the
+   list for that panel's pages, with a back control (Layout). `.nav-flat` is
+   the shared list — the panel list, a panel's pages, and the collapsed icon
+   rail all render it. */
+.nav-flat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0.15rem 0 0.35rem;
+}
+
+/* A panel row in the list: same chrome as a nav-link (the class is shared),
+   with the label at the inline start and the count + forward chevron at the
+   inline end. */
+.panel-link {
+  font-family: inherit;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  width: 100%;
+  text-align: start;
+}
+
+.panel-link .nav-label {
+  flex: 1 1 auto;
+}
+
+.panel-count {
+  flex: none;
+  font-family: var(--font-numeric);
+  font-size: 0.72rem;
+  font-weight: 650;
+  color: var(--sidebar-ink-soft);
+  background: var(--sidebar-hover);
+  border-radius: 999px;
+  padding: 0.05rem 0.45rem;
+  min-width: 1.5rem;
+  text-align: center;
+}
+
+/* The row chevron points "into" the panel — forward in reading order: right
+   in LTR, left in RTL. The glyph points left, so LTR mirrors it. */
+.panel-chevron {
+  color: var(--sidebar-ink-soft);
+  transform: scaleX(-1);
+}
+
+[dir='rtl'] .panel-chevron {
+  transform: none;
+}
+
+/* Inside a panel: the back control above the panel's name and its pages. */
+.panel-back {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0.15rem 0 0.1rem;
+  padding: 0.35rem 0.55rem;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--sidebar-ink-soft);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-align: start;
+  transition:
+    background-color var(--t) var(--ease),
+    color var(--t) var(--ease);
+}
+
+.panel-back:hover {
+  background: var(--sidebar-hover);
+  color: var(--sidebar-ink);
+}
+
+.panel-back-icon {
+  flex: none;
+}
+
+/* Back means "out to the panel list" — left in LTR, right in RTL; the glyph
+   already points left, so RTL mirrors it. */
+[dir='rtl'] .panel-back-icon {
+  transform: scaleX(-1);
+}
+
+.panel-title {
+  margin: 0;
+  padding: 0.3rem 0.65rem 0.45rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--sidebar-ink-soft);
+  user-select: none;
+}
+
+.nav-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.7rem;
+  border-radius: var(--radius-sm);
+  color: var(--sidebar-ink);
+  text-decoration: none;
+  font-size: 0.94rem;
+  font-weight: 520;
+  transition:
+    background-color var(--t) var(--ease),
+    color var(--t) var(--ease);
+}
+
+/* The glyph sits in a fixed 18px box so labels align in a tidy column and the
+   icon stays put when the rail collapses to icon-only. */
+.nav-icon {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  color: var(--sidebar-ink-soft);
+  transition: color var(--t) var(--ease);
+}
+
+.nav-label {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.nav-link:hover .nav-icon,
+.nav-link.active .nav-icon {
+  color: inherit;
+}
+
+.nav-link:hover {
+  background: var(--sidebar-hover);
+  color: #fff;
+}
+
+.nav-link.active {
+  background: var(--sidebar-active-bg);
+  color: var(--sidebar-active-ink);
+  font-weight: 600;
+}
+
+.nav-link.active::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: -0.75rem;
+  top: 0.35rem;
+  bottom: 0.35rem;
+  width: 3px;
+  border-start-start-radius: 0;
+  border-start-end-radius: 3px;
+  border-end-end-radius: 3px;
+  border-end-start-radius: 0;
+  background: var(--sidebar-active-bar);
+}
+
+/* ---- collapse-to-rail toggle + slim icon-only rail ---- */
+/* A compact square icon button living in the sidebar top row. One glyph serves
+   both directions — CSS rotates it 180° while the rail is collapsed. */
+.rail-toggle {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--sidebar-ink-soft);
+  cursor: pointer;
+  transition:
+    background-color var(--t) var(--ease),
+    color var(--t) var(--ease);
+}
+
+.rail-toggle:hover {
+  background: var(--sidebar-hover);
+  color: var(--sidebar-ink);
+  border-color: transparent;
+}
+
+.rail-toggle-icon {
+  flex: none;
+  transition: transform var(--t) var(--ease);
+}
+
+/* Collapsed: the shell drives --sidebar-w narrower, and everything but the
+   glyphs is hidden. Group headers stay in the DOM (their items are forced
+   open in Layout) but read only as spacers, so the rail is a clean icon
+   column. Labels return as native title tooltips on hover. */
+.app-shell.nav-collapsed {
+  --sidebar-w: 74px;
+}
+
+.nav-collapsed .sidebar {
+  padding-inline: 0.5rem;
+  align-items: stretch;
+}
+
+.nav-collapsed .sidebar-top {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+.nav-collapsed .brand-name,
+.nav-collapsed .nav-label {
+  display: none;
+}
+
+/* Collapsed, the icon column centres vertically in the space between the top
+   row and the pinned account block (ref 5). `safe` keeps the first icons from
+   being clipped off the top if the list is ever taller than the rail. */
+.nav-collapsed .sidebar-nav {
+  justify-content: safe center;
+}
+
+.nav-collapsed .nav-link {
+  justify-content: center;
+  padding: 0.55rem;
+}
+
+.nav-collapsed .nav-link.active::before {
+  inset-inline-start: -0.5rem;
+}
+
+/* Collapsed account block: only the avatar and the icon actions remain; the
+   name/role text and the label-only Change password link drop away. */
+.nav-collapsed .sidebar-account-id {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+.nav-collapsed .sidebar-account-meta,
+.nav-collapsed .account-collapsed-hide {
+  display: none;
+}
+
+.nav-collapsed .rail-toggle-icon {
+  transform: rotate(180deg);
+}
+
+@media (max-width: 880px) {
+  .rail-toggle {
+    display: none;
+  }
+}
+
+/* ---- main column + topbar ---- */
+.app-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  /* Clear the status bar / notch when running full-bleed (Capacitor, installed
+     PWA). env() is 0 on desktop and non-notched devices, so this is a no-op
+     there. */
+  padding-top: calc(0.6rem + env(safe-area-inset-top));
+  padding-left: calc(1rem + env(safe-area-inset-left));
+  padding-right: calc(1rem + env(safe-area-inset-right));
+  min-height: 3.5rem;
+  /* The "glass strip": a translucent bar with a blurred backdrop so page content
+     softly frosts as it scrolls underneath. On desktop the sidebar is sticky
+     (nothing animates behind the bar), so the blur paints cleanly. The mobile
+     block below reverts this to an opaque fill — a blurred fixed bar forces a
+     full-viewport re-composite every frame the drawer slides, which showed up as
+     a brief "blur flash". It shares the same --glass-* tokens as the cards, so
+     the whole frosted family stays consistent across themes and palettes. */
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.topbar-title {
+  font-weight: 620;
+  font-size: 1rem;
+  color: var(--ink);
+  margin-inline-end: auto;
+}
+
+.nav-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  color: var(--ink);
+  background: transparent;
+  border-color: transparent;
+}
+
+.nav-toggle svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.nav-toggle:hover {
+  background: var(--surface-2);
+  border-color: transparent;
+}
+
+.drawer-backdrop {
+  display: none;
+}
+
+/* ---- pinned account block (sidebar foot) ---- */
+/* Who's signed in, then Preferences / Change password / Sign out. This is the
+   app's only home for these actions now — the old top-right dropdown is gone.
+   The block is pinned below the scrolling nav and shows in both rail states. */
+.sidebar-account {
+  flex: none;
+  margin-top: 0.5rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--sidebar-edge);
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.sidebar-account-id {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+  padding: 0.35rem 0.6rem 0.5rem;
+}
+
+.sidebar-account-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.2;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  flex: none;
+  border-radius: 50%;
+  /* A soft brand-tinted disc with white initials — legible on the always-dark
+     rail and tracking the chosen palette. */
+  background: color-mix(in srgb, var(--brand) 32%, transparent);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 680;
+  letter-spacing: 0.02em;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.account-name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--sidebar-ink);
+}
+
+.account-role {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.76rem;
+  color: var(--sidebar-ink-soft);
+}
+
+.sidebar-account-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Sign out is a <button> wearing .nav-link: reset the button chrome and give it
+   a restrained danger tint on hover so it reads as the one destructive action. */
+.account-signout {
+  font-family: inherit;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.account-signout:hover {
+  background: color-mix(in srgb, var(--danger) 24%, transparent);
+  color: #fff;
+}
+
+.account-signout:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.account-signout:disabled:hover {
+  background: transparent;
+  color: var(--sidebar-ink);
+}
+
+/* ---- mobile: sidebar becomes a slide-in drawer ---- */
+@media (max-width: 880px) {
+  .app-shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    inset-inline-start: 0;
+    z-index: 60;
+    width: min(84vw, var(--sidebar-w));
+    transform: translateX(-100%);
+    transition: transform var(--t) var(--ease);
+    box-shadow: none;
+  }
+
+  /* In RTL the drawer hangs off the inline-start (right) edge, so its hidden
+     position flips sign. The open state must be restated to beat this rule's
+     specificity. */
+  [dir='rtl'] .sidebar {
+    transform: translateX(100%);
+  }
+
+  [dir='rtl'] .app-shell.drawer-open .sidebar {
+    transform: translateX(0);
+  }
+
+  .app-shell.drawer-open .sidebar {
+    transform: translateX(0);
+    box-shadow: var(--shadow-pop);
+  }
+
+  .nav-toggle {
+    display: inline-flex;
+  }
+
+  /* Revert the glass strip to a solid fill on mobile. The topbar's blur would
+     re-composite the whole viewport every frame the fixed drawer slides in — the
+     "blur flash". A flat surface fill paints cleanly and looks identical at rest. */
+  .app-topbar {
+    background: var(--surface);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .drawer-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    padding: 0;
+    /* A clean, flat dim — NOT a blur. The topbar's backdrop blur is disabled on
+       mobile (above) precisely to avoid re-compositing during the drawer slide;
+       the scrim keeps that same discipline. A deeper, saturated flat scrim reads
+       unambiguously as "the page is dimmed behind a panel" — the familiar modal
+       affordance — rather than a milky haze. */
+    background: rgba(8, 11, 20, 0.55);
+    border: 0;
+    border-radius: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--t) var(--ease);
+  }
+
+  .app-shell.drawer-open .drawer-backdrop {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  main {
+    padding: var(--space-5) var(--space-4) var(--space-8);
+  }
+}
+
+/* ---- phones: tighten the type scale and un-cram the pager ---- */
+@media (max-width: 640px) {
+  /* Wide tables (account selects, big grids) scroll inside their card on
+     phones instead of widening the document. Cards never clip vertically:
+     overflow-x alone would compute overflow-y to auto, but card content
+     grows the card instead of overflowing it. */
+  .section-card {
+    overflow-x: auto;
+  }
+
+  h1 {
+    font-size: 1.42rem;
+  }
+
+  h2 {
+    font-size: 1.1rem;
+  }
+
+  table {
+    font-size: 0.92rem;
+  }
+
+  th,
+  td {
+    padding: var(--space-2) var(--space-2);
+  }
+
+  /* The page count was colliding with the Previous button under
+     space-between. Let it take its own centered line above the two buttons,
+     which then sit at the edges. */
+  .pager {
+    flex-wrap: wrap;
+  }
+
+  .pager span {
+    order: -1;
+    flex-basis: 100%;
+    text-align: center;
+    margin-bottom: var(--space-1);
+  }
+}
+
+/* =============================================================== cards === */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-3);
+  margin: var(--space-5) 0;
+}
+
+.param-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-4);
+}
+
+/* Floating surfaces read as frosted glass: a translucent fill over a blurred
+   backdrop so the aurora page-glow diffuses softly through them. The fill stays
+   ≥82% opaque and degrades to a near-solid surface where backdrop-filter is
+   unsupported, so text contrast is unaffected. Dense surfaces (tables, inputs)
+   deliberately stay opaque elsewhere; only large, sparsely-populated cards
+   frost. On gradebook, --glass-bg resolves to an opaque surface (set in its
+   palette block) so the classic flat look is preserved. */
+.stat-card,
+.param-card,
+.panel,
+.notice {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+/* KPI card: a hairline brand rule runs down the leading edge and the whole card
+   lifts a touch on hover, so the headline numbers read as a row of live metrics
+   rather than flat boxes. */
+.stat-card {
+  position: relative;
+  padding-block: var(--space-4);
+  padding-inline-start: var(--space-5);
+  padding-inline-end: var(--space-4);
+  overflow: hidden;
+  transition:
+    transform var(--t) var(--ease),
+    box-shadow var(--t) var(--ease),
+    border-color var(--t) var(--ease);
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(
+    to bottom,
+    var(--brand),
+    color-mix(in srgb, var(--brand) 45%, transparent)
+  );
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: color-mix(in srgb, var(--brand) 30%, var(--line));
+}
+
+/* Semantic KPI tints: a headline figure that represents a coverage risk (e.g.
+   students nobody has measured) or a clean win (everyone measured) swaps its
+   leading rule and value onto the danger/ok token, so the row reads at a glance
+   rather than as four identical blue tiles. Applied conditionally in JSX — a
+   zero-risk value stays neutral. */
+.stat-card.ok::before {
+  background: linear-gradient(
+    to bottom,
+    var(--ok),
+    color-mix(in srgb, var(--ok) 45%, transparent)
+  );
+}
+
+.stat-card.ok .stat-value {
+  color: var(--ok);
+}
+
+.stat-card.danger::before {
+  background: linear-gradient(
+    to bottom,
+    var(--danger),
+    color-mix(in srgb, var(--danger) 45%, transparent)
+  );
+}
+
+.stat-card.danger .stat-value {
+  color: var(--danger);
+}
+
+.param-card {
+  padding: var(--space-4);
+  transition:
+    box-shadow var(--t) var(--ease),
+    border-color var(--t) var(--ease);
+}
+
+/* A content-heavy card, so it deepens on hover rather than lifting — the
+   translateY treatment is reserved for the small KPI tiles, where a jump reads
+   as lively; on a large chart card it would feel heavy. */
+.param-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: color-mix(in srgb, var(--brand) 22%, var(--line));
+}
+
+.stat-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.stat-value {
+  margin-top: var(--space-1);
+  font-family: var(--font-numeric);
+  font-size: 2.7rem;
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.param-card h3 {
+  margin: 0 0 var(--space-1);
+}
+
+/* ----------------------------------------------------- cohort hero (dash) - */
+/* The dashboard's focal object: a glowing completion core ringed by a progress
+   arc, with the class rendered as a field of dots inside it and quiet KPI
+   readouts beneath that double as the dot legend. Fully token-based, so it
+   re-tints across every palette; the core reuses the page's aurora glow token
+   (--glow-1). Entrance motion is deliberately left to the route-transition
+   system (the section animates as one block) plus CountUp for the figures — the
+   arc-draw / dot-ignite choreography is a later polish step. */
+.cohort-hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.4rem;
+  margin: 1.5rem 0 2rem;
+}
+
+/* Host for the 3D cohort constellation (CohortConstellation mounts a WebGL
+   canvas here, sized to fill this box). Centred by .cohort-hero's flex column;
+   the clamp keeps it a comfortable stage without dominating narrow screens. */
+.cohort-canvas {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  height: clamp(320px, 52vw, 460px);
+}
+
+/* Label revealed on hovering a student node (name + measured/total). Positioned
+   in JS at the node's projected screen point; a small box that reads on any
+   palette, non-interactive so it never eats the pointer driving the raycast. */
+.cohort-tooltip {
+  position: absolute;
+  transform: translate(-50%, -145%);
+  padding: 0.28rem 0.55rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface-3);
+  color: var(--ink);
+  border: 1px solid var(--line-strong);
+  box-shadow: var(--shadow-pop);
+  font-size: 0.8rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* The WebGL constellation's keyboard/AT control layer. The canvas itself is
+   aria-hidden decoration; these buttons (class summary, one per in-use parameter,
+   one per student) open the same drawers a click on the 3D marks would, so every
+   target is reachable without WebGL. The layer fills the hero but is inert to the
+   pointer at rest — only a focused jump button (revealed below) takes events, so it
+   never steals the drag/hover that drives the 3D scene. */
+.cohort-controls {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.cohort-jump-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Each jump button is visually hidden until focused (the sighted-keyboard "skip
+   link" pattern), then surfaces as a pill at the top of the stage so a keyboard
+   user sees where they are. Screen readers reach them at rest regardless. */
+.cohort-jump {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+}
+
+.cohort-jump:focus-visible {
+  left: 50%;
+  top: 0.5rem;
+  transform: translateX(-50%);
+  width: auto;
+  height: auto;
+  clip: auto;
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface-3);
+  color: var(--ink);
+  box-shadow: var(--shadow-pop);
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  pointer-events: auto;
+  z-index: 3;
+}
+
+/* The orbit holds the core and its parameter satellites. Default (many params or
+   a narrow screen) is a plain stack: core, then a wrapped row of satellites. When
+   there are 1–6 in-use parameters and the screen is wide, .ring turns it into a
+   square stage with the core centred and satellites placed on a true circle. */
+.cohort-orbit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.cohort-orbit.ring {
+  position: relative;
+  width: clamp(340px, 56vw, 560px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  gap: 0;
+  --orbit-r: clamp(150px, 23vw, 230px);
+}
+
+/* A faint guide circle traces the orbit path the satellites sit on. */
+.cohort-orbit.ring::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(2 * var(--orbit-r));
+  height: calc(2 * var(--orbit-r));
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px dashed var(--glass-border);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.cohort-core {
+  position: relative;
+  width: clamp(230px, 34vw, 320px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 50% 40%, var(--glow-1), transparent 68%),
+    var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    var(--shadow-md),
+    0 0 60px -14px color-mix(in srgb, var(--brand) 42%, transparent);
+}
+
+/* Progress ring, rotated so the fill grows clockwise from 12 o'clock. */
+.cohort-arc {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  overflow: visible;
+}
+
+.cohort-arc-track {
+  fill: none;
+  stroke: var(--line-strong);
+  stroke-width: 3;
+  opacity: 0.4;
+}
+
+.cohort-arc-value {
+  fill: none;
+  stroke: var(--brand);
+  stroke-width: 4;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--brand) 55%, transparent));
+  transition: stroke-dasharray var(--t) var(--ease);
+}
+
+/* One dot per student, laid on a phyllotaxis halo (positions set inline as
+   percentages of this box) in the band between the readout and the arc. */
+.cohort-field {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.field-dot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--line-strong);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--surface) 65%, transparent);
+}
+
+.cohort-field.dense .field-dot {
+  width: 6px;
+  height: 6px;
+}
+
+/* Fully-measured students glow; partial are solid amber; not-yet are hollow —
+   the fill/shape difference carries state beyond colour alone. */
+.field-dot.full {
+  background: var(--ok);
+  box-shadow:
+    0 0 6px -1px color-mix(in srgb, var(--ok) 60%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--surface) 65%, transparent);
+}
+
+.field-dot.partial {
+  background: var(--brand-2);
+}
+
+.field-dot.none {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--line-strong);
+}
+
+/* The headline number sits on a soft surface medallion so it stays legible over
+   the dots behind it. */
+.cohort-readout {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  width: 48%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    var(--surface) 60%,
+    color-mix(in srgb, var(--surface) 65%, transparent) 82%,
+    transparent
+  );
+}
+
+.cohort-pct {
+  font-family: var(--font-numeric);
+  font-size: clamp(2.2rem, 6vw, 3.1rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--brand);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.cohort-pct-label {
+  margin-top: 0.15rem;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+/* The 2D hub's centre readout is a real button (opens the class-summary drawer).
+   Strip the native button chrome so it looks identical to the old static medallion,
+   and give it a visible ring only on keyboard focus. */
+.cohort-readout-btn {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.cohort-readout-btn:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+/* Parameter satellites. In the stacked fallback they wrap in a centred row
+   beneath the core; in ring mode each is placed on the orbit circle by angle
+   (evenly spaced from 12 o'clock) using CSS trig on its --i / --n indices. */
+.cohort-satellites {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.8rem 1.4rem;
+}
+
+.cohort-orbit.ring .cohort-satellites {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.cohort-orbit.ring .cohort-sat {
+  --a: calc(-90deg + (360deg / var(--n)) * var(--i));
+  position: absolute;
+  left: calc(50% + var(--orbit-r) * cos(var(--a)));
+  top: calc(50% + var(--orbit-r) * sin(var(--a)));
+  transform: translate(-50%, -50%);
+}
+
+/* A satellite is a button that opens the parameter's detail drawer. Reset the
+   native button chrome back to the bare stack of ring + name, then add a quiet
+   interactive affordance — a soft brand wash and a small lift of the ring on
+   hover, a brand outline on keyboard focus — so it reads as clickable without
+   competing with the glowing core. */
+.sat-node {
+  appearance: none;
+  -webkit-appearance: none;
+  background: none;
+  border: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  width: 5.5rem;
+  padding: 0.35rem 0.2rem;
+  text-align: center;
+  border-radius: var(--radius-sm);
+  transition: background var(--t-fast) var(--ease);
+}
+
+.sat-node:hover {
+  background: color-mix(in srgb, var(--brand) 9%, transparent);
+}
+
+.sat-node:hover .sat-name {
+  color: var(--brand);
+}
+
+.sat-node:hover .sat-ring {
+  transform: scale(1.06);
+}
+
+.sat-node:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+.sat-ring {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  transition: transform var(--t-fast) var(--ease);
+}
+
+.sat-ring svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  overflow: visible;
+}
+
+.sat-ring-track {
+  fill: none;
+  stroke: var(--line-strong);
+  stroke-width: 3;
+  opacity: 0.4;
+}
+
+.sat-ring-value {
+  fill: none;
+  stroke: var(--brand);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  transition: stroke-dasharray var(--t) var(--ease);
+}
+
+.sat-frac {
+  position: absolute;
+  inset: 0;
+  /* Flex, not grid: the count and its "/total" are two separate children
+     (a text node + a span), and grid stacks each child into its own row —
+     spilling the total out of the ring. Flex keeps them on one line. */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-numeric);
+  font-size: 0.8rem;
+  font-weight: 750;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.sat-frac-total {
+  color: var(--ink-faint);
+  font-weight: 600;
+  font-size: 0.68rem;
+}
+
+.sat-name {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  line-height: 1.2;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+/* A parameter with no scores yet reads as quiet — the ring is just its track. */
+.sat-node.empty .sat-frac {
+  color: var(--ink-soft);
+}
+
+/* Too narrow for a ring: drop back to the stacked row regardless of param count. */
+@media (max-width: 760px) {
+  .cohort-orbit.ring {
+    position: static;
+    width: auto;
+    aspect-ratio: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  .cohort-orbit.ring::before {
+    display: none;
+  }
+
+  .cohort-orbit.ring .cohort-satellites {
+    position: static;
+    inset: auto;
+    display: flex;
+  }
+
+  .cohort-orbit.ring .cohort-sat {
+    position: static;
+    left: auto;
+    top: auto;
+    transform: none;
+  }
+}
+
+.cohort-kpis {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem 1.6rem;
+}
+
+.cohort-kpi {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.kpi-swatch {
+  align-self: center;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.kpi-swatch.total {
+  background: var(--brand);
+}
+
+.kpi-swatch.full {
+  background: var(--ok);
+}
+
+.kpi-swatch.partial {
+  background: var(--brand-2);
+}
+
+.kpi-swatch.none {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--line-strong);
+}
+
+.kpi-value {
+  font-family: var(--font-numeric);
+  font-weight: 750;
+  font-size: 1.15rem;
+  font-variant-numeric: tabular-nums lining-nums;
+  color: var(--ink);
+}
+
+.kpi-label {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+/* -------------------------------------------------- needs-scoring rail --- */
+/* The "who to score next" work queue. A horizontal rail keeps the hero the
+   page's vertical focus (a long list would push everything down); it reads
+   left→right as a work order, worst-first. Tickets stay quiet — neutral glass,
+   thin line — so the amber "missing" chips inside carry the only colour. */
+.needs-rail {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0 0 0.4rem;
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+
+.needs-ticket {
+  flex: 0 0 13rem;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.7rem 0.8rem;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+.needs-ticket-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.needs-name {
+  font-weight: 640;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.needs-name:hover {
+  color: var(--brand);
+  text-decoration: underline;
+}
+
+/* The trailing "+N more" ticket: a dashed placeholder, not a real card, so it
+   reads as "the rail continues" rather than another student to act on. */
+.needs-more {
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 6rem;
+  background: none;
+  border-style: dashed;
+  color: var(--ink-faint);
+  font-family: var(--font-numeric);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.needs-clear {
+  margin: 0.75rem 0 0;
+  color: var(--ok);
+}
+
+/* ------------------------------------------------- parameter detail drawer -
+   A parameter's full picture (summary + trend + distribution) opens in a modal
+   sheet that slides in from the right when its satellite is clicked, so the
+   dashboard itself stays a single glowing object and the depth is disclosed on
+   demand. Modal at every width. Following the mobile-nav precedent, the sliding
+   panel carries NO backdrop-filter and the scrim is a flat dim: a blur on a
+   transformed fixed element re-composites the viewport every frame (the "blur
+   flash"). The panel is always mounted so both the slide-in and slide-out come
+   from CSS; the scroll-lock, focus trap, and focus return live in the component.
+   Reduced motion is handled globally (the block at end of file zeroes the slide,
+   so the panel simply appears). */
+.drawer-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(8, 11, 20, 0.55);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--t) var(--ease);
+}
+
+.drawer-scrim.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.param-drawer {
+  position: fixed;
+  top: 0;
+  inset-inline-end: 0;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: min(31rem, 94vw);
+  height: 100dvh;
+  padding: 1.3rem 1.5rem 2rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--surface);
+  border-inline-start: 1px solid var(--line);
+  transform: translateX(100%);
+  transition: transform var(--t) var(--ease);
+}
+
+.param-drawer.open {
+  transform: translateX(0);
+  box-shadow: var(--shadow-pop);
+}
+
+/* The slide-over hugs the inline-end edge; in RTL it enters from the left. */
+[dir='rtl'] .param-drawer {
+  transform: translateX(-100%);
+}
+
+[dir='rtl'] .param-drawer.open {
+  transform: translateX(0);
+}
+
+.drawer-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.drawer-title {
+  margin: 0;
+  font-size: 1.25rem;
+  line-height: 1.2;
+}
+
+/* A quiet round icon button that brightens to the brand on hover/focus, like the
+   app's other dismiss affordances. */
+.drawer-close {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition:
+    color var(--t-fast) var(--ease),
+    border-color var(--t-fast) var(--ease),
+    background var(--t-fast) var(--ease);
+}
+
+.drawer-close:hover,
+.drawer-close:focus-visible {
+  color: var(--brand);
+  border-color: color-mix(in srgb, var(--brand) 40%, var(--line));
+  background: color-mix(in srgb, var(--brand) 10%, var(--surface-2));
+}
+
+.drawer-chart-title {
+  margin: var(--space-4) 0 var(--space-1);
+  font-size: 0.82rem;
+  font-weight: 620;
+  color: var(--ink-soft);
+}
+
+/* --------------------------------------------------------- panels/notice - */
+.panel {
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.panel summary {
+  cursor: pointer;
+  font-weight: 640;
+  font-size: 0.95rem;
+  color: var(--ink);
+  list-style: none;
+}
+
+.panel summary:hover {
+  color: var(--brand);
+}
+
+.panel summary::-webkit-details-marker {
+  display: none;
+}
+
+.notice {
+  border-color: var(--brand);
+  border-inline-start-width: 3px;
+  padding: var(--space-3) var(--space-4);
+  margin: var(--space-4) 0;
+}
+
+/* Empty state: a calm, centered panel for "nothing here yet" pages so a sparse
+   view reads as intentional rather than a blank void — especially in dark mode,
+   where an empty main column otherwise looks like a broken dark rectangle. */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-2);
+  max-width: 30rem;
+  margin: var(--space-8) auto;
+  padding: var(--space-7) var(--space-6);
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.empty-state-mark {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: var(--space-1);
+  border-radius: 50%;
+  color: var(--brand);
+  background: var(--brand-soft);
+}
+
+.empty-state-mark svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.empty-state h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.empty-state p {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.secret {
+  font-family: ui-monospace, monospace;
+  font-size: 1.2rem;
+  letter-spacing: 0.06em;
+  user-select: all;
+}
+
+.status-line {
+  min-height: 1.5rem;
+}
+
+.summary,
+.summary-line {
+  margin: 1rem 0 0.5rem;
+  color: var(--ink-soft);
+}
+
+/* ---------------------------------------------------------------- tabs --- */
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 1.25rem;
+}
+
+.tab {
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--ink-soft);
+  padding: 0.55rem 0.9rem;
+  font-weight: 560;
+  border-radius: 0;
+  margin-bottom: -1px;
+  transition:
+    color var(--t) var(--ease),
+    border-color var(--t) var(--ease);
+}
+
+.tab:hover {
+  color: var(--ink);
+  background: none;
+  border-color: transparent;
+}
+
+.tab.active {
+  color: var(--brand);
+  border-bottom-color: var(--brand);
+  font-weight: 640;
+}
+
+/* ---- meter + chart ---- */
+.meter {
+  width: 8rem;
+  height: 0.55rem;
+  background: var(--surface-3);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.meter-fill {
+  height: 100%;
+  /* A left-to-right brand gradient rather than a flat fill, so the bar reads as
+     a lit progress track — the "one glowing accent" motif, echoed at small
+     scale. Degrades to a solid brand fill if color-mix is unsupported. */
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--brand) 62%, transparent),
+    var(--brand)
+  );
+  border-radius: 999px;
+  transition: width var(--t) var(--ease);
+}
+
+.chart-box {
+  width: 100%;
+  margin: 1rem 0;
+}
+
+/* ---- charts (recharts) ------------------------------------------------------
+   The charts are recolored entirely through CSS so they track the theme AND the
+   palette with no JS. recharts renders its geometry with SVG *presentation
+   attributes* (stroke="…", fill="…"), which have specificity 0 — so a CSS
+   `stroke`/`fill` PROPERTY here overrides them and, unlike an SVG attribute, is
+   allowed to resolve var(). Axis tick text is drawn with fill:currentColor, so
+   we just set the wrapper's `color`. The gradient area fill is defined per
+   instance in JSX (inline style on the <stop>, where var() also resolves) and
+   referenced by url(); we deliberately do NOT set fill on .recharts-area-area
+   here so that gradient wins. The tooltip is a real HTML box, styled inline in
+   JSX via contentStyle. */
+.recharts-wrapper {
+  color: var(--ink-faint);
+}
+
+.recharts-cartesian-grid line {
+  stroke: color-mix(in srgb, var(--ink) 12%, transparent);
+}
+
+.recharts-cartesian-axis-line,
+.recharts-cartesian-axis-tick-line {
+  stroke: color-mix(in srgb, var(--ink) 16%, transparent);
+}
+
+.recharts-line-curve,
+.recharts-area-curve {
+  stroke: var(--brand);
+}
+
+.recharts-line-dot,
+.recharts-area-dot {
+  fill: var(--brand);
+  stroke: var(--surface);
+  stroke-width: 1.5;
+}
+
+.recharts-active-dot {
+  fill: var(--brand);
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+
+.recharts-bar-rectangle path {
+  fill: var(--brand);
+  transition: fill var(--t) var(--ease);
+}
+
+/* Hover cursor: a brand-tinted rect (bar charts) or vertical line (line/area).
+   One rule serves both — the unused property is a no-op on each shape. */
+.recharts-tooltip-cursor {
+  fill: color-mix(in srgb, var(--brand) 12%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 55%, transparent);
+}
+
+/* ------------------------------------------------ parameter lists/forms - */
+.plain-list {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+}
+
+.param-choice {
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.param-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+/* The parameter name + its Used/Not-used chip share a row here, so drop the
+   chip-row's standalone vertical margin — the .param-choice padding already
+   spaces the row. */
+.param-line .chip-row {
+  margin: 0;
+}
+
+.param-form {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.param-form label,
+label.inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+label.inline select {
+  margin-inline-start: 0.25rem;
+}
+
+/* Segmented control: a pill group of mutually-exclusive options built on real
+   radio inputs (kept visually hidden for keyboard + screen-reader use). The
+   checked segment lifts onto a raised --surface chip. Used for the Theme toggle
+   and any small either/or choice; reads more clearly as a switch than a row of
+   loose radios. */
+.segmented {
+  display: inline-flex;
+  padding: 0.2rem;
+  gap: 0.15rem;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  max-width: 100%;
+  flex-wrap: wrap;
+}
+
+.segmented label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.42rem 0.95rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 560;
+  color: var(--ink-soft);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    color var(--t) var(--ease),
+    background-color var(--t) var(--ease),
+    box-shadow var(--t) var(--ease);
+}
+
+.segmented input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.segmented label:hover {
+  color: var(--ink);
+}
+
+.segmented label:has(input:checked) {
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+}
+
+.segmented label:has(input:focus-visible) {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+input[type='radio'],
+input[type='checkbox'] {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  padding: 0;
+  accent-color: var(--brand);
+  cursor: pointer;
+}
+
+/* ------------------------------------------------- evaluation grid cells - */
+table.grid th,
+table.grid td {
+  vertical-align: top;
+}
+
+.cell {
+  width: 5rem;
+  box-sizing: border-box;
+  text-align: right;
+  flex: none;
+}
+
+.cell.changed {
+  background: var(--warn-soft);
+  border-color: var(--warn);
+}
+
+.cell.invalid,
+input.invalid {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px var(--danger-soft);
+}
+
+.cell.locked {
+  background: var(--surface-2);
+}
+
+.cell:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+}
+
+.cell-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.lock {
+  font-size: 0.85rem;
+  color: var(--ink-faint);
+}
+
+/* ---- score notes ---- */
+.note-toggle {
+  flex: none;
+  padding: 0.15rem 0.35rem;
+  font-size: 0.85rem;
+  line-height: 1;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  opacity: 0.5;
+  transition:
+    opacity var(--t) var(--ease),
+    border-color var(--t) var(--ease),
+    background-color var(--t) var(--ease);
+}
+
+.note-toggle:hover {
+  opacity: 1;
+  background: var(--surface-2);
+  border-color: transparent;
+}
+
+.note-toggle.has-note {
+  opacity: 1;
+  color: var(--brand);
+}
+
+.note-toggle.changed {
+  border-color: var(--warn);
+  opacity: 1;
+}
+
+.cell-note {
+  width: 100%;
+  margin-top: 0.25rem;
+  padding: 0.4rem;
+  box-sizing: border-box;
+}
+
+/* ---- session grid cells (quality + quantity per cell) ---- */
+.eval-cell {
+  flex-wrap: wrap;
+}
+
+/* Each cell carries two dimension inputs; the pair is the width of the old
+   single score input plus the select toggle, so the grid stays one table. */
+.cell.dim {
+  width: 3.75rem;
+  text-align: center;
+}
+
+.cell-select {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  padding: 0;
+  margin: 0;
+  accent-color: var(--brand);
+  cursor: pointer;
+}
+
+.cell.off:not(:disabled) {
+  opacity: 0.5;
+}
+
+.cell-note-pair {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.cell-note-pair .cell-note {
+  min-width: 0;
+}
+
+/* The whole-group row (membership NULL) reads as one target above members. */
+tr.group-row td {
+  background: var(--surface-2);
+  font-weight: 600;
+}
+
+tr.group-row td .hint.code {
+  font-weight: 400;
+}
+
+/* ---- results table ---- */
+.results-table th button.sort {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-weight: 620;
+  color: var(--ink-soft);
+  cursor: pointer;
+  text-align: inherit;
+  transition: color var(--t) var(--ease);
+}
+
+.results-table th button.sort:hover {
+  color: var(--brand);
+}
+
+.results-table tfoot th,
+.results-table tfoot td {
+  font-size: 0.85rem;
+  border-top: 2px solid var(--line-strong);
+}
+
+.chg {
+  font-size: 0.8rem;
+  margin-inline-start: 0.35rem;
+  color: var(--ink-faint);
+}
+
+/* Signed deltas read at a glance in color: a rise is positive/ok, a fall is a
+   warning. Applied additively (.chg.up / .chg.down) where a change is shown, so
+   an unclassed .chg keeps the neutral faint ink. */
+.chg.up {
+  color: var(--ok);
+}
+
+.chg.down {
+  color: var(--danger);
+}
+
+tr.bad td {
+  color: var(--danger);
+}
+
+/* ---- audit + history ---- */
+table.history th[scope='row'] {
+  font-weight: 620;
+  white-space: nowrap;
+}
+
+.audit-details summary {
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.audit-details pre {
+  max-height: 16rem;
+  overflow: auto;
+  font-size: 0.8rem;
+  background: var(--surface-2);
+  padding: 0.6rem;
+  border-radius: var(--radius-sm);
+}
+
+table.audit-changes {
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+/* Voice-transcript tables (AI panel): the dialogue text and the setup how-to
+   must wrap — every other table cell stays on one line. Lives at .table-wrap
+   depth so it out-ranks .table-wrap td's nowrap. The dialogue itself reads in
+   its own direction (dir="auto" on the cell) because the kiosk is bilingual. */
+.table-wrap .transcript-text,
+.table-wrap .transcript-how {
+  white-space: normal;
+}
+
+.table-wrap .transcript-text {
+  min-width: 16rem;
+  max-width: 46rem;
+}
+
+/* The global .table-wrap table floor (min-width: max-content) would defeat the
+   wrapping above — a long how-to line would force a horizontal scrollbar
+   instead of breaking. Let exactly these tables shrink. */
+.table-wrap:has(.transcript-text) table,
+.table-wrap:has(.transcript-how) table {
+  min-width: 0;
+}
+
+/* ------------------------------------ groups, roles, custom fields, prefs - */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+button.link {
+  flex: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  padding-inline-start: 0.5rem;
+  font-size: inherit;
+  color: var(--brand);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+button.link:hover {
+  background: none;
+  border: 0;
+  color: var(--brand-strong);
+}
+
+.badge {
+  display: inline-block;
+  margin-inline-start: 0.4rem;
+  padding: 0.05rem 0.4rem;
+  font-size: 0.68rem;
+  font-weight: 620;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  vertical-align: middle;
+}
+
+/* Status pills: tinted variants of the badge for at-a-glance state (complete /
+   partial / missing, active / inactive, …). Each pairs a status ink with its
+   soft background so it reads on both light and dark surfaces. */
+.badge.ok {
+  color: var(--ok);
+  background: var(--ok-soft);
+  border-color: color-mix(in srgb, var(--ok) 30%, transparent);
+}
+
+.badge.warn {
+  color: var(--warn);
+  background: var(--warn-soft);
+  border-color: color-mix(in srgb, var(--warn) 30%, transparent);
+}
+
+.badge.danger {
+  color: var(--danger);
+  background: var(--danger-soft);
+  border-color: color-mix(in srgb, var(--danger) 30%, transparent);
+}
+
+.badge.brand {
+  color: var(--brand);
+  background: var(--brand-soft);
+  border-color: color-mix(in srgb, var(--brand) 30%, transparent);
+}
+
+.group-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 640px) {
+  .two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+.permission-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.permission-grid fieldset {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem 1rem;
+  background: var(--surface);
+}
+
+.permission-grid legend,
+.pref-group legend {
+  padding: 0;
+  margin-bottom: 0.4rem;
+  font-weight: 620;
+  color: var(--ink);
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+}
+
+.checkbox-row input {
+  flex: none;
+}
+
+.checkbox-row .hint {
+  margin-inline-start: auto;
+}
+
+.pref-group {
+  display: grid;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  border: 0;
+  padding: 0;
+}
+
+/* Palette picker: a grid of live mini-mocks. Each card previews the palette's
+   sidebar spine, surface, lines, and brand dot using per-option --pv-* custom
+   properties set inline from the page. Real radios are kept for keyboard and
+   screen-reader use, visually hidden and surfaced as a ring on the selection. */
+.palette-swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: 0.85rem;
+}
+
+.palette-option {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.palette-option input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.palette-preview {
+  display: flex;
+  height: 4.75rem;
+  overflow: hidden;
+  border-radius: 10px;
+  border: 2px solid var(--line);
+  background: var(--pv-paper);
+  transition:
+    transform var(--t-fast) var(--ease),
+    border-color var(--t) var(--ease),
+    box-shadow var(--t) var(--ease);
+}
+
+.palette-preview-spine {
+  width: 30%;
+  background: var(--pv-spine);
+}
+
+.palette-preview-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0 0.65rem;
+  background: var(--pv-surface);
+}
+
+.palette-preview-bar {
+  height: 0.4rem;
+  border-radius: 99px;
+  background: var(--pv-line);
+}
+
+.palette-preview-bar.short {
+  width: 58%;
+}
+
+.palette-preview-dot {
+  width: 1.05rem;
+  height: 1.05rem;
+  margin-top: 0.15rem;
+  border-radius: 50%;
+  background: var(--pv-brand);
+}
+
+.palette-option:hover .palette-preview {
+  transform: translateY(-1px);
+}
+
+.palette-option input:checked + .palette-preview {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-soft);
+}
+
+.palette-option input:focus-visible + .palette-preview {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+.palette-name {
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+.palette-option input:checked ~ .palette-name {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+
+/* ---- custom-field editors + read-only list ---- */
+.field-inputs {
+  display: grid;
+  gap: 0.85rem;
+  margin: 1rem 0;
+}
+
+.field-row {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.field-row > label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+.field-row textarea {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.field-list {
+  display: grid;
+  gap: 0;
+  margin: 0.5rem 0 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.field-list-row {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.6rem 0.85rem;
+  border-top: 1px solid var(--line);
+}
+
+.field-list-row:first-child {
+  border-top: 0;
+}
+
+.field-list-row dt {
+  min-width: 10rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.field-list-row dd {
+  margin: 0;
+}
+
+/* ================================================= focus, skip, banner === */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* On the dark sidebar a light ring reads better than the indigo one. */
+.sidebar a:focus-visible,
+.sidebar summary:focus-visible {
+  outline-color: #fff;
+}
+
+.skip-link {
+  position: absolute;
+  /* Logical offset: parked beyond the inline-START edge, which is never part
+     of the scrollable overflow region (scroll extends toward inline-end) —
+     a physical left:-9999px in RTL adds ~10k px of horizontal document
+     scroll. */
+  inset-inline-start: -9999px;
+  top: 0;
+  z-index: 100;
+  background: var(--brand);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-end-end-radius: var(--radius-sm);
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  inset-inline-start: 0;
+}
+
+/* Focus target only (see Layout); don't show a ring when it takes focus. */
+#main-content:focus {
+  outline: none;
+}
+
+.connection-banner {
+  position: sticky;
+  top: 0;
+  z-index: 70;
+  background: var(--danger);
+  color: #fff;
+  text-align: center;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+}
+
+/* --------------------------------------------- mobile table scroll hint - */
+@media (max-width: 640px) {
+  /* Soft shadow on whichever horizontal edge still has table off-screen — a
+     pure-CSS hint that the table scrolls sideways. The two "cover" gradients
+     scroll with the content (background-attachment: local) and hide a shadow
+     once you reach that edge, so a shadow shows only while there's more to
+     scroll. `Canvas` is the browser's page background, so it adapts to theme. */
+  .table-wrap {
+    background:
+      linear-gradient(to right, Canvas 30%, transparent) 0 0 / 24px 100%,
+      linear-gradient(to left, Canvas 30%, transparent) 100% 0 / 24px 100%,
+      radial-gradient(farthest-side at 0 50%, rgba(0, 0, 0, 0.18), transparent)
+        0 0 / 12px 100%,
+      radial-gradient(
+          farthest-side at 100% 50%,
+          rgba(0, 0, 0, 0.18),
+          transparent
+        )
+        100% 0 / 12px 100%;
+    background-repeat: no-repeat;
+    background-attachment: local, local, scroll, scroll;
+  }
+}
+
+/* ------------------------------------------------- entrance motion ------ */
+/* The page body's own entrance is driven imperatively on the live DOM by
+   AnimatedRoutes in App.jsx (each top-level section animates on its own line by
+   position and type, its buttons/fields following), so there is no blanket
+   `main { animation }` here — a CSS remount fade would stack with, and muddy,
+   that choreography.
+
+   What DOES belong here is the topbar title, which lives in the chrome OUTSIDE
+   #main-content and so is never touched by the route transition. Layout gives
+   the title span a `key={currentTitle}`, so React remounts it when the page
+   changes and this short rise + fade plays once — the header's own small beat,
+   on the same easing as the body it sits above. Disabled under reduced motion
+   by the block at the end of the file. */
+@keyframes title-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+.topbar-title {
+  animation: title-in var(--t) var(--ease);
+}
+
+/* Always reserve the scrollbar's width, so a tall page and a short page have
+   the same content width. Otherwise the whole grid shifts a scrollbar's worth
+   when the page height crosses the viewport between routes — which reads as the
+   sidebar "breathing" on every navigation during the transition below.
+   `scrollbar-gutter: stable` is the modern way; `overflow-y: scroll` is the
+   belt-and-suspenders that also holds a permanent track on older engines and
+   anywhere the gutter property is ignored. (On overlay-scrollbar platforms —
+   e.g. macOS — scrollbars take no width, so there is no jump to begin with.) */
+html {
+  scrollbar-gutter: stable;
+  overflow-y: scroll;
+}
+
+/* KPI reveal: when the headline numbers land, the four tiles rise in on a short,
+   bounded stagger — the "info reveal" beat from the data-viz reference. Bounded
+   to a handful of steps on purpose (a per-item cascade over a whole page is the
+   tell of thoughtless motion). `backwards` fill holds each tile hidden through
+   its delay, then releases to the element's own styles so the hover lift below
+   still works. Reduced motion zeroes the delay/duration in the block at the end
+   of the file, so nothing stays hidden. */
+@keyframes card-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+.stat-grid .stat-card {
+  animation: card-rise 480ms var(--ease) backwards;
+}
+.stat-grid .stat-card:nth-child(1) {
+  animation-delay: 60ms;
+}
+.stat-grid .stat-card:nth-child(2) {
+  animation-delay: 150ms;
+}
+.stat-grid .stat-card:nth-child(3) {
+  animation-delay: 240ms;
+}
+.stat-grid .stat-card:nth-child(4) {
+  animation-delay: 330ms;
+}
+.stat-grid .stat-card:nth-child(n + 5) {
+  animation-delay: 400ms;
+}
+
+/* The parameter cards on the dashboard get the same bounded reveal a beat after
+   the KPI tiles, so the page settles top-to-bottom rather than all at once. The
+   cards hold chart SVGs, but a translateY is composited (no layout change), so
+   ResponsiveContainer still measures the right width. `backwards` fill keeps the
+   hover deepen working; reduced motion zeroes it in the block at end of file. */
+.param-grid .param-card {
+  animation: card-rise 500ms var(--ease) backwards;
+}
+.param-grid .param-card:nth-child(1) {
+  animation-delay: 180ms;
+}
+.param-grid .param-card:nth-child(2) {
+  animation-delay: 270ms;
+}
+.param-grid .param-card:nth-child(3) {
+  animation-delay: 360ms;
+}
+.param-grid .param-card:nth-child(n + 4) {
+  animation-delay: 430ms;
+}
+
+/* Mobile drawer: as the panel slides in, its contents arrive in a short,
+   bounded stagger (top row, then each nav group, then the account block) so they
+   don't all pop at once. Bounded to a handful of steps on purpose — a per-item
+   cascade over a whole page is the tell of thoughtless motion; a brief reveal of
+   a few drawer groups is not. */
+@keyframes drawer-item {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+}
+
+/* Same stagger, arriving from the other side when the drawer lives on the
+   right (RTL). Keyframes cannot read direction, so the RTL variant gets its
+   own name and the stagger targets switch to it. */
+@keyframes drawer-item-rtl {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+}
+
+@media (max-width: 880px) {
+  .app-shell.drawer-open .sidebar-top,
+  .app-shell.drawer-open .panel-back,
+  .app-shell.drawer-open .panel-title,
+  .app-shell.drawer-open .nav-flat > li,
+  .app-shell.drawer-open .sidebar-account {
+    animation: drawer-item 440ms var(--ease) both;
+  }
+
+  [dir='rtl'] .app-shell.drawer-open .sidebar-top,
+  [dir='rtl'] .app-shell.drawer-open .panel-back,
+  [dir='rtl'] .app-shell.drawer-open .panel-title,
+  [dir='rtl'] .app-shell.drawer-open .nav-flat > li,
+  [dir='rtl'] .app-shell.drawer-open .sidebar-account {
+    animation-name: drawer-item-rtl;
+  }
+
+  .app-shell.drawer-open .sidebar-top,
+  .app-shell.drawer-open .panel-back,
+  .app-shell.drawer-open .panel-title {
+    animation-delay: 60ms;
+  }
+  .app-shell.drawer-open .nav-flat > li:nth-child(1) {
+    animation-delay: 110ms;
+  }
+  .app-shell.drawer-open .nav-flat > li:nth-child(2) {
+    animation-delay: 150ms;
+  }
+  .app-shell.drawer-open .nav-flat > li:nth-child(3) {
+    animation-delay: 190ms;
+  }
+  .app-shell.drawer-open .nav-flat > li:nth-child(4) {
+    animation-delay: 230ms;
+  }
+  .app-shell.drawer-open .nav-flat > li:nth-child(n + 5) {
+    animation-delay: 270ms;
+  }
+  .app-shell.drawer-open .sidebar-account {
+    animation-delay: 310ms;
+  }
+}
+
+/* ============================================ aurora phase 2 — primitives =
+   Shared building blocks applied across the pages in the reference-driven
+   redesign: glass section cards, a sticky glass control bar, chips, a page
+   header row, a loading spinner, import steppers + drop-zone, and status tones
+   for the empty-state mark. All are additive — a class an element opts into —
+   so nothing changes until markup adopts it. */
+
+/* Glass section card: wraps a page <section> so grouped settings/admin content
+   reads as a floating surface rather than a flat run of headings. Larger radius
+   than the KPI tiles; shares the frosted --glass-* family (opaque on gradebook). */
+.section-card {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-5);
+  margin: var(--space-5) 0;
+}
+
+.section-card > :first-child {
+  margin-top: 0;
+}
+
+.section-card > :last-child {
+  margin-bottom: 0;
+}
+
+/* Sticky glass control bar: the page's filters/actions lift into a frosted rail
+   that pins just under the topbar as content scrolls beneath it — the "controls
+   stay in reach" idea from the banking reference. z-index sits below the topbar
+   (30) so it tucks under it. Reverts cleanly where backdrop-filter is missing. */
+.control-bar {
+  position: sticky;
+  top: 3.5rem;
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-3);
+  margin: 0 0 var(--space-5);
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.control-bar .spacer {
+  margin-inline-start: auto;
+}
+
+/* A lone KPI callout (e.g. the current period on Settings) shouldn't stretch to
+   the full content width the way a grid of tiles does; cap it so it reads as a
+   single badge-like figure rather than a stretched banner. Reuses .stat-card's
+   glass fill, leading brand rule, and hover lift. */
+.kpi-callout {
+  max-width: 22rem;
+  margin: var(--space-5) 0;
+}
+
+/* Parameter management cards (the Parameters page): the name sits on a row with
+   its Edit affordance pushed to the trailing edge, mirroring the dashboard's
+   parameter cards so a parameter reads the same wherever it appears. */
+.param-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.param-card-head h3 {
+  margin: 0;
+}
+
+/* Chips: soft rounded tags for group memberships, coverage gaps, and other
+   small facts that used to be comma-joined text. Neutral by default; tinted
+   variants borrow the semantic tokens. A chip can carry a small remove button. */
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-1) 0;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0.22rem 0.62rem;
+  font-size: 0.82rem;
+  font-weight: 550;
+  color: var(--ink-soft);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.chip.brand {
+  color: var(--brand);
+  background: var(--brand-soft);
+  border-color: color-mix(in srgb, var(--brand) 30%, transparent);
+}
+
+.chip.warn {
+  color: var(--warn);
+  background: var(--warn-soft);
+  border-color: color-mix(in srgb, var(--warn) 30%, transparent);
+}
+
+.chip.ok {
+  color: var(--ok);
+  background: var(--ok-soft);
+  border-color: color-mix(in srgb, var(--ok) 30%, transparent);
+}
+
+.chip-remove {
+  display: inline-grid;
+  place-items: center;
+  width: 1.05rem;
+  height: 1.05rem;
+  margin: 0;
+  margin-inline-start: 0.05rem;
+  margin-inline-end: -0.2rem;
+  padding: 0;
+  font-size: 0.95rem;
+  line-height: 1;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  opacity: 0.65;
+  transition: opacity var(--t-fast) var(--ease);
+}
+
+.chip-remove:hover {
+  opacity: 1;
+  border: 0;
+  background: color-mix(in srgb, currentColor 18%, transparent);
+}
+
+/* Page header row: the page title on the left, its primary action(s) on the
+   right, wrapping on narrow screens. Lets a page lead with "<Title> … [Add]"
+   instead of a bare heading with the action buried below. */
+.page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-3);
+}
+
+.page-head h1 {
+  margin: 0;
+}
+
+.page-head-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* Loading state: a small brand spinner over a calm centered column, replacing
+   the bare "Loading…" line. The ring's spin is disabled under reduced motion
+   (global block below) — it then reads as a static brand-topped ring plus the
+   polite status text, which is enough to signal a wait. */
+.page-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  min-height: 38vh;
+  color: var(--ink-soft);
+}
+
+.spinner {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  border: 2.5px solid color-mix(in srgb, var(--ink) 14%, transparent);
+  border-top-color: var(--brand);
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Status tones for the empty-state mark (default is brand; see the base rule). */
+.empty-state-mark.danger {
+  color: var(--danger);
+  background: var(--danger-soft);
+}
+
+.empty-state-mark.warn {
+  color: var(--warn);
+  background: var(--warn-soft);
+}
+
+/* Import stepper: a compact "1 — 2 — 3" progress rail for the two-step import
+   wizards, so the user can see where they are. States: upcoming (faint), active
+   (brand ring), done (filled). Purely presentational; the pages drive state. */
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  margin: 0 0 1.25rem;
+}
+
+.step {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--ink-faint);
+  font-size: 0.9rem;
+  font-weight: 550;
+}
+
+.step-num {
+  display: grid;
+  place-items: center;
+  width: 1.65rem;
+  height: 1.65rem;
+  border-radius: 50%;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  font-size: 0.82rem;
+  font-weight: 640;
+  font-variant-numeric: tabular-nums;
+}
+
+.step.active {
+  color: var(--ink);
+}
+
+.step.active .step-num {
+  color: var(--brand);
+  background: var(--brand-soft);
+  border-color: color-mix(in srgb, var(--brand) 45%, transparent);
+}
+
+.step.done {
+  color: var(--ink-soft);
+}
+
+.step.done .step-num {
+  color: #fff;
+  background: var(--brand);
+  border-color: var(--brand);
+}
+
+.step-sep {
+  flex: 1 1 1.5rem;
+  min-width: 1rem;
+  height: 1px;
+  background: var(--line);
+}
+
+/* Styled file drop-zone / picker surround for the import pages. */
+.drop-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 1.75rem 1.5rem;
+  text-align: center;
+  color: var(--ink-soft);
+  background: var(--surface-2);
+  border: 1.5px dashed var(--line-strong);
+  border-radius: var(--radius-lg);
+  transition:
+    border-color var(--t) var(--ease),
+    background-color var(--t) var(--ease);
+}
+
+.drop-zone:hover {
+  border-color: color-mix(in srgb, var(--brand) 45%, var(--line-strong));
+}
+
+.drop-zone-mark {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  color: var(--brand);
+  background: var(--brand-soft);
+}
+
+.drop-zone-mark svg {
+  width: 1.3rem;
+  height: 1.3rem;
+}
+
+/* --------------------------------------------------------- custom cursor --- */
+/* Workstream I: a glowing dot that replaces the desktop pointer (Hybrid mode -
+   the native caret is kept over text fields). Mounted from main.jsx by
+   CustomCursor.jsx, which only renders on a fine, hovering pointer and never
+   under reduced motion; this block is the paint. It is wrapped so it can only
+   take effect on such a device, and `cursor: none` applies only while the JS
+   layer is actually live (html.cursor-active). */
+@media (hover: hover) and (pointer: fine) {
+  html.cursor-active,
+  html.cursor-active * {
+    cursor: none !important;
+  }
+  /* Hybrid: keep the real caret where text is entered or selected. */
+  html.cursor-active
+    :is(
+      input:not([type='button']):not([type='submit']):not([type='reset']):not(
+          [type='checkbox']
+        ):not([type='radio']):not([type='range']):not([type='color']):not(
+          [type='file']
+        ):not([type='image']):not([type='hidden']),
+      textarea,
+      [contenteditable='true'],
+      [contenteditable='']
+    ) {
+    cursor: text !important;
+  }
+
+  .cursor-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 1000; /* above the app's 100 ceiling (drawer 90, scrim 80, topbar 70) */
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--t-fast) var(--ease);
+  }
+  .cursor-layer.is-visible {
+    opacity: 1;
+  }
+  .cursor-dot,
+  .cursor-wave {
+    position: absolute;
+    top: 0;
+    left: 0;
+    will-change: transform;
+  }
+  /* The spring: overshoot easing carries the click's shrink back past 1.0, and
+     eases the calm bloom over actionable elements. */
+  .cursor-dot > i,
+  .cursor-wave > i {
+    display: block;
+    border-radius: 50%;
+    transition:
+      transform var(--t-fast) cubic-bezier(0.34, 1.56, 0.64, 1),
+      opacity var(--t-fast) var(--ease),
+      border-color var(--t-fast) var(--ease);
+  }
+  .cursor-dot > i {
+    width: 8px;
+    height: 8px;
+    margin: -4px 0 0 -4px;
+    background: var(--brand);
+    box-shadow:
+      0 0 10px 1px var(--glow-1),
+      0 0 4px 0 var(--brand);
+  }
+  /* the wave: concentric hollow rings around the dot. Each ring carries its own
+     diameter (--r-size) and opacity (--r-o) inline; the outer rings are set
+     larger and fainter, so the brand-hued halo fades outward like a ripple. */
+  .cursor-wave > i {
+    width: var(--r-size, 34px);
+    height: var(--r-size, 34px);
+    margin: calc(var(--r-size, 34px) / -2) 0 0 calc(var(--r-size, 34px) / -2);
+    border: 1.5px solid var(--brand);
+    opacity: var(--r-o, 0.3);
+  }
+  /* over actionable elements: the wave blooms outward, the dot eases down */
+  .cursor-layer.is-interactive .cursor-wave > i {
+    transform: scale(1.35);
+  }
+  .cursor-layer.is-interactive .cursor-dot > i {
+    transform: scale(0.7);
+  }
+
+  /* over text: step aside so the native caret is unobstructed */
+  .cursor-layer.is-text .cursor-dot > i,
+  .cursor-layer.is-text .cursor-wave > i {
+    opacity: 0;
+  }
+
+  /* click: dot shrinks and the wave tightens; the spring easing carries them
+     back (declared last so a press wins over the hover bloom) */
+  .cursor-layer.is-pressed .cursor-dot > i {
+    transform: scale(0.55);
+  }
+  .cursor-layer.is-pressed .cursor-wave > i {
+    transform: scale(0.85);
+  }
+}
+
+/* ================================================== export center ======= */
+/* The /export page: a two-column layout (config on the left, run + live
+   preview on the right). Pickers are plain <fieldset>s; the chart editors and
+   the scores-preview reuse the glass .section-card. Multi-series chart colours
+   are defined at the end of this block. */
+.export-layout {
+  display: grid;
+  grid-template-columns: minmax(320px, 380px) minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .export-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.export-config {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.export-output {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+/* Pickers: a light card that reads clearly against the page and lets the
+   nested glass .section-card chart editors stand out on top of it. */
+.export-fieldset {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: var(--space-4);
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.export-fieldset > legend {
+  padding: 0 var(--space-2);
+  font-weight: 650;
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+
+.radio-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+}
+
+.export-picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.range-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.include-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* Each include line is a checkbox next to a label whose hint wraps beneath it,
+   so pin the box to the top rather than centring on the whole two-line block. */
+.include-item {
+  align-items: flex-start;
+}
+
+.hint.block {
+  display: block;
+  margin-top: 2px;
+}
+
+/* A capped, scrollable checklist. .columns-list is a wrapping row; here we make
+   it a single scrolling column so long rosters/parameter lists stay compact. */
+.columns-list.scroll-list {
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: var(--space-1);
+  max-height: 15rem;
+  overflow-y: auto;
+  padding: var(--space-2);
+  margin-bottom: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+.columns-list.scroll-list.small {
+  max-height: 10rem;
+}
+
+/* Chart editors sit inside the Charts fieldset's flex column, so drop the
+   section-card's own vertical margin and let the parent gap do the spacing. */
+.section-card.chart-editor {
+  margin: 0;
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.chart-editor .toolbar {
+  margin-bottom: 0;
+}
+
+.export-run-bar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.export-run {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.export-errors {
+  list-style: disc;
+  margin: 0;
+  padding-inline-start: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.export-preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* The chart's on-screen container is exactly what the Export run serialises to
+   PNG/SVG, so keep it on an opaque surface (transparent areas raster black). */
+.chart-capture {
+  background: var(--surface);
+}
+
+.heatmap-wrap {
+  overflow-x: auto;
+}
+
+.heatmap-svg {
+  display: block;
+  max-width: none;
+}
+
+/* ---- multi-series chart colours ----
+   Six slots for charts that draw several series at once (trend lines, grouped
+   comparison bars, radar polygons). --series-1/2 reuse the palette's own accent
+   pair so they track [data-theme]/[data-palette]; 3–6 are fixed, distinct hues
+   that stay legible on both light and dark surfaces. Each recharts <Line>/<Bar>/
+   <Radar> is tagged .series-N (chartTheme.js#seriesClass); these rules recolour
+   its geometry and override the single-series base rules above. Setting a CSS
+   `fill`/`stroke` PROPERTY (not an attribute) is what lets var() resolve — and
+   what survives chartImage.js inlining computed styles for PNG/SVG export. */
+:root {
+  --series-1: var(--brand);
+  --series-2: var(--brand-2);
+  --series-3: #2563eb;
+  --series-4: #16a34a;
+  --series-5: #9333ea;
+  --series-6: #db2777;
+}
+
+.recharts-line.series-1 .recharts-line-curve,
+.recharts-radar.series-1 .recharts-polygon {
+  stroke: var(--series-1);
+}
+.recharts-line.series-1 .recharts-line-dot,
+.recharts-bar.series-1 .recharts-bar-rectangle path,
+.recharts-radar.series-1 .recharts-polygon,
+.recharts-radar.series-1 .recharts-radar-dot {
+  fill: var(--series-1);
+}
+
+.recharts-line.series-2 .recharts-line-curve,
+.recharts-radar.series-2 .recharts-polygon {
+  stroke: var(--series-2);
+}
+.recharts-line.series-2 .recharts-line-dot,
+.recharts-bar.series-2 .recharts-bar-rectangle path,
+.recharts-radar.series-2 .recharts-polygon,
+.recharts-radar.series-2 .recharts-radar-dot {
+  fill: var(--series-2);
+}
+
+.recharts-line.series-3 .recharts-line-curve,
+.recharts-radar.series-3 .recharts-polygon {
+  stroke: var(--series-3);
+}
+.recharts-line.series-3 .recharts-line-dot,
+.recharts-bar.series-3 .recharts-bar-rectangle path,
+.recharts-radar.series-3 .recharts-polygon,
+.recharts-radar.series-3 .recharts-radar-dot {
+  fill: var(--series-3);
+}
+
+.recharts-line.series-4 .recharts-line-curve,
+.recharts-radar.series-4 .recharts-polygon {
+  stroke: var(--series-4);
+}
+.recharts-line.series-4 .recharts-line-dot,
+.recharts-bar.series-4 .recharts-bar-rectangle path,
+.recharts-radar.series-4 .recharts-polygon,
+.recharts-radar.series-4 .recharts-radar-dot {
+  fill: var(--series-4);
+}
+
+.recharts-line.series-5 .recharts-line-curve,
+.recharts-radar.series-5 .recharts-polygon {
+  stroke: var(--series-5);
+}
+.recharts-line.series-5 .recharts-line-dot,
+.recharts-bar.series-5 .recharts-bar-rectangle path,
+.recharts-radar.series-5 .recharts-polygon,
+.recharts-radar.series-5 .recharts-radar-dot {
+  fill: var(--series-5);
+}
+
+.recharts-line.series-6 .recharts-line-curve,
+.recharts-radar.series-6 .recharts-polygon {
+  stroke: var(--series-6);
+}
+.recharts-line.series-6 .recharts-line-dot,
+.recharts-bar.series-6 .recharts-bar-rectangle path,
+.recharts-radar.series-6 .recharts-polygon,
+.recharts-radar.series-6 .recharts-radar-dot {
+  fill: var(--series-6);
+}
+
+/* Radar (comparison chart) grid + axes, matching the cartesian grid tint. */
+.recharts-polar-grid-angle line,
+.recharts-polar-grid-concentric-polygon,
+.recharts-polar-grid-concentric-circle {
+  stroke: color-mix(in srgb, var(--ink) 12%, transparent);
+}
+
+/* Recharts draws the legend as an HTML layer outside the <svg>, so it is not
+   part of the exported image — this only aligns the on-screen preview legend
+   with the series colours. Icons are coloured by their render order (which
+   matches the series index); scoped to the export preview so no other chart's
+   legend is affected. */
+.export-preview .recharts-legend-item.legend-item-0 .recharts-legend-icon {
+  stroke: var(--series-1);
+  fill: var(--series-1);
+}
+.export-preview .recharts-legend-item.legend-item-1 .recharts-legend-icon {
+  stroke: var(--series-2);
+  fill: var(--series-2);
+}
+.export-preview .recharts-legend-item.legend-item-2 .recharts-legend-icon {
+  stroke: var(--series-3);
+  fill: var(--series-3);
+}
+.export-preview .recharts-legend-item.legend-item-3 .recharts-legend-icon {
+  stroke: var(--series-4);
+  fill: var(--series-4);
+}
+.export-preview .recharts-legend-item.legend-item-4 .recharts-legend-icon {
+  stroke: var(--series-5);
+  fill: var(--series-5);
+}
+.export-preview .recharts-legend-item.legend-item-5 .recharts-legend-icon {
+  stroke: var(--series-6);
+  fill: var(--series-6);
+}
+
+/* ------------------------------------------------------ reduced motion --- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+

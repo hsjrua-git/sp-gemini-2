@@ -1,0 +1,66 @@
+{
+  "title": "Journal",
+  "hint": "Every entry must balance: total debits equal total credits. Cafe entries post automatically; manual ones live here.",
+  "newEntry": "New entry",
+  "entryDate": "Entry date",
+  "memo": "Memo (optional)",
+  "lines": "Lines",
+  "addLine": "Add line",
+  "removeLine": "Remove line",
+  "account": "Account",
+  "side": "Side",
+  "debit": "Debit",
+  "credit": "Credit",
+  "lineMemo": "Line memo (optional)",
+  "amount": "Amount",
+  "totalDebit": "Total debit",
+  "totalCredit": "Total credit",
+  "balanced": "Balanced",
+  "unbalancedBy": "Off by {{difference}}",
+  "submit": "Save draft",
+  "filters": {
+    "from": "From",
+    "to": "To",
+    "status": "Status",
+    "account": "Account",
+    "allStatuses": "All",
+    "allAccounts": "All accounts"
+  },
+  "list": {
+    "entryNo": "No.",
+    "date": "Date",
+    "memo": "Memo",
+    "source": "Source",
+    "lines": "Lines",
+    "total": "Amount",
+    "status": "Status",
+    "actions": "Actions",
+    "empty": "No entries in this range.",
+    "truncated": "Only the last {{count}} entries are shown; narrow the range."
+  },
+  "status": {
+    "draft": "Draft",
+    "posted": "Posted",
+    "voided": "Voided"
+  },
+  "source": {
+    "manual": "Manual",
+    "cafe_sale": "Cafe sale",
+    "cafe_purchase": "Cafe purchase",
+    "cafe_waste": "Waste",
+    "balance_txn": "Student balance",
+    "opening": "Opening",
+    "closing": "Closing"
+  },
+  "actions": {
+    "post": "Post",
+    "postConfirm": "Post this draft? Posted entries are immutable (only voiding is possible).",
+    "void": "Void",
+    "voidConfirm": "Void this entry? Its effect leaves the reports; voiding cannot be undone."
+  },
+  "feedback": {
+    "drafted": "Draft {{entryNo}} saved.",
+    "posted": "Entry {{entryNo}} posted.",
+    "voided": "Entry voided."
+  }
+}

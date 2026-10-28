@@ -1,0 +1,100 @@
+// The assignment-period results grid (schema-4 model). Rows are the
+// assignment's evaluation targets — the whole-group row first, then its
+// members (or the single member of an individual assignment) — and columns
+// are parameters. Each cell carries BOTH dimensions plus its answered state;
+// `previous` holds the selected dimension's value from the assignment's
+// previous period (seq − 1) for the change columns.
+//
+// Pure so it can be unit tested without a database; the route owns the SQL
+// and resolves which sessions belong to the requested (and previous) bucket.
+
+function mergeCell(existing, incoming) {
+  if (!existing) return incoming;
+  return {
+    quality: incoming.quality ?? existing.quality,
+    quantity: incoming.quantity ?? existing.quantity,
+    answered: existing.answered || incoming.answered,
+  };
+}
+
+export function buildResults({
+  seq,
+  period,
+  assignment,
+  parameters,
+  targets,
+  groupName,
+  evaluations,
+}) {
+  const cellMap = new Map();
+  const previousMap = new Map();
+
+  for (const item of evaluations) {
+    const key = `${item.membershipId ?? 'group'}:${item.parameterId}`;
+    const cell = {
+      quality: item.qualityValue,
+      quantity: item.quantityValue,
+      answered:
+        item.qualityValue !== null ||
+        item.quantityValue !== null ||
+        item.qualityComment !== null ||
+        item.quantityComment !== null,
+    };
+    if (item.periodSeq === seq) {
+      cellMap.set(key, mergeCell(cellMap.get(key), cell));
+    } else if (item.periodSeq === seq - 1) {
+      previousMap.set(key, mergeCell(previousMap.get(key), cell));
+    }
+  }
+
+  // The whole-group row leads a group assignment's grid; an individual
+  // assignment has exactly its member.
+  const rows = [];
+  if (assignment.groupId) {
+    rows.push({
+      membershipId: null,
+      studentId: null,
+      fullName: groupName,
+      studentCode: null,
+      isGroup: true,
+      cells: pickCells(null, cellMap, parameters),
+      previous: pickPrevious(null, previousMap, parameters),
+    });
+  }
+  for (const target of targets) {
+    rows.push({
+      membershipId: target.membershipId,
+      studentId: target.studentId,
+      fullName: target.fullName,
+      studentCode: target.studentCode,
+      isGroup: false,
+      cells: pickCells(target.membershipId, cellMap, parameters),
+      previous: pickPrevious(target.membershipId, previousMap, parameters),
+    });
+  }
+
+  return { rows };
+}
+
+function pickCells(membershipId, cellMap, parameters) {
+  const cells = {};
+  for (const parameter of parameters) {
+    const cell = cellMap.get(`${membershipId ?? 'group'}:${parameter.id}`);
+    if (cell) cells[parameter.id] = cell;
+  }
+  return cells;
+}
+
+function pickPrevious(membershipId, previousMap, parameters) {
+  const previous = {};
+  for (const parameter of parameters) {
+    const cell = previousMap.get(`${membershipId ?? 'group'}:${parameter.id}`);
+    if (!cell) continue;
+    // `previous` keeps the per-dimension values; the client picks the column.
+    previous[parameter.id] = {
+      quality: cell.quality,
+      quantity: cell.quantity,
+    };
+  }
+  return previous;
+}
