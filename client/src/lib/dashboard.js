@@ -21,17 +21,13 @@ function normalize({ dimension = 'quality', basis = 'value' } = {}) {
   };
 }
 
-function answered(cell, basis) {
+function answered(cell, basis, dimension) {
   if (!cell) return false;
+  const value = cell[dimension];
   if (basis === 'valueOrComment') {
-    return (
-      cell.quality !== null ||
-      cell.quantity !== null ||
-      cell.qualityComment !== null ||
-      cell.quantityComment !== null
-    );
+    return value !== null || cell[`${dimension}Comment`] !== null;
   }
-  return cell.quality !== null || cell.quantity !== null;
+  return value !== null;
 }
 
 // The parameters "in use" this period: those with at least one selected cell
@@ -43,8 +39,17 @@ function inUseParameters(results) {
   );
 }
 
+// Keep an explicit saved choice when it still exists. Otherwise prefer the
+// newest period that actually contains answers, so a generated future period
+// does not make the dashboard/constellation look empty by default.
+export function dashboardPeriodSeq(periods, requestedSeq) {
+  if (periods.some((period) => period.seq === requestedSeq)) return requestedSeq;
+  const populated = periods.filter((period) => (period.answeredCount ?? 0) > 0);
+  return populated[populated.length - 1]?.seq ?? periods[periods.length - 1]?.seq ?? null;
+}
+
 export function summarize(results, options = {}) {
-  const { basis } = normalize(options);
+  const { dimension, basis } = normalize(options);
   const inUse = inUseParameters(results);
   const students = results.rows.filter((row) => !row.isGroup);
   const expected = students.length * inUse.length;
@@ -55,7 +60,7 @@ export function summarize(results, options = {}) {
 
   for (const row of students) {
     const have = inUse.filter((parameter) =>
-      answered(row.cells[parameter.id], basis)
+      answered(row.cells[parameter.id], basis, dimension)
     ).length;
     measured += have;
     if (inUse.length > 0 && have === inUse.length) complete++;
@@ -78,13 +83,13 @@ export function summarize(results, options = {}) {
 // One entry per student — the "living class field" on the dashboard hero.
 // Roster order is preserved so a dot maps to a stable position across renders.
 export function cohortField(results, options = {}) {
-  const { basis } = normalize(options);
+  const { dimension, basis } = normalize(options);
   const inUse = inUseParameters(results);
   return results.rows
     .filter((row) => !row.isGroup)
     .map((row) => {
       const measured = inUse.filter((parameter) =>
-        answered(row.cells[parameter.id], basis)
+        answered(row.cells[parameter.id], basis, dimension)
       ).length;
       let state;
       if (inUse.length > 0 && measured === inUse.length) state = 'full';
@@ -105,16 +110,18 @@ export function cohortField(results, options = {}) {
 // class-level summary and would double-count). `inUse` drives the
 // constellation's ring fan.
 export function parameterStats(results, options = {}) {
-  const { dimension } = normalize(options);
+  const { dimension, basis } = normalize(options);
   const students = results.rows.filter((row) => !row.isGroup);
   return results.parameters.map((parameter) => {
     const values = [];
     const changes = [];
     let selected = 0;
+    let answeredCount = 0;
     for (const row of students) {
       const cell = row.cells[parameter.id];
       const now = cell?.[dimension];
       if (cell !== undefined) selected++;
+      if (answered(cell, basis, dimension)) answeredCount++;
       if (now !== undefined && now !== null) values.push(now);
       const before = row.previous[parameter.id]?.[dimension];
       if (
@@ -130,6 +137,7 @@ export function parameterStats(results, options = {}) {
       parameter: { ...parameter, inUse: selected > 0 },
       values,
       count: values.length,
+      answeredCount,
       selected,
       average: values.length ? round(sum(values) / values.length) : null,
       min: values.length ? Math.min(...values) : null,
@@ -213,7 +221,7 @@ export function studentBreakdown(results, studentId, options = {}) {
     return {
       parameter,
       value,
-      answered: answered(cell, basis),
+      answered: answered(cell, basis, dimension),
       change:
         value !== null && before !== null && before !== undefined
           ? round(value - before)
@@ -233,7 +241,7 @@ export function studentBreakdown(results, studentId, options = {}) {
 // Who still owes answers: students with selected-but-unanswered (or entirely
 // unselected) cells among the in-use parameters, worst first.
 export function unmeasuredStudents(results, options = {}) {
-  const { basis } = normalize(options);
+  const { dimension, basis } = normalize(options);
   const inUse = inUseParameters(results);
   if (inUse.length === 0) return [];
 
@@ -244,7 +252,7 @@ export function unmeasuredStudents(results, options = {}) {
       fullName: row.fullName,
       studentCode: row.studentCode,
       missing: inUse
-        .filter((parameter) => !answered(row.cells[parameter.id], basis))
+        .filter((parameter) => !answered(row.cells[parameter.id], basis, dimension))
         .map((parameter) => parameter.name),
     }))
     .filter((item) => item.missing.length > 0)

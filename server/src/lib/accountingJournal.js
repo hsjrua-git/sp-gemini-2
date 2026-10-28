@@ -5,6 +5,7 @@
 // the one-transaction flows on top of them.
 
 import { isUuid } from './ids.js';
+import { MAX_SAFE_MONEY, moneyNumber, sumMoney } from './money.js';
 import { isValidIsoDate } from './periods.js';
 
 // A line is { accountId, debit } XOR { accountId, credit } — never both.
@@ -30,9 +31,14 @@ function normalizeLines(lines, { maxLines = 100 } = {}) {
     }
     const debit = line?.debit ?? 0;
     const credit = line?.credit ?? 0;
-    if (!Number.isInteger(debit) || !Number.isInteger(credit) || debit < 0 || credit < 0) {
+    if (
+      !Number.isSafeInteger(debit) ||
+      !Number.isSafeInteger(credit) ||
+      debit < 0 ||
+      credit < 0
+    ) {
       return {
-        error: 'Debit and credit must be whole Toman amounts (0 or more).',
+        error: 'Debit and credit must be exact whole Toman amounts (0 or more).',
         code: 'VALIDATION_INVALID_RANGE',
       };
     }
@@ -42,26 +48,53 @@ function normalizeLines(lines, { maxLines = 100 } = {}) {
         code: 'VALIDATION_INVALID_CHOICE',
       };
     }
+    const memo =
+      typeof line?.memo === 'string' && line.memo.trim() !== ''
+        ? line.memo.trim()
+        : null;
+    if (memo !== null && memo.length > 500) {
+      return {
+        error: 'Line memos must be 500 characters or fewer.',
+        code: 'VALIDATION_TOO_LONG',
+        params: { max: 500 },
+      };
+    }
     normalized.push({
       accountId: line.accountId,
       debit,
       credit,
-      memo: typeof line?.memo === 'string' && line.memo.trim() !== '' ? line.memo.trim() : null,
+      memo,
     });
   }
-  const totalDebit = normalized.reduce((sum, line) => sum + line.debit, 0);
-  const totalCredit = normalized.reduce((sum, line) => sum + line.credit, 0);
-  if (totalDebit !== totalCredit) {
+  const totalDebitExact = normalized.reduce(
+    (sum, line) => sum + BigInt(line.debit),
+    0n
+  );
+  const totalCreditExact = normalized.reduce(
+    (sum, line) => sum + BigInt(line.credit),
+    0n
+  );
+  if (totalDebitExact !== totalCreditExact) {
     return {
       error: 'The entry does not balance (Σdebit ≠ Σcredit).',
       code: 'ACCOUNTING_UNBALANCED',
-      params: { debit: totalDebit, credit: totalCredit },
+      params: {
+        debit: totalDebitExact.toString(),
+        credit: totalCreditExact.toString(),
+      },
     };
   }
-  if (totalDebit === 0) {
+  if (totalDebitExact === 0n) {
     return { error: 'An entry cannot be all zeros.', code: 'VALIDATION_INVALID_RANGE' };
   }
-  return { value: normalized, total: totalDebit };
+  if (totalDebitExact > BigInt(MAX_SAFE_MONEY)) {
+    return {
+      error: 'The journal total is too large to represent exactly.',
+      code: 'MONEY_OUT_OF_RANGE',
+      params: { max: String(MAX_SAFE_MONEY) },
+    };
+  }
+  return { value: normalized, total: Number(totalDebitExact) };
 }
 
 export function parseJournalEntryBody(body) {
@@ -151,39 +184,28 @@ export async function postEntry(db, { user, entryId }) {
 // void that calls this.
 export async function voidEntry(db, { user, entryId }) {
   const existing = await db.query(
-    `SELECT e.status,
-            e.source_type AS "sourceType",
-            e.entry_date::text AS "entryDate",
-            EXISTS (
-              SELECT 1 FROM acct_fiscal_periods p
-               WHERE p.status = 'closed'
-                 AND e.entry_date BETWEEN p.start_date AND p.end_date
-            ) AS "inClosedPeriod"
-     FROM acct_journal_entries e
-     WHERE e.id = $1
+    `SELECT status, source_type AS "sourceType"
+     FROM acct_journal_entries
+     WHERE id = $1
      FOR UPDATE`,
     [entryId]
   );
-  if (existing.rowCount === 0) {
-    return { error: 'NOT_FOUND' };
-  }
-  const row = existing.rows[0];
-  if (row.status !== 'posted') {
+  if (existing.rowCount === 0) return { error: 'NOT_FOUND' };
+  if (existing.rows[0].status !== 'posted') {
     return { error: 'ACCOUNTING_ENTRY_NOT_POSTED' };
   }
-  if (row.sourceType === 'closing') {
-    return { error: 'ACCOUNTING_CLOSING_ENTRY_IMMUTABLE' };
+  if (['opening', 'closing'].includes(existing.rows[0].sourceType)) {
+    return { error: 'ACCOUNTING_SYSTEM_ENTRY_IMMUTABLE' };
   }
-  if (row.inClosedPeriod) {
-    return { error: 'ACCOUNTING_PERIOD_CLOSED' };
-  }
-  await db.query(
+
+  const result = await db.query(
     `UPDATE acct_journal_entries
      SET status = 'voided', voided_by = $2
-     WHERE id = $1 AND status = 'posted'`,
+     WHERE id = $1 AND status = 'posted'
+     RETURNING id, entry_no`,
     [entryId, user.id]
   );
-  return { voided: true };
+  return { voided: true, entryNo: Number(result.rows[0].entry_no) };
 }
 
 // The cafe auto-post: ONE journal entry per source event, its lines built
@@ -205,23 +227,25 @@ export async function postMappedEvent(db, { user, sourceType, sourceId, date, me
   const lines = [];
   for (const pair of pairs) {
     const mapping = mappings.rows.find((row) => row.event === pair.event);
-    if (!mapping || pair.amount <= 0) continue;
+    if (!mapping) continue;
+    const amount = moneyNumber(pair.amount, 'Mapped journal amount');
+    if (amount <= 0) continue;
     lines.push({
       accountId: mapping.debit_account_id,
-      debit: pair.amount,
+      debit: amount,
       credit: 0,
       memo: pair.memo ?? null,
     });
     lines.push({
       accountId: mapping.credit_account_id,
       debit: 0,
-      credit: pair.amount,
+      credit: amount,
       memo: pair.memo ?? null,
     });
   }
   if (lines.length === 0) return { posted: false };
 
-  const total = lines.reduce((sum, line) => sum + line.debit, 0);
+  const total = sumMoney(lines.map((line) => line.debit), 'Mapped journal total');
   // Draft first, lines second, then the post transition — the lines trigger
   // only trusts drafts, and the lifecycle trigger stamps the post.
   const entry = await db.query(
@@ -254,6 +278,13 @@ export async function postMappedEvent(db, { user, sourceType, sourceId, date, me
 // (their money); negative balances are a receivable (they owe the cafe); the
 // difference lands in opening equity. Refuses to run twice.
 export async function generateOpeningEntry(db, { user, date }) {
+  // Serialize the once-ever check across processes/requests. The companion
+  // partial unique index in migration 031 is the final DB safety net.
+  await db.query(
+    `SELECT key FROM acct_invariant_locks
+     WHERE key = 'opening_entry'
+     FOR UPDATE`
+  );
   const existing = await db.query(
     `SELECT id FROM acct_journal_entries
      WHERE source_type = 'opening' AND status = 'posted'`
@@ -271,23 +302,20 @@ export async function generateOpeningEntry(db, { user, date }) {
   );
   const balances = await db.query(
     `SELECT
-       COALESCE(SUM(sb.balance) FILTER (WHERE sb.balance > 0), 0)::bigint AS deposits,
-       COALESCE(-SUM(sb.balance) FILTER (WHERE sb.balance < 0), 0)::bigint AS receivable
-     FROM student_balances sb
-     JOIN students s ON s.id = sb.student_id
-     WHERE s.deleted_at IS NULL`
+       COALESCE(SUM(balance) FILTER (WHERE balance > 0), 0)::bigint AS deposits,
+       COALESCE(-SUM(balance) FILTER (WHERE balance < 0), 0)::bigint AS receivable
+     FROM student_balances`
   );
-  const inventoryValue = Number(inventory.rows[0].value);
-  const deposits = Number(balances.rows[0].deposits);
-  const receivable = Number(balances.rows[0].receivable);
+  const inventoryValue = moneyNumber(inventory.rows[0].value, 'Opening inventory');
+  const deposits = moneyNumber(balances.rows[0].deposits, 'Opening deposits');
+  const receivable = moneyNumber(balances.rows[0].receivable, 'Opening receivables');
 
-  const [inventoryAccount, depositsAccount, receivableAccount, equityAccount] =
-    await Promise.all([
-      code('1200'),
-      code('2100'),
-      code('1300'),
-      code('3000'),
-    ]);
+  // A checked-out pg Client is one wire connection: run these sequentially.
+  // Concurrent client.query() calls are deprecated in pg 8 and rejected in 9.
+  const inventoryAccount = await code('1200');
+  const depositsAccount = await code('2100');
+  const receivableAccount = await code('1300');
+  const equityAccount = await code('3000');
 
   const lines = [];
   if (inventoryValue > 0) {
@@ -318,8 +346,8 @@ export async function generateOpeningEntry(db, { user, date }) {
     return { error: 'ACCOUNTING_NOTHING_TO_OPEN' };
   }
 
-  const debitTotal = lines.reduce((sum, line) => sum + line.debit, 0);
-  const creditTotal = lines.reduce((sum, line) => sum + line.credit, 0);
+  const debitTotal = sumMoney(lines.map((line) => line.debit), 'Opening debit total');
+  const creditTotal = sumMoney(lines.map((line) => line.credit), 'Opening credit total');
   const plug = debitTotal - creditTotal;
   if (plug > 0) {
     lines.push({
@@ -396,7 +424,7 @@ export async function findEntryBySource(db, sourceType, sourceId) {
 // FOR UPDATE.
 export async function closeFiscalPeriod(db, { user, periodId }) {
   const period = await db.query(
-    `SELECT id, name, start_date::text AS "startDate", end_date::text AS "endDate", status
+    `SELECT id, name, start_date AS "startDate", end_date AS "endDate", status
      FROM acct_fiscal_periods WHERE id = $1 FOR UPDATE`,
     [periodId]
   );
@@ -435,25 +463,32 @@ export async function closeFiscalPeriod(db, { user, periodId }) {
     const equityId = equity.rows[0].id;
     const lines = [];
     for (const row of balances.rows) {
-      const balance = Number(row.balance);
-      const amount = Math.abs(balance);
-      // Normal income (>0) or contra-expense (<0) is zeroed by debiting the
-      // account and crediting retained earnings; normal expense (>0) or
-      // contra-income (<0) is zeroed by crediting the account and debiting
-      // retained earnings.
-      const debitAccountFirst =
-        (row.type === 'income' && balance > 0) ||
-        (row.type === 'expense' && balance < 0);
-      if (debitAccountFirst) {
-        lines.push({ accountId: row.id, debit: amount, credit: 0, memo: null });
-        lines.push({ accountId: equityId, debit: 0, credit: amount, memo: null });
+      const balance = moneyNumber(row.balance, 'Closing account balance');
+      if (row.type === 'income') {
+        // Normal income is a credit balance. Contra-income is a valid debit
+        // balance, so reverse both sides rather than producing negative lines.
+        if (balance > 0) {
+          lines.push({ accountId: row.id, debit: balance, credit: 0, memo: null });
+          lines.push({ accountId: equityId, debit: 0, credit: balance, memo: null });
+        } else {
+          const amount = Math.abs(balance);
+          lines.push({ accountId: row.id, debit: 0, credit: amount, memo: null });
+          lines.push({ accountId: equityId, debit: amount, credit: 0, memo: null });
+        }
       } else {
-        lines.push({ accountId: row.id, debit: 0, credit: amount, memo: null });
-        lines.push({ accountId: equityId, debit: amount, credit: 0, memo: null });
+        // Normal expense is a debit balance; contra-expense is a credit.
+        if (balance > 0) {
+          lines.push({ accountId: row.id, debit: 0, credit: balance, memo: null });
+          lines.push({ accountId: equityId, debit: balance, credit: 0, memo: null });
+        } else {
+          const amount = Math.abs(balance);
+          lines.push({ accountId: row.id, debit: amount, credit: 0, memo: null });
+          lines.push({ accountId: equityId, debit: 0, credit: amount, memo: null });
+        }
       }
     }
     closingLines = lines.length;
-    const posted = await createPostedEntry(db, {
+    const closing = await createPostedEntry(db, {
       user,
       entryDate: endDate,
       memo: `Closing: ${period.rows[0].name}`,
@@ -462,9 +497,7 @@ export async function closeFiscalPeriod(db, { user, periodId }) {
       lines,
       maxLines: Infinity,
     });
-    if (posted?.error) {
-      return posted;
-    }
+    if (closing.error) return closing;
   }
 
   await db.query(

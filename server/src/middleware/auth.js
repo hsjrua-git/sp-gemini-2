@@ -59,7 +59,12 @@ export function authorize(policy) {
         code: 'AUTH_FORBIDDEN',
       });
     }
-    if (need !== true && !userCan(req, need)) {
+    const allowed =
+      need === true ||
+      (Array.isArray(need)
+        ? need.some((key) => userCan(req, key))
+        : userCan(req, need));
+    if (!allowed) {
       return res.status(403).json({
         error: 'You do not have permission to do that.',
         code: 'AUTH_FORBIDDEN',

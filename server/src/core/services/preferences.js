@@ -1,6 +1,6 @@
 // User preferences — service layer (framework-free).
 //
-// On-device equivalent of routes/preferences.js. The route keyed everything on
+// PGlite test mirror of routes/preferences.js. The route keyed everything on
 // req.user.id; here there is one user, resolved by ensureLocalUser() at startup,
 // read through getLocalUserId(). Body validation stays in lib/preferences.js;
 // parse failures become ServiceError.validation.
@@ -36,8 +36,19 @@ export async function updatePreferences(body) {
     `INSERT INTO user_preferences (user_id, settings)
      VALUES ($1, $2::jsonb)
      ON CONFLICT (user_id)
-     DO UPDATE SET settings = user_preferences.settings || EXCLUDED.settings,
-                   updated_at = now()
+     DO UPDATE SET settings =
+       CASE WHEN EXCLUDED.settings ? 'dashboardConstellation' THEN
+         (user_preferences.settings || EXCLUDED.settings)
+         || jsonb_build_object(
+              'dashboardConstellation',
+              COALESCE(
+                user_preferences.settings -> 'dashboardConstellation',
+                '{}'::jsonb
+              ) || (EXCLUDED.settings -> 'dashboardConstellation')
+            )
+       ELSE user_preferences.settings || EXCLUDED.settings
+       END,
+                    updated_at = now()
      RETURNING settings`,
     [getLocalUserId(), JSON.stringify(parsed.values)],
   );

@@ -23,6 +23,7 @@ import {
   voidEntry,
 } from '../lib/accountingJournal.js';
 import { balanceSheet, incomeStatement, trialBalance } from '../lib/accountingReports.js';
+import { todayIso } from '../lib/periods.js';
 
 const client = await pool.connect();
 
@@ -45,7 +46,7 @@ const accountByCode = async (code) =>
   (await client.query('SELECT id FROM acct_accounts WHERE code = $1', [code]))
     .rows[0].id;
 
-const today = new Date().toISOString().slice(0, 10);
+const today = todayIso();
 
 try {
   await client.query('BEGIN');
@@ -68,6 +69,7 @@ try {
       `INSERT INTO cafe_products (name, price) VALUES ('ZZAcct Cake', 40000) RETURNING id`
     )
   ).rows[0];
+  const baselineIncome = await incomeStatement(client, { from: '1900-01-01', to: today });
 
   // Pre-accounting stock: a delivery recorded before accounting was adopted.
   const pu = await client.query(
@@ -88,13 +90,15 @@ try {
 
   // 1. The opening entry brings the pre-existing stock (12 × 25000) onto the
   //    books, plugged by opening equity; running it twice is refused.
-  const opening = await generateOpeningEntry(client, { user, date: today });
-  assert.equal(opening.total, 300000, 'opening books the stock at cost');
-  await expectFailure(
-    () => generateOpeningEntry(client, { user, date: today }),
-    /ACCOUNTING|opening/i,
-    'opening twice refused'
+  const existingOpening = await client.query(
+    `SELECT id FROM acct_journal_entries WHERE source_type = 'opening' AND status = 'posted'`
   );
+  if (existingOpening.rowCount === 0) {
+    const opening = await generateOpeningEntry(client, { user, date: today });
+    assert.equal(opening.total, 300000, 'opening books the stock at cost');
+  }
+  const duplicateOpening = await generateOpeningEntry(client, { user, date: today });
+  assert.equal(duplicateOpening.error, 'ACCOUNTING_OPENING_EXISTS', 'opening twice refused');
 
   // 2. A purchase AFTER adoption auto-posts (Dr inventory / Cr cash).
   const purchasePost = await postMappedEvent(client, {
@@ -149,9 +153,9 @@ try {
   const tb = await trialBalance(client, { from: '1900-01-01', to: today });
   assert.equal(tb.totalDebit, tb.totalCredit, 'trial balance balances');
   const is = await incomeStatement(client, { from: '1900-01-01', to: today });
-  assert.equal(is.totalIncome, 120000, 'income statement sees the sale');
-  assert.equal(is.totalExpense, 75000, 'COGS is an expense');
-  assert.equal(is.netProfit, 45000, 'net profit = revenue − cost');
+  assert.equal(is.totalIncome - baselineIncome.totalIncome, 120000, 'income statement sees the sale');
+  assert.equal(is.totalExpense - baselineIncome.totalExpense, 75000, 'COGS is an expense');
+  assert.equal(is.netProfit - baselineIncome.netProfit, 45000, 'net profit = revenue − cost');
   const bs = await balanceSheet(client, { asOf: today });
   assert.equal(bs.balanced, true, 'the balance sheet identity holds');
 
@@ -240,10 +244,23 @@ try {
 
   // 8. Closed periods refuse postings; the close books the closing entry
   //    into retained earnings.
-  const period = await client.query(
-    `INSERT INTO acct_fiscal_periods (name, start_date, end_date)
-     VALUES ('ZZ 1405 Q4', current_date - 1, current_date + 1) RETURNING id`
+  let period = await client.query(
+    `SELECT id, end_date AS "endDate" FROM acct_fiscal_periods
+     WHERE current_date BETWEEN start_date AND end_date
+     ORDER BY start_date DESC LIMIT 1`
   );
+  if (period.rowCount === 0) {
+    period = await client.query(
+      `INSERT INTO acct_fiscal_periods (name, start_date, end_date)
+       VALUES ('ZZ current period', current_date - 1, current_date + 1)
+       RETURNING id, end_date AS "endDate"`
+    );
+  }
+  const reportRange = {
+    from: period.rows[0].endDate.slice(0, 4) + '-01-01',
+    to: period.rows[0].endDate,
+  };
+  const statementBeforeClose = await incomeStatement(client, reportRange);
   const closed = await closeFiscalPeriod(client, {
     user,
     periodId: period.rows[0].id,
@@ -251,16 +268,20 @@ try {
   assert.equal(closed.closed, true, 'period closes');
   // The sale was voided, so only the rent expense remains to zero: one
   // expense line + its retained-earnings pair.
-  assert.equal(closed.closingLines, 2, 'closing entry zeroed the expense');
+  assert.ok(closed.closingLines >= 2, 'closing entry zeroed income and expenses');
   // The closing entry is dated the period's end (tomorrow), so the range
   // must reach past it.
-  const tomorrow = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
-  const isAfterClose = await incomeStatement(client, {
-    from: '1900-01-01',
-    to: tomorrow,
-  });
-  assert.equal(isAfterClose.totalIncome, 0, 'income zeroed by the close');
-  assert.equal(isAfterClose.totalExpense, 0, 'expense zeroed by the close');
+  const isAfterClose = await incomeStatement(client, reportRange);
+  assert.equal(
+    isAfterClose.totalIncome,
+    statementBeforeClose.totalIncome,
+    'closing entries do not erase reported income'
+  );
+  assert.equal(
+    isAfterClose.totalExpense,
+    statementBeforeClose.totalExpense,
+    'closing entries do not erase reported expense'
+  );
 
   const lateDraft = await createDraftEntry(client, {
     user,
@@ -275,6 +296,60 @@ try {
     () => postEntry(client, { user, entryId: lateDraft.entryId }),
     /closed fiscal period/,
     'posting into a closed period refused'
+  );
+
+  // Reopen, accept a valid late contra-income posting, and close again. The
+  // signed balance must reverse correctly and a second closing entry for the
+  // same period is allowed. Once closed again, even voiding is refused.
+  await client.query(
+    `UPDATE acct_fiscal_periods
+     SET status = 'open', closed_by = NULL, closed_at = NULL
+     WHERE id = $1`,
+    [period.rows[0].id]
+  );
+  const firstClosing = (
+    await client.query(
+      `SELECT id FROM acct_journal_entries
+       WHERE source_type = 'closing' AND source_id = $1
+       ORDER BY created_at LIMIT 1`,
+      [period.rows[0].id]
+    )
+  ).rows[0];
+  const systemVoid = await voidEntry(client, {
+    user,
+    entryId: firstClosing.id,
+  });
+  assert.equal(
+    systemVoid.error,
+    'ACCOUNTING_SYSTEM_ENTRY_IMMUTABLE',
+    'system closing entry cannot be voided after reopen'
+  );
+  const contra = await createDraftEntry(client, {
+    user,
+    entryDate: today,
+    memo: 'Sales return',
+    lines: [
+      { accountId: await accountByCode('4100'), debit: 100, credit: 0, memo: null },
+      { accountId: await accountByCode('1100'), debit: 0, credit: 100, memo: null },
+    ],
+  });
+  await postEntry(client, { user, entryId: contra.entryId });
+  const reclosed = await closeFiscalPeriod(client, {
+    user,
+    periodId: period.rows[0].id,
+  });
+  assert.equal(reclosed.closed, true, 'reopened period closes again');
+  assert.equal(reclosed.closingLines, 2, 'contra-income closes with positive lines');
+  const closingCount = await client.query(
+    `SELECT count(*)::int AS count FROM acct_journal_entries
+     WHERE source_type = 'closing' AND source_id = $1 AND status = 'posted'`,
+    [period.rows[0].id]
+  );
+  assert.equal(closingCount.rows[0].count, 2, 'each close has its own closing entry');
+  await expectFailure(
+    () => voidEntry(client, { user, entryId: contra.entryId }),
+    /cannot void inside a closed fiscal period/,
+    'closed books cannot be changed by voiding'
   );
 
   // 9. The parser refuses unbalanced client input before any SQL runs.

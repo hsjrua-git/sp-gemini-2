@@ -58,7 +58,7 @@ const STUDENT_COLUMNS = `
   student_code AS "studentCode",
   full_name    AS "fullName",
   gender,
-  birth_date::text AS "birthDate",
+  birth_date   AS "birthDate",
   father_name  AS "fatherName",
   national_id  AS "nationalId",
   extra,
@@ -377,19 +377,44 @@ router.patch('/:id', async (req, res) => {
 });
 
 router.delete('/:id', async (req, res) => {
-  const result = await pool.query(
-    `UPDATE students
-     SET deleted_at = now()
-     WHERE id = $1 AND deleted_at IS NULL`,
-    [req.params.id]
-  );
-
-  if (result.rowCount === 0) {
-    return res
-      .status(404)
-      .json({ error: 'Student not found.', code: 'NOT_FOUND', params: { entity: 'student' } });
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const student = await client.query(
+      `SELECT id FROM students
+       WHERE id = $1 AND deleted_at IS NULL
+       FOR UPDATE`,
+      [req.params.id]
+    );
+    if (student.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({
+        error: 'Student not found.', code: 'NOT_FOUND', params: { entity: 'student' },
+      });
+    }
+    const balance = await client.query(
+      `SELECT balance FROM student_balances WHERE student_id = $1 FOR UPDATE`,
+      [req.params.id]
+    );
+    if (BigInt(balance.rows[0]?.balance ?? 0) !== 0n) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({
+        error: 'Settle or refund the student balance before deleting the student.',
+        code: 'STUDENTS_BALANCE_NOT_ZERO',
+      });
+    }
+    await client.query(
+      `UPDATE students SET deleted_at = now() WHERE id = $1`,
+      [req.params.id]
+    );
+    await client.query('COMMIT');
+    res.status(204).end();
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
   }
-  res.status(204).end();
 });
 
 router.get('/:id', async (req, res) => {

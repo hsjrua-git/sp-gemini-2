@@ -379,7 +379,8 @@ function JournalList({ accounts, canPost }) {
                           {t('actions.post')}
                         </button>
                       )}
-                      {entry.status === 'posted' && (
+                      {entry.status === 'posted' &&
+                        !['opening', 'closing'].includes(entry.sourceType) && (
                         <button
                           type="button"
                           className="quiet"

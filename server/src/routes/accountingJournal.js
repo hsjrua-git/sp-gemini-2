@@ -16,8 +16,8 @@ const MAX_LISTED = 200;
 
 const ENTRY_COLUMNS = `
   e.id,
-  e.entry_no          AS "entryNo",
-  e.entry_date::text  AS "entryDate",
+  e.entry_no       AS "entryNo",
+  e.entry_date     AS "entryDate",
   e.memo,
   e.status,
   e.source_type    AS "sourceType",
@@ -234,10 +234,11 @@ router.post('/:id/void', requirePermission('accounting.post'), async (req, res) 
       const status = result.error === 'NOT_FOUND' ? 404 : 409;
       const messages = {
         NOT_FOUND: 'Entry not found.',
-        ACCOUNTING_PERIOD_CLOSED: 'The entry falls in a closed fiscal period.',
-        ACCOUNTING_CLOSING_ENTRY_IMMUTABLE: 'Closing entries cannot be voided.',
+        ACCOUNTING_ENTRY_NOT_POSTED: 'Only posted entries can be voided.',
+        ACCOUNTING_SYSTEM_ENTRY_IMMUTABLE:
+          'Opening and closing entries are controlled by their fiscal workflows.',
       };
-      const message = messages[result.error] ?? 'Only posted entries can be voided.';
+      const message = messages[result.error] ?? 'The entry cannot be voided.';
       return res.status(status).json({ error: message, code: result.error });
     }
     await recordAudit(client, {
@@ -245,17 +246,11 @@ router.post('/:id/void', requirePermission('accounting.post'), async (req, res) 
       actor: req.user.username,
       action: 'accounting_entry.void',
       entityType: 'acct_journal_entry',
-      details: { entryId: req.params.id },
+      details: { entryId: req.params.id, entryNo: result.entryNo },
     });
     await client.query('COMMIT');
   } catch (err) {
     await client.query('ROLLBACK');
-    if (/closed fiscal period/i.test(String(err?.message))) {
-      return res.status(409).json({
-        error: 'The entry falls in a closed fiscal period.',
-        code: 'ACCOUNTING_PERIOD_CLOSED',
-      });
-    }
     throw err;
   } finally {
     client.release();

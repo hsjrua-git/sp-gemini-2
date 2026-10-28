@@ -81,6 +81,18 @@ test('authorize: a key is enforced against the user permissions', () => {
   );
 });
 
+test('authorize: an array allows any listed permission', () => {
+  const mw = authorize({ GET: ['schedule.view', 'scores.enter', 'scores.view'] });
+  assert.equal(
+    run(mw, { method: 'GET', user: { permissions: ['students.view'] } }).outcome,
+    403,
+  );
+  assert.equal(
+    run(mw, { method: 'GET', user: { permissions: ['scores.enter'] } }).outcome,
+    'next',
+  );
+});
+
 test('authorize: HEAD is treated as GET', () => {
   const mw = authorize({ GET: 'students.view' });
   assert.equal(run(mw, { method: 'HEAD', user: viewer }).outcome, 'next');

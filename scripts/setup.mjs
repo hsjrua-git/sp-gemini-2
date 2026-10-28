@@ -8,7 +8,7 @@
 // step checks whether the work is already done and only asks to do what's left.
 //
 // What it does, in order, asking before anything with side effects:
-//   1. Verify Node >= 20 and that npm + psql are on PATH.
+//   1. Verify Vite's Node floor and that npm + psql are on PATH.
 //   2. Collect / reuse configuration (port, host, database connection).
 //   3. Ensure the PostgreSQL role + database exist (creating them via a
 //      superuser connection only if missing).
@@ -163,9 +163,13 @@ function have(cmd) {
 function checkPrerequisites() {
   step('Checking prerequisites (Node, npm, PostgreSQL client)');
 
-  const major = Number(process.versions.node.split('.')[0]);
-  if (major < 20) {
-    die(`Node.js 20+ is required (found ${process.versions.node}). Re-run the ` +
+  const [major, minor] = process.versions.node.split('.').map(Number);
+  const nodeSupported =
+    (major === 20 && minor >= 19) ||
+    (major === 22 && minor >= 12) ||
+    major > 22;
+  if (!nodeSupported) {
+    die(`Node.js 20.19+ or 22.12+ is required (found ${process.versions.node}). Re-run the ` +
       `platform bootstrap (setup.sh / setup.ps1) to install a newer Node.`);
   }
   ok(`Node.js ${process.versions.node}`);
@@ -246,6 +250,26 @@ function appPgEnv(c) {
 function appDbReachable(c) {
   const r = capture('psql', ['-tAc', 'SELECT 1'], { env: appPgEnv(c) });
   return r.code === 0 && r.stdout.startsWith('1');
+}
+
+function requireSupportedPostgres(c) {
+  const result = capture('psql', ['-tAc', 'SHOW server_version_num'], {
+    env: appPgEnv(c),
+  });
+  const version = Number(result.stdout);
+  if (result.code !== 0 || !Number.isInteger(version)) {
+    die('Could not read the connected PostgreSQL server version.');
+  }
+  if (version < 150000) {
+    const shown = capture('psql', ['-tAc', 'SHOW server_version'], {
+      env: appPgEnv(c),
+    }).stdout || String(version);
+    die(
+      `PostgreSQL 15+ is required (connected server: ${shown}). ` +
+        'Upgrade PostgreSQL, then re-run setup.'
+    );
+  }
+  ok(`PostgreSQL server ${Math.floor(version / 10000)} is supported.`);
 }
 
 // Run SQL as a superuser. SQL is fed on stdin (never argv), so no secret ever
@@ -338,6 +362,8 @@ async function ensureEnv(c) {
     'SESSION_COOKIE_SECURE=auto',
     'TRUST_PROXY=0',
     'CSRF_CHECK_ORIGIN=auto',
+    'CSRF_ALLOWED_ORIGINS=',
+    'ALLOW_SAMPLE_DATA=0',
     '',
   ].join('\n');
   await fsp.writeFile(ENV_PATH, contents, { mode: 0o600 });
@@ -465,6 +491,7 @@ async function main() {
     checkPrerequisites();
     const c = await gatherConfig();
     await ensureDatabase(c);
+    requireSupportedPostgres(c);
     await ensureEnv(c);
     await installDependencies();
     await runMigrations();
@@ -478,7 +505,4 @@ async function main() {
 }
 
 main();
-
-
-
 

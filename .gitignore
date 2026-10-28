@@ -1,8 +1,48 @@
+# Dependencies
 node_modules/
-build/
-dist/
-coverage/
-.DS_Store
-*.log
-.env*
+
+# Secrets / local env (keep the example)
+.env
+.env.*
 !.env.example
+
+# Build output
+dist/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / editor cruft
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Local agent-session artifacts (plans, scratch)
+.zcode/
+
+# Stray root stubs — the real manifests live in client/ and server/
+/package.json
+/package-lock.json
+
+# Scratch / working notes (not part of the project)
+/project.txt
+/to send.txt
+student-panel-compacted
+
+# Voice agent runtime artifacts
+agent/.env
+agent/logs/
+
+# Personal/reference material (kept on disk, not in the repo)
+/Mine/
+/helpful/
+/student-panel-tutoring/
+/student-panel-explained.txt
+/student-panel-rules.txt
+/student-panel-ER.html
+/answers.md
+/evaluation database
+/backups/
+/VERSION-NOTES.md

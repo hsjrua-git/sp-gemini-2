@@ -1,11 +1,4 @@
-// Service-layer test for the assignment period calendar — real service
-// functions against a fresh in-memory PGlite.
-//
-//   node --test src/core/services/periods.test.js
-//
-// Each test gets its own in-memory database. There is no school-wide period
-// anymore: every assignment buckets its own non-canceled sessions (4 per
-// period, in date order) into periods 1, 2, 3…, materialized on demand.
+// Persisted schema-4 period lifecycle against a fresh in-memory PostgreSQL.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -20,12 +13,11 @@ const migrationsDir = path.join(import.meta.dirname, '..', '..', 'db', 'migratio
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 async function freshDb() {
-  const pool = createPglitePool(); // in-memory
+  const pool = createPglitePool();
   await pool.ready();
-
   await pool.query(`
     CREATE TABLE IF NOT EXISTS schema_migrations (
-      filename   text PRIMARY KEY,
+      filename text PRIMARY KEY,
       applied_at timestamptz NOT NULL DEFAULT now()
     )
   `);
@@ -46,21 +38,19 @@ async function freshDb() {
       client.release();
     }
   }
-
   initDb(pool);
   return pool;
 }
 
 async function expectCode(code, fn) {
   await assert.rejects(fn, (err) => {
-    assert.equal(err.name, 'ServiceError', `expected a ServiceError, got ${err}`);
-    assert.equal(err.code, code, `expected code ${code}, got ${err.code}`);
+    assert.equal(err.name, 'ServiceError');
+    assert.equal(err.code, code);
     return true;
   });
 }
 
-// A teacher + interval + group assignment with `count` weekly sessions.
-async function seedAssignment(pool, { sessions = 0, canceled = [] } = {}) {
+async function seedAssignment(pool, sessionCount = 0) {
   const teacher = (
     await pool.query(
       `INSERT INTO teachers (code, full_name, birth_date, national_id)
@@ -82,22 +72,43 @@ async function seedAssignment(pool, { sessions = 0, canceled = [] } = {}) {
     await pool.query(
       `INSERT INTO assignments (code, teacher_id, interval_id, group_id, anchor_date)
        VALUES ('A1', $1, $2, $3, '2024-01-06') RETURNING id`,
-      [teacher, interval, group],
+      [teacher, interval, group]
     )
   ).rows[0].id;
+  const sessionIds = [];
   const start = Date.UTC(2024, 0, 6);
-  for (let index = 0; index < sessions; index++) {
+  for (let index = 0; index < sessionCount; index++) {
     const date = new Date(start + index * 7 * DAY_MS).toISOString().slice(0, 10);
-    await pool.query(
-      `INSERT INTO sessions (assignment_id, seq, code, planned_date, canceled_at)
-       VALUES ($1, $2, $3, $4, $5)`,
-      [assignmentId, index + 1, `S${index + 1}`, date, canceled.includes(index) ? new Date() : null],
+    sessionIds.push(
+      (
+        await pool.query(
+          `INSERT INTO sessions (assignment_id, planned_date)
+           VALUES ($1, $2) RETURNING id`,
+          [assignmentId, date]
+        )
+      ).rows[0].id
     );
   }
-  return assignmentId;
+  const parameterId = (
+    await pool.query(
+      `INSERT INTO parameters (code, name, min_value, max_value)
+       VALUES ('focus', 'Focus', 0, 10) RETURNING id`
+    )
+  ).rows[0].id;
+  return { assignmentId, sessionIds, parameterId };
 }
 
-test('listPeriods: validates the id and 404s an unknown assignment', async () => {
+async function insertCell(pool, { sessionId, parameterId, value = null }) {
+  return pool.query(
+    `INSERT INTO evaluations
+       (session_id, parameter_id, membership_id, quality_value, locks_at)
+     VALUES ($1, $2, NULL, $3, now() + interval '7 days')
+     RETURNING id`,
+    [sessionId, parameterId, value]
+  );
+}
+
+test('listPeriods validates the id and 404s an unknown assignment', async () => {
   const pool = await freshDb();
   try {
     await expectCode('VALIDATION', () => listPeriods('nope'));
@@ -109,66 +120,90 @@ test('listPeriods: validates the id and 404s an unknown assignment', async () =>
   }
 });
 
-test('listPeriods: buckets sessions 4 per period in date order, skipping canceled', async () => {
+test('only answered sessions attach, four per persisted period', async () => {
   const pool = await freshDb();
   try {
-    // 9 sessions, one canceled → 8 effective sessions = 2 periods.
-    const assignmentId = await seedAssignment(pool, {
-      sessions: 9,
-      canceled: [8], // the LAST session, so order stays clean
-    });
+    const { assignmentId, sessionIds, parameterId } = await seedAssignment(pool, 6);
 
-    const { periods } = await listPeriods(assignmentId);
-    assert.equal(periods.length, 2);
-    assert.deepEqual(
-      periods.map((period) => period.seq),
-      [1, 2]
+    assert.deepEqual((await listPeriods(assignmentId)).periods, []);
+
+    const empty = await insertCell(pool, {
+      sessionId: sessionIds[0],
+      parameterId,
+    });
+    assert.deepEqual((await listPeriods(assignmentId)).periods, []);
+
+    await pool.query(
+      `UPDATE evaluations SET quality_value = 6 WHERE id = $1`,
+      [empty.rows[0].id]
     );
-    assert.equal(periods[0].sessionCount, 4);
-    assert.equal(periods[1].sessionCount, 4);
-    // Period 1 spans the first four Saturdays.
+    let periods = (await listPeriods(assignmentId)).periods;
+    assert.equal(periods.length, 1);
+    assert.equal(periods[0].sessionCount, 1);
+    assert.equal(periods[0].answeredCount, 1);
     assert.equal(periods[0].startDate, '2024-01-06');
+    assert.equal(periods[0].isComplete, false);
+
+    for (const sessionId of sessionIds.slice(1, 4)) {
+      await insertCell(pool, { sessionId, parameterId, value: 7 });
+    }
+    periods = (await listPeriods(assignmentId)).periods;
+    assert.equal(periods[0].sessionCount, 4);
+    assert.equal(periods[0].isComplete, true);
     assert.equal(periods[0].endDate, '2024-01-27');
-    assert.equal(periods[1].startDate, '2024-02-03');
-    // No cells answered yet.
-    assert.equal(periods[0].answeredCount, 0);
+
+    await insertCell(pool, {
+      sessionId: sessionIds[4],
+      parameterId,
+      value: 8,
+    });
+    periods = (await listPeriods(assignmentId)).periods;
+    assert.deepEqual(
+      periods.map(({ seq, sessionCount }) => ({ seq, sessionCount })),
+      [
+        { seq: 1, sessionCount: 4 },
+        { seq: 2, sessionCount: 1 },
+      ]
+    );
   } finally {
     await pool.end();
   }
 });
 
-test('listPeriods: answeredCount reflects saved cells and the sync is idempotent', async () => {
+test('removing the final answer detaches; archive and restore reattach history', async () => {
   const pool = await freshDb();
   try {
-    const assignmentId = await seedAssignment(pool, { sessions: 4 });
-    const session = (
-      await pool.query(
-        `SELECT id FROM sessions WHERE assignment_id = $1 ORDER BY seq LIMIT 1`,
-        [assignmentId],
-      )
-    ).rows[0];
-    const parameter = (
-      await pool.query(
-        `INSERT INTO parameters (code, name, min_value, max_value)
-         VALUES ('focus', 'Focus', 0, 10) RETURNING id`
-      )
-    ).rows[0];
+    const { assignmentId, sessionIds, parameterId } = await seedAssignment(pool, 1);
+    const cell = await insertCell(pool, {
+      sessionId: sessionIds[0],
+      parameterId,
+      value: 5,
+    });
 
-    await pool.query(
-      `INSERT INTO evaluations (session_id, parameter_id, membership_id, quality_value, locks_at)
-       VALUES ($1, $2, NULL, 6, now() + interval '7 days')`,
-      [session.id, parameter.id],
-    );
-
-    const first = await listPeriods(assignmentId);
-    assert.equal(first.periods[0].answeredCount, 1);
-    // Syncing again neither duplicates nor renumbers.
-    const second = await listPeriods(assignmentId);
-    assert.deepEqual(second.periods, first.periods);
+    await pool.query('DELETE FROM evaluations WHERE id = $1', [cell.rows[0].id]);
     assert.equal(
-      (await pool.query('SELECT count(*)::int AS n FROM periods')).rows[0].n,
-      1,
+      (await pool.query('SELECT period_id FROM sessions WHERE id = $1', [sessionIds[0]]))
+        .rows[0].period_id,
+      null
     );
+
+    await insertCell(pool, { sessionId: sessionIds[0], parameterId, value: 9 });
+    await pool.query('UPDATE sessions SET archived_at = now() WHERE id = $1', [sessionIds[0]]);
+    assert.equal(
+      (await pool.query('SELECT period_id FROM sessions WHERE id = $1', [sessionIds[0]]))
+        .rows[0].period_id,
+      null
+    );
+    await pool.query('UPDATE sessions SET archived_at = NULL WHERE id = $1', [sessionIds[0]]);
+    const restored = await pool.query(
+      `SELECT p.seq
+       FROM sessions s
+       JOIN periods p ON p.id = s.period_id
+       WHERE s.id = $1`,
+      [sessionIds[0]]
+    );
+    assert.equal(restored.rows[0].seq, 1);
+    assert.equal((await listPeriods(assignmentId)).periods[0].sessionCount, 1);
   } finally {
     await pool.end();
   }

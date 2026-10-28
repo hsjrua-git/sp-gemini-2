@@ -24,9 +24,10 @@ export const MAX_INPUT = 100_000;
 
 // A whole-number Toman field: Persian or Latin digits plus stray separators
 // → non-negative integer, or null.
-export function parseWholeNumber(text) {
+export function parseWholeNumber(text, { signed = false } = {}) {
   const normalized = toLatinDigits(text).replace(/[\s,٬]/g, '');
-  return /^\d+$/.test(normalized) ? Number(normalized) : null;
+  const pattern = signed ? /^-?\d+$/ : /^\d+$/;
+  return pattern.test(normalized) ? Number(normalized) : null;
 }
 
 // A quantity: at most three decimals (weight/portion goods), both decimal

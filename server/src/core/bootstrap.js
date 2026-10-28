@@ -1,4 +1,5 @@
-// Startup bootstrap for the single-user, on-device build.
+// Bootstrap for the test-only single-user PGlite service mirror.
+// The shipped connected mobile client authenticates against Express instead.
 //
 // The app has one user. Rather than special-case "no user" everywhere, we seed
 // exactly one local user row (pointed at the seeded Administrator role) and let
@@ -31,7 +32,7 @@ export async function ensureLocalUser(db = getDb()) {
     throw new Error('Administrator role missing — run migrations first.');
   }
 
-  // password_hash is required by the schema but unused on-device (no login);
+  // password_hash is required by the schema but unused by this test mirror;
   // 'x' is a placeholder. must_change_password false so nothing nags the user.
   const inserted = await db.query(
     `INSERT INTO users

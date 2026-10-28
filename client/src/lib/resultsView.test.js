@@ -177,13 +177,13 @@ describe('applyView', () => {
   it('computes per-parameter stats on the viewed dimension', () => {
     const view = applyView({ rows, parameters, config: defaultConfig() });
     // Quality: 5, 9 measured. Quantity: 7, 1.
-    expect(view.stats.p1).toMatchObject({ count: 2, average: 7, min: 5, max: 9 });
+    expect(view.stats.p1).toMatchObject({ count: 1, average: 9, min: 9, max: 9 });
     const quantity = applyView({
       rows,
       parameters,
       config: { ...defaultConfig(), dimension: 'quantity' },
     });
-    expect(quantity.stats.p1).toMatchObject({ count: 2, average: 4, min: 1, max: 7 });
+    expect(quantity.stats.p1).toMatchObject({ count: 1, average: 1, min: 1, max: 1 });
   });
 
   it('reports filters that reference unknown parameters', () => {

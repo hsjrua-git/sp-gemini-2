@@ -25,6 +25,34 @@ function randomId() {
   return Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 }
 
+function isLocalEndpoint(value) {
+  if (!value) return true;
+  try {
+    const host = new URL(value).hostname.toLowerCase();
+    if (host === 'localhost' || host === '::1' || host.endsWith('.local')) return true;
+    if (/^127\./.test(host) || /^10\./.test(host) || /^192\.168\./.test(host)) return true;
+    const match = host.match(/^172\.(\d+)\./);
+    return Boolean(match && Number(match[1]) >= 16 && Number(match[1]) <= 31);
+  } catch {
+    return false;
+  }
+}
+
+function warnRemoteProviders() {
+  const remote = [
+    ['LLM', config.llmBaseUrl],
+    ['STT', config.sttBaseUrl],
+    ['TTS', config.ttsBaseUrl],
+  ]
+    .filter(([, url]) => url && !isLocalEndpoint(url))
+    .map(([name]) => name);
+  if (remote.length > 0) {
+    console.warn(
+      `[privacy] ${remote.join('/')} uses a non-local endpoint; dialogue text or audio may leave the LAN.`
+    );
+  }
+}
+
 const args = process.argv.slice(2);
 const textMode = args.includes('--text');
 const fileIdx = args.indexOf('--file');
@@ -32,6 +60,7 @@ const replayFile = fileIdx >= 0 ? (args[fileIdx + 1] ?? null) : null;
 
 async function main() {
   console.log(`voice agent — stage ${config.stage}, session ${SESSION_ID}`);
+  warnRemoteProviders();
 
   // 1. capability report
   const [stt, tts] = await Promise.all([createStt(), createTts()]);

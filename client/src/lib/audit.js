@@ -12,7 +12,6 @@ export const CATEGORY_OPTIONS = [
   { value: 'task_template' },
   { value: 'alert' },
   { value: 'parameter' },
-  { value: 'parameter_change' },
   { value: 'cafe_product' },
   { value: 'cafe_supplier' },
   { value: 'cafe_purchase' },
@@ -22,7 +21,6 @@ export const CATEGORY_OPTIONS = [
   { value: 'accounting' },
   { value: 'accounting_period' },
   { value: 'agent' },
-  { value: 'settings' },
   { value: 'user' },
   { value: 'role' },
   { value: 'group' },
@@ -88,7 +86,6 @@ export function describeAudit(entry) {
           key: 'parameter.create',
           params: {
             name: result.name ?? request.name ?? '?',
-            period: request.startPeriod ?? '?',
           },
         },
       ];
@@ -99,29 +96,6 @@ export function describeAudit(entry) {
           params: { name: entry.parameterName ?? result.name ?? '?' },
         },
       ];
-    case 'parameter_change.create': {
-      const name = entry.changeParameterName ?? '?';
-      const verb = result.action === 'add' ? 'add' : 'remove';
-      const scope =
-        result.scope === 'this_period_only' ? 'thisPeriod' : 'fromHereOn';
-      return [
-        {
-          key: `parameter_change.create.${verb}.${scope}`,
-          params: { name, periodNumber: result.periodNumber ?? '?' },
-        },
-      ];
-    }
-    case 'parameter_change.delete':
-      return [{ key: 'parameter_change.delete' }];
-    case 'settings.period_anchor': {
-      const anchor = result.anchorDate ?? request.anchorDate;
-      return [
-        {
-          key: 'settings.period_anchor',
-          params: { date: anchor ? formatIsoDate(anchor) : '?' },
-        },
-      ];
-    }
     case 'scores.save': {
       const count = details.count ?? 0;
       const segments = [
@@ -275,25 +249,6 @@ export function describeAudit(entry) {
           },
         },
       ];
-    case 'session.update':
-    case 'teacher.create':
-    case 'teacher.update':
-    case 'teacher.archive':
-    case 'interval.create':
-    case 'interval.update':
-    case 'interval.archive':
-    case 'assignment.create':
-    case 'assignment.update':
-    case 'assignment.archive':
-    case 'task.create':
-    case 'task.update':
-    case 'task.delete':
-    case 'task.assign_template':
-    case 'task_template.create':
-    case 'task_template.update':
-    case 'task_template.archive':
-    case 'alert.update':
-      return [{ key: entry.action }];
     case 'alert.scan':
       return [
         {
@@ -305,178 +260,51 @@ export function describeAudit(entry) {
         },
       ];
     case 'cafe_product.create':
-      return [
-        {
-          key: 'cafe_product.create',
-          params: { name: details.name ?? '?' },
-        },
-      ];
     case 'cafe_product.update':
-      return [
-        {
-          key: 'cafe_product.update',
-          params: { name: details.name ?? details.id ?? '?' },
-        },
-      ];
+    case 'cafe_product.deactivate':
     case 'cafe_supplier.create':
-      return [
-        {
-          key: 'cafe_supplier.create',
-          params: { name: details.name ?? '?' },
-        },
-      ];
     case 'cafe_supplier.update':
-      return [
-        {
-          key: 'cafe_supplier.update',
-          params: { name: details.name ?? details.id ?? '?' },
-        },
-      ];
+    case 'cafe_supplier.deactivate':
+      return [{
+        key: entry.action,
+        params: { name: result.name ?? request.name ?? '?' },
+      }];
     case 'cafe_purchase.create':
-      return [
-        {
-          key: 'cafe_purchase.create',
-          params: {
-            total: details.total ?? 0,
-            lineCount: details.lineCount ?? 0,
-          },
-        },
-      ];
+      return [{ key: entry.action, params: {
+        count: details.itemCount ?? 0,
+        total: details.total ?? 0,
+      } }];
     case 'cafe_sale.create':
-      return [
-        {
-          key: 'cafe_sale.create',
-          params: {
-            total: details.total ?? 0,
-            lineCount: details.lineCount ?? 0,
-          },
-        },
-      ];
     case 'cafe_sale.void':
-      return [
-        {
-          key: 'cafe_sale.void',
-          params: { total: details.total ?? 0 },
-        },
-      ];
+      return [{ key: entry.action, params: {
+        count: details.itemCount ?? 0,
+        total: details.total ?? 0,
+      } }];
     case 'cafe_waste.create':
-      return [
-        {
-          key: 'cafe_waste.create',
-          params: {
-            qty: details.qty ?? 0,
-            costValue: details.costValue ?? 0,
-          },
-        },
-      ];
     case 'cafe_adjustment.create':
-      return [
-        {
-          key: 'cafe_adjustment.create',
-          params: { qty: details.qty ?? 0 },
-        },
-      ];
+      return [{ key: entry.action, params: { count: details.itemCount ?? 0 } }];
     case 'cafe_balance.topup':
     case 'cafe_balance.refund':
     case 'cafe_balance.adjustment':
-      return [
-        {
-          key: entry.action,
-          params: {
-            amount: details.amount ?? 0,
-            balanceAfter: details.balanceAfter ?? 0,
-          },
-        },
-      ];
-    case 'accounting_account.create':
-      return [
-        {
-          key: 'accounting_account.create',
-          params: {
-            code: details.code ?? '?',
-            name: details.name ?? '?',
-          },
-        },
-      ];
-    case 'accounting_account.update':
-      return [
-        {
-          key: 'accounting_account.update',
-          params: { id: details.id ?? '?' },
-        },
-      ];
-    case 'accounting_mapping.update':
-      return [
-        {
-          key: 'accounting_mapping.update',
-          params: { eventKey: details.eventKey ?? '?' },
-        },
-      ];
-    case 'accounting_entry.create':
-      return [
-        {
-          key: 'accounting_entry.create',
-          params: {
-            entryNumber: details.entryNumber ?? '?',
-            status: details.status ?? '',
-          },
-        },
-      ];
-    case 'accounting_entry.update':
-      return [
-        {
-          key: 'accounting_entry.update',
-          params: { id: details.id ?? '?' },
-        },
-      ];
+      return [{ key: entry.action, params: { amount: details.amount ?? 0 } }];
+    case 'accounting_entry.draft':
     case 'accounting_entry.post':
-      return [
-        {
-          key: 'accounting_entry.post',
-          params: { id: details.id ?? '?' },
-        },
-      ];
     case 'accounting_entry.void':
-      return [
-        {
-          key: 'accounting_entry.void',
-          params: {
-            id: details.id ?? '?',
-            reason: details.reason ?? '',
-          },
-        },
-      ];
-    case 'accounting_entry.delete':
-      return [
-        {
-          key: 'accounting_entry.delete',
-          params: { id: details.id ?? '?' },
-        },
-      ];
+      return [{ key: entry.action, params: { entryNo: details.entryNo ?? '?' } }];
     case 'accounting.opening_balance':
-      return [
-        {
-          key: 'accounting.opening_balance',
-          params: { entryNumber: details.entryNumber ?? '?' },
-        },
-      ];
-    case 'accounting_period.create':
-      return [
-        {
-          key: 'accounting_period.create',
-          params: { name: details.name ?? '?' },
-        },
-      ];
+      return [{ key: entry.action, params: {
+        entryNo: details.entryNo ?? '?',
+        total: details.total ?? 0,
+      } }];
     case 'accounting_period.close':
-      return [
-        {
-          key: 'accounting_period.close',
-          params: {
-            name: details.name ?? '?',
-            netIncome: details.netIncome ?? 0,
-          },
-        },
-      ];
+    case 'accounting_period.reopen':
+    case 'accounting_account.create':
+    case 'accounting_account.update':
+    case 'accounting_account.deactivate':
+    case 'accounting_mapping.update':
+    case 'accounting_period.create':
+    case 'accounting_period.update':
+      return [{ key: entry.action }];
     default:
       return [{ key: entry.action }];
   }

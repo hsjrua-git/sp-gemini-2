@@ -457,21 +457,6 @@ function LandingRedirect() {
 }
 
 function App() {
-  // Warm every page's code chunk once the app is idle after login, so later
-  // navigations transition instantly (no chunk fetch → no Suspense loader to
-  // snapshot). Chunks are small and cached, so this is cheap; the per-route
-  // preload in AnimatedRoutes still covers a navigation that beats this.
-  useEffect(() => {
-    const warm = () => ROUTE_PRELOADS.forEach(([, Component]) => Component.preload?.());
-    if (typeof window === 'undefined') return undefined;
-    if ('requestIdleCallback' in window) {
-      const id = window.requestIdleCallback(warm, { timeout: 3000 });
-      return () => window.cancelIdleCallback?.(id);
-    }
-    const id = window.setTimeout(warm, 1500);
-    return () => window.clearTimeout(id);
-  }, []);
-
   return (
     <>
       <ConnectionBanner />
@@ -586,7 +571,12 @@ function AnimatedRoutes() {
       cancelAll(exitAnims);
       flushSync(() => setDisplayed(location));
       if (superseded()) return;
-      cleanupRef.current = settleThenEnter(host, () => queryClient.isFetching(), superseded);
+      const incomingHost = document.getElementById('main-content') ?? host;
+      cleanupRef.current = settleThenEnter(
+        incomingHost,
+        () => queryClient.isFetching(),
+        superseded
+      );
     };
 
     Promise.all([exitDone, chunkReady]).then(swap);

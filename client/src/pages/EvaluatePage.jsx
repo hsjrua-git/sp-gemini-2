@@ -21,27 +21,6 @@ import {
 } from '../lib/cells.js';
 import { formatIsoDate, toIsoDate } from '../lib/format.js';
 
-// Mirrors the server's period rule (lib/periods.js SESSIONS_PER_PERIOD): every
-// 4 non-canceled sessions of an assignment, in date order, form period 1, 2…
-const SESSIONS_PER_PERIOD = 4;
-
-function periodSeqBySession(sessions) {
-  const ordered = sessions
-    .filter((session) => !session.canceledAt && !session.archivedAt)
-    .sort((a, b) =>
-      a.sessionDate < b.sessionDate
-        ? -1
-        : a.sessionDate > b.sessionDate
-          ? 1
-          : (a.seq ?? 0) - (b.seq ?? 0)
-    );
-  const seqs = new Map();
-  ordered.forEach((session, index) =>
-    seqs.set(session.id, Math.floor(index / SESSIONS_PER_PERIOD) + 1)
-  );
-  return seqs;
-}
-
 function EvaluatePage() {
   const queryClient = useQueryClient();
   const { t } = useTranslation(['students', 'common']);
@@ -75,7 +54,6 @@ function EvaluatePage() {
   });
   const sessionsRaw = sessionsQuery.data?.sessions;
   const sessions = useMemo(() => sessionsRaw ?? [], [sessionsRaw]);
-  const periodSeqs = useMemo(() => periodSeqBySession(sessions), [sessions]);
 
   // Default session: the first session of today or later, else the latest
   // usable one. Derived (not an effect) so the picker falls back to it
@@ -92,6 +70,9 @@ function EvaluatePage() {
     ).id;
   }, [sessions]);
   const effectiveSessionId = sessionId ?? defaultSessionId;
+  const effectiveSession =
+    sessions.find((item) => item.id === effectiveSessionId) ?? null;
+  const effectiveSessionDate = effectiveSession?.sessionDate ?? null;
 
   const parametersQuery = useQuery({
     queryKey: ['parameters'],
@@ -131,7 +112,12 @@ function EvaluatePage() {
         ? membersQuery.data
         : (membersQuery.data?.students ?? []);
       const members = rawMembers
-        .filter((member) => !member.leftOn)
+        .filter(
+          (member) =>
+            effectiveSessionDate &&
+            member.joinedOn <= effectiveSessionDate &&
+            (!member.leftOn || member.leftOn >= effectiveSessionDate)
+        )
         .map((member) => ({
           membershipId: member.membershipId,
           name: member.fullName,
@@ -158,7 +144,7 @@ function EvaluatePage() {
         isGroup: false,
       },
     ];
-  }, [assignment, membersQuery.data]);
+  }, [assignment, effectiveSessionDate, membersQuery.data]);
 
   const savedByCell = useMemo(() => {
     const map = new Map();
@@ -176,6 +162,8 @@ function EvaluatePage() {
         queryClient.invalidateQueries({ queryKey: ['results'] }),
         queryClient.invalidateQueries({ queryKey: ['trends'] }),
         queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+        queryClient.invalidateQueries({ queryKey: ['sessions'] }),
+        queryClient.invalidateQueries({ queryKey: ['periods'] }),
       ]);
       setDrafts({});
     },
@@ -411,9 +399,9 @@ function EvaluatePage() {
               <option key={session.id} value={session.id}>
                 {formatIsoDate(session.sessionDate)}
                 {' · '}
-                {t('evaluate.periodShort', {
-                  seq: periodSeqs.get(session.id) ?? '…',
-                })}
+                 {t('evaluate.periodShort', {
+                   seq: session.periodSeq ?? '…',
+                 })}
                 {session.canceledAt ? t('evaluate.canceledTag') : ''}
               </option>
             ))}

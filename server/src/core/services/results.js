@@ -1,6 +1,6 @@
 // Results (assignment-period grid) — service layer (framework-free).
 //
-// On-device equivalent of routes/results.js under the schema-4 model: one
+// PGlite test mirror of routes/results.js under the schema-4 model: one
 // assignment period's grid — rows are the assignment's targets (whole-group
 // row first, then members; an individual assignment has exactly its member),
 // columns are parameters, cells carry both dimensions plus the answered
@@ -15,11 +15,7 @@
 import { getDb } from '../db.js';
 import { ServiceError } from '../errors.js';
 import { isUuid } from '../../lib/ids.js';
-import {
-  assignPeriods,
-  listAssignmentPeriods,
-  syncAssignmentPeriods,
-} from '../../lib/periods.js';
+import { listAssignmentPeriods } from '../../lib/periods.js';
 import { buildResults } from '../../lib/results.js';
 
 export async function getResults(input = {}) {
@@ -56,11 +52,8 @@ export async function getResults(input = {}) {
     throw ServiceError.notFound('Assignment not found.');
   }
 
-  await syncAssignmentPeriods(db, assignmentId);
   const periods = await listAssignmentPeriods(db, assignmentId);
-  const period = periods.find(
-    (candidate) => candidate.seq === seq && candidate.archivedAt === null
-  );
+  const period = periods.find((candidate) => candidate.seq === seq);
   if (!period || period.sessionCount === 0) {
     throw ServiceError.validation(
       `Period ${seq} of this assignment has no sessions yet.`,
@@ -68,22 +61,7 @@ export async function getResults(input = {}) {
     );
   }
 
-  // Which sessions belong to the requested (and previous) bucket.
-  const sessionsResult = await db.query(
-    `SELECT id,
-            seq,
-            session_date::text AS "sessionDate",
-            canceled_at        AS "canceledAt",
-            archived_at        AS "archivedAt"
-     FROM sessions
-     WHERE assignment_id = $1`,
-    [assignmentId]
-  );
-  const buckets = assignPeriods(sessionsResult.rows);
-  const sessionToSeq = new Map(
-    [...buckets].filter(([, bucketSeq]) => bucketSeq === seq || bucketSeq === seq - 1)
-  );
-  const sessionIds = [...sessionToSeq.keys()];
+  const periodSeqs = [seq, seq - 1].filter((value) => value >= 1);
 
   const [targetsResult, parametersResult, evaluationsResult] = await Promise.all([
     db.query(
@@ -97,9 +75,20 @@ export async function getResults(input = {}) {
          OR (a.membership_id IS NOT NULL AND ms.id = a.membership_id)
        JOIN students s ON s.id = ms.student_id
        WHERE a.id = $1
-         AND ms.left_on IS NULL AND s.deleted_at IS NULL
+          AND s.deleted_at IS NULL
+          AND EXISTS (
+            SELECT 1
+            FROM sessions ps
+            JOIN periods pp ON pp.id = ps.period_id AND pp.archived_at IS NULL
+            WHERE ps.assignment_id = a.id
+              AND pp.seq = ANY($2::int[])
+              AND ps.archived_at IS NULL
+              AND ps.canceled_at IS NULL
+              AND ms.added_at::date <= ps.session_date
+              AND (ms.left_on IS NULL OR ms.left_on >= ps.session_date)
+          )
        ORDER BY lower(s.full_name)`,
-      [assignmentId]
+      [assignmentId, periodSeqs]
     ),
     db.query(
       `SELECT id, code, name,
@@ -108,22 +97,26 @@ export async function getResults(input = {}) {
        WHERE archived_at IS NULL
        ORDER BY sort_order, lower(name)`
     ),
-    sessionIds.length === 0
-      ? Promise.resolve({ rows: [] })
-      : db.query(
-          `SELECT e.session_id       AS "sessionId",
-                  e.membership_id    AS "membershipId",
-                  e.parameter_id     AS "parameterId",
-                  e.quality_value    AS "qualityValue",
-                  e.quantity_value   AS "quantityValue",
-                  e.quality_comment  AS "qualityComment",
-                  e.quantity_comment AS "quantityComment"
-           FROM evaluations e
-           JOIN sessions s ON s.id = e.session_id
-           WHERE e.session_id = ANY($1::uuid[]) AND e.archived_at IS NULL
-           ORDER BY s.session_date ASC, s.seq ASC`,
-          [sessionIds]
-        ),
+    db.query(
+      `SELECT e.session_id       AS "sessionId",
+              e.membership_id    AS "membershipId",
+              e.parameter_id     AS "parameterId",
+              e.quality_value    AS "qualityValue",
+              e.quantity_value   AS "quantityValue",
+              e.quality_comment  AS "qualityComment",
+              e.quantity_comment AS "quantityComment",
+              p.seq              AS "periodSeq"
+       FROM evaluations e
+       JOIN sessions s ON s.id = e.session_id
+       JOIN periods p ON p.id = s.period_id AND p.archived_at IS NULL
+       WHERE s.assignment_id = $1
+         AND p.seq = ANY($2::int[])
+         AND s.canceled_at IS NULL
+         AND s.archived_at IS NULL
+         AND e.archived_at IS NULL
+       ORDER BY s.session_date ASC, s.seq ASC`,
+      [assignmentId, periodSeqs]
+    ),
   ]);
 
   const targets = assignment.assignmentMembershipId
@@ -132,13 +125,6 @@ export async function getResults(input = {}) {
       )
     : targetsResult.rows;
 
-  const evaluations = evaluationsResult.rows
-    .map((row) => ({
-      ...row,
-      periodSeq: sessionToSeq.get(row.sessionId) ?? null,
-    }))
-    .filter((row) => row.periodSeq !== null);
-
   const built = buildResults({
     seq,
     period,
@@ -146,7 +132,7 @@ export async function getResults(input = {}) {
     parameters: parametersResult.rows,
     targets,
     groupName: assignment.groupName,
-    evaluations,
+    evaluations: evaluationsResult.rows,
   });
 
   return {

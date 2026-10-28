@@ -19,13 +19,12 @@ export function percentOfRange(value, minValue, maxValue) {
   return Math.min(100, Math.max(0, percent));
 }
 
-// `evaluations` = the student's rows (member + whole-group); `periods` = the
-// assignment's materialized periods [{ seq, startDate, endDate }]; rows are
-// bucketed by their session date falling inside a period's range.
+// `evaluations` = the student's rows (member + whole-group), each carrying the
+// persisted periodSeq from sessions.period_id. Date spans are display metadata,
+// never membership: moved/restored sessions and overlapping spans remain exact.
 export function periodView({
   evaluations,
   assignmentId,
-  periods,
   seq,
   parameters,
   dimension = 'quality',
@@ -33,16 +32,11 @@ export function periodView({
   const own = evaluations
     .filter((item) => item.assignmentId === assignmentId)
     .slice()
-    .sort((a, b) => String(a.sessionDate).localeCompare(String(b.sessionDate)));
-  const bucketOf = (sessionDate) => {
-    const d = String(sessionDate ?? '').slice(0, 10);
-    return (
-      periods.find(
-        (period) => period.startDate <= d && d <= period.endDate
-      )?.seq ?? null
+    .sort(
+      (a, b) =>
+        String(a.sessionDate).localeCompare(String(b.sessionDate)) ||
+        (a.sessionSeq ?? 0) - (b.sessionSeq ?? 0)
     );
-  };
-
   // member cell shadows group cell per (session, parameter) and across the
   // period; within the same precedence tier, a later non-null value updates an
   // earlier value, while a later null does not erase an earlier non-null score.
@@ -51,9 +45,8 @@ export function periodView({
     own.filter((item) => item.membershipId !== null).map((item) => `${item.sessionId}:${item.parameterId}`)
   );
   for (const item of own) {
-    const seq = bucketOf(item.sessionDate);
-    if (seq === null) continue;
-    const key = `${seq}:${item.parameterId}`;
+    if (item.periodSeq == null) continue;
+    const key = `${item.periodSeq}:${item.parameterId}`;
     const viaGroup = item.membershipId === null;
     if (viaGroup && memberKeys.has(`${item.sessionId}:${item.parameterId}`)) continue;
     const value =
@@ -109,6 +102,7 @@ export function parameterView({ evaluations, parameterId, dimension = 'quality' 
     if (!existing || (existing.value === null && value !== null)) {
       bySession.set(item.sessionId, {
         sessionId: item.sessionId,
+        sessionSeq: item.sessionSeq,
         sessionDate: item.sessionDate,
         assignmentId: item.assignmentId,
         value,
@@ -117,7 +111,11 @@ export function parameterView({ evaluations, parameterId, dimension = 'quality' 
     }
   }
   const points = [...bySession.values()];
-  points.sort((a, b) => String(a.sessionDate).localeCompare(String(b.sessionDate)));
+  points.sort(
+    (a, b) =>
+      String(a.sessionDate).localeCompare(String(b.sessionDate)) ||
+      (a.sessionSeq ?? 0) - (b.sessionSeq ?? 0)
+  );
 
   const scored = points.filter((point) => point.value !== null);
   if (scored.length === 0) {

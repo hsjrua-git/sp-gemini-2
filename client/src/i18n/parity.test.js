@@ -53,4 +53,29 @@ describe('locale key parity', () => {
       expect.arrayContaining(['common.json', 'nav.json', 'errors.json'])
     );
   });
+
+  it('every literal server error code has a localized catalogue entry', () => {
+    const server = path.resolve(directory, '../../../server/src');
+    const files = [];
+    function walk(at) {
+      for (const entry of readdirSync(at, { withFileTypes: true })) {
+        const file = path.join(at, entry.name);
+        if (entry.isDirectory()) walk(file);
+        else if (/\.(?:js|mjs)$/.test(entry.name)) files.push(file);
+      }
+    }
+    walk(server);
+    const emitted = new Set();
+    for (const file of files) {
+      const source = readFileSync(file, 'utf8');
+      for (const pattern of [
+        /\bcode\s*:\s*['"]([A-Z][A-Z0-9_]+)['"]/g,
+        /\berror\s*:\s*['"]([A-Z][A-Z0-9_]+)['"]/g,
+      ]) {
+        for (const match of source.matchAll(pattern)) emitted.add(match[1]);
+      }
+    }
+    const errors = new Set(keysFor('en', 'errors.json').filter((key) => !key.startsWith('entities.')));
+    expect([...emitted].filter((code) => !errors.has(code)).sort()).toEqual([]);
+  });
 });

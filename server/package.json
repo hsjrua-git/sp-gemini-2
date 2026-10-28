@@ -6,14 +6,15 @@
   "scripts": {
     "test": "node --test test/*.test.js",
     "test:core": "node --test --test-concurrency=2 src/core/**/*.test.js",
-    "start": "node src/index.js",
-    "dev": "node --watch src/index.js",
-    "migrate": "node src/db/migrate.js",
-    "create-user": "node src/scripts/createUser.js",
-    "seed-sample": "node src/scripts/seedSample.js",
-    "reset-data": "node src/scripts/resetData.js",
+    "start": "node --env-file=.env src/index.js",
+    "dev": "node --watch --env-file=.env src/index.js",
+    "migrate": "node --env-file=.env src/db/migrate.js",
+    "create-user": "node --env-file=.env src/scripts/createUser.js",
+    "seed-sample": "node --env-file=.env src/scripts/seedSample.js",
+    "reset-data": "node --env-file=.env src/scripts/resetData.js",
     "verify-pglite": "node src/db/verifyPglite.mjs",
-    "test-permissions": "RUN_INTEGRATION=1 node --test test/permissions.test.js"
+    "smoke:invariants": "node --env-file=.env src/scripts/invariantRaceSmoke.mjs",
+    "test-permissions": "RUN_INTEGRATION=1 node --env-file=.env --test test/permissions.test.js"
   },
   "keywords": [],
   "type": "module",

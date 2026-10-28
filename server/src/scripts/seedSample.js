@@ -1,17 +1,23 @@
 import pool from '../db/pool.js';
 import { locksAtFor } from '../lib/locks.js';
-import { syncAssignmentPeriods, todayIso } from '../lib/periods.js';
+import { todayIso } from '../lib/periods.js';
 import { generateSessions } from '../lib/sessions.js';
 import { generateStudentCode, generateTeacherCode } from '../lib/studentCode.js';
+import {
+  removeConnectedSample,
+  SAMPLE_PASSWORD,
+  seedConnectedSample,
+  seedSampleUsers,
+} from './sampleModules.js';
 
 // Dev-only sample data for the schema-4 evaluation model. Creates a
 // self-contained fixture world the dashboards and the 3D constellation can
 // show in all their states (full / partial / none):
 //   6 parameters (ranged integers, no unit), 2 sample groups holding 30
 //   students, 3 teachers, the two common intervals when the table is empty,
-//   4 group assignments anchored in the past, sessions generated up to
-//   today + 30 days (so most of the schedule is already past), period rows
-//   materialized per assignment, and evaluations on the PAST sessions: for
+//   4 group assignments plus one individual assignment anchored in the past, sessions generated up to
+//   today + 30 days (so most of the schedule is already past), answered-session
+//   periods attached by database triggers, and evaluations on PAST sessions: for
 //   every selected cell a row exists — the whole-group row (membership NULL)
 //   plus a few individual members — with a completion ramp from ~100%
 //   answered (oldest sessions) to ~55% (newest), about 70% overall, and
@@ -59,7 +65,7 @@ const GROUPS = [
   { name: 'Sample Group B', code: 'sample-b', sortOrder: 20 },
 ];
 
-// Group targets only. anchorOffset is days from today (negative = past), so
+// Group targets plus one individual-member target. anchorOffset is days from today (negative = past), so
 // every assignment has answered history by the time the script finishes.
 // intervalPreference indexes the interval candidates after the weekly-first
 // sort (wraps around if fewer exist).
@@ -68,6 +74,7 @@ const ASSIGNMENTS = [
   { code: 'SAMPLE-A2', name: 'Sample — Group B weekly', groupIndex: 1, anchorOffset: -42, intervalPreference: 0, sortOrder: 20 },
   { code: 'SAMPLE-A3', name: 'Sample — Group A fortnightly', groupIndex: 0, anchorOffset: -70, intervalPreference: 1, sortOrder: 30 },
   { code: 'SAMPLE-A4', name: 'Sample — Group B drills', groupIndex: 1, anchorOffset: -56, intervalPreference: 2, sortOrder: 40 },
+  { code: 'SAMPLE-I1', name: 'Sample — Individual coaching', groupIndex: 0, memberIndex: 0, anchorOffset: -35, intervalPreference: 0, sortOrder: 50 },
 ];
 
 const COMMENTS = [
@@ -159,6 +166,14 @@ async function removeSample() {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    // Sample history may already be past its lock deadline. The database lock
+    // guard applies to DELETE as well as edits, so fixture teardown supplies a
+    // transaction-local, explicit maintenance reason.
+    await client.query(
+      `SELECT set_config('app.override_reason', 'remove sample fixture', true)`
+    );
+
+    const connected = await removeConnectedSample(client);
 
     const sampleAssignments = await client.query(
       'SELECT id FROM assignments WHERE code LIKE $1',
@@ -234,42 +249,14 @@ async function removeSample() {
       [PARAMETERS.map((p) => p.code)]
     );
 
-    // Memberships and non-sale balance rows reference students with no cascade,
-    // so clear them first. If a sample student has recorded cafe sales, soft-
-    // delete them instead of failing with a foreign-key violation.
+    // Memberships reference students with no cascade, so clear them first.
     const memberships = await client.query(
       `DELETE FROM student_group_members
        WHERE student_id IN (SELECT id FROM students WHERE full_name LIKE $1)`,
       [`${STUDENT_PREFIX}%`]
     );
-    await client.query(
-      `DELETE FROM student_balance_transactions
-       WHERE student_id IN (
-         SELECT s.id FROM students s
-         WHERE s.full_name LIKE $1
-           AND NOT EXISTS (SELECT 1 FROM cafe_sales cs WHERE cs.student_id = s.id)
-       )`,
-      [`${STUDENT_PREFIX}%`]
-    );
-    await client.query(
-      `DELETE FROM student_balances
-       WHERE student_id IN (
-         SELECT s.id FROM students s
-         WHERE s.full_name LIKE $1
-           AND NOT EXISTS (SELECT 1 FROM cafe_sales cs WHERE cs.student_id = s.id)
-       )`,
-      [`${STUDENT_PREFIX}%`]
-    );
     const students = await client.query(
-      `DELETE FROM students s
-       WHERE s.full_name LIKE $1
-         AND NOT EXISTS (SELECT 1 FROM cafe_sales cs WHERE cs.student_id = s.id)`,
-      [`${STUDENT_PREFIX}%`]
-    );
-    await client.query(
-      `UPDATE students s
-       SET deleted_at = COALESCE(s.deleted_at, now())
-       WHERE s.full_name LIKE $1`,
+      'DELETE FROM students WHERE full_name LIKE $1',
       [`${STUDENT_PREFIX}%`]
     );
 
@@ -292,6 +279,7 @@ async function removeSample() {
         `  assignments: ${assignmentsDeleted}\n` +
         `  teachers:    ${teachers.rowCount} (only those no remaining assignment uses)\n` +
         `  parameters:  ${parameters.rowCount} (only those nothing remaining references)\n` +
+        `  sample users: ${connected.users}\n` +
         `  memberships: ${memberships.rowCount}\n` +
         `  students:    ${students.rowCount}\n` +
         `  groups:      ${groups.rows[0].count}`
@@ -305,6 +293,9 @@ async function removeSample() {
 }
 
 async function addSample() {
+  if (process.env.NODE_ENV === 'production' && process.env.ALLOW_SAMPLE_DATA !== '1') {
+    fail('Sample data is disabled in production. Use a development database or set ALLOW_SAMPLE_DATA=1 explicitly.');
+  }
   const today = todayIso();
 
   // Refuse to run twice (either half of the fixture world counts as existing).
@@ -332,6 +323,11 @@ async function addSample() {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+
+    // Predictable role accounts let every permission-specific page be tested.
+    // They are development fixtures only (the production guard above refuses
+    // them by default), and removeSample deletes them with their activity.
+    const users = await seedSampleUsers(client);
 
     // 1. Parameters (integer ranges, no unit — the schema-4 shape).
     for (const parameter of PARAMETERS) {
@@ -385,13 +381,21 @@ async function addSample() {
       const groupIndex = i < studentIds.length / 2 ? 0 : 1;
       const ability = 0.3 + 0.6 * (((i * 37) % 17) / 16);
       const inserted = await client.query(
-        `INSERT INTO student_group_members (student_id, group_id)
-         VALUES ($1, $2)
+        `INSERT INTO student_group_members (student_id, group_id, added_at)
+         VALUES ($1, $2, current_date - 365)
          RETURNING id`,
         [studentIds[i], groupIds[groupIndex]]
       );
       rosters[groupIndex].push({ membershipId: inserted.rows[0].id, ability });
     }
+    // One historical membership exercises the past-members UI and date
+    // serialization without changing either group's active roster.
+    await client.query(
+      `INSERT INTO student_group_members
+         (student_id, group_id, added_at, left_on)
+       VALUES ($1, $2, now() - interval '180 days', current_date - 120)`,
+      [studentIds[0], groupIds[1]]
+    );
 
     // 4. Teachers (full identity — the columns are NOT NULL since migration 017).
     const teacherIds = [];
@@ -445,16 +449,19 @@ async function addSample() {
       const interval =
         intervalCandidates[assignment.intervalPreference % intervalCandidates.length];
       const inserted = await client.query(
-        `INSERT INTO assignments
-           (code, name, teacher_id, interval_id, group_id, anchor_date, sort_order)
-         VALUES ($1, $2, $3, $4, $5, $6::date, $7)
-         RETURNING id`,
+       `INSERT INTO assignments
+            (code, name, teacher_id, interval_id, group_id, membership_id, anchor_date, sort_order)
+          VALUES ($1, $2, $3, $4, $5, $6, $7::date, $8)
+          RETURNING id`,
         [
           assignment.code,
           assignment.name,
           teacherIds[index % teacherIds.length],
           interval.id,
-          groupIds[assignment.groupIndex],
+          assignment.memberIndex === undefined ? groupIds[assignment.groupIndex] : null,
+          assignment.memberIndex === undefined
+            ? null
+            : rosters[assignment.groupIndex][assignment.memberIndex].membershipId,
           addDaysIso(today, assignment.anchorOffset),
           assignment.sortOrder,
         ]
@@ -462,14 +469,12 @@ async function addSample() {
       assignmentIds.push(inserted.rows[0].id);
     }
 
-    // 7. Sessions up to today + horizon (some past, some future), then one
-    // period row per 4-session bucket per assignment.
+    // 7. Sessions up to today + horizon (some past, some future). Generated
+    // sessions do not occupy periods until they receive their first answer.
     const until = addDaysIso(today, SESSION_HORIZON_DAYS);
     let sessionsCreated = 0;
-    let periodCount = 0;
     for (const assignmentId of assignmentIds) {
       sessionsCreated += await generateSessions(client, { until, assignmentId });
-      periodCount += await syncAssignmentPeriods(client, assignmentId);
     }
 
     // 8. Evaluations on the PAST, non-canceled sessions of the sample
@@ -491,8 +496,13 @@ async function addSample() {
     const rosterByAssignment = new Map(
       ASSIGNMENTS.map((assignment, index) => [
         assignmentIds[index],
-        rosters[assignment.groupIndex],
+        assignment.memberIndex === undefined
+          ? rosters[assignment.groupIndex]
+          : [rosters[assignment.groupIndex][assignment.memberIndex]],
       ])
+    );
+    const assignmentById = new Map(
+      ASSIGNMENTS.map((assignment, index) => [assignmentIds[index], assignment])
     );
 
     const rand = mulberry32(0x5eed);
@@ -516,10 +526,13 @@ async function addSample() {
       const locksAt = locksAtFor({ sessionDate: session.sessionDate, today });
       const roster = rosterByAssignment.get(session.assignmentId) ?? [];
 
-      const targets = [
-        { membershipId: null, ability: 0.55 }, // the whole-group row
-        ...pickMembers(rand, roster),
-      ];
+      const assignment = assignmentById.get(session.assignmentId);
+      const targets = assignment?.memberIndex === undefined
+        ? [
+            { membershipId: null, ability: 0.55 }, // the whole-group row
+            ...pickMembers(rand, roster),
+          ]
+        : roster;
       const perSessionParams = new Set();
       const indexZeroKeys = [];
       for (const parameter of pickParameters(rand, parametersResult.rows)) {
@@ -601,6 +614,27 @@ async function addSample() {
         ]
       );
     }
+    const periodCount = (
+      await client.query(
+        `SELECT count(*)::int AS count
+         FROM period_summary
+         WHERE assignment_id = ANY($1::uuid[])
+           AND sessions_count > 0`,
+        [assignmentIds]
+      )
+    ).rows[0].count;
+
+    // 9. Connected fixtures for identity/custom fields, tasks/alerts, cafe,
+    // accounting, audit, role-specific logins and voice transcripts.
+    const connected = await seedConnectedSample(client, {
+      today,
+      studentIds,
+      parameters: parametersResult.rows,
+      sessions: sessionsResult.rows,
+      rosters,
+      rosterByAssignment,
+      users,
+    });
 
     await client.query('COMMIT');
     console.log(
@@ -611,8 +645,14 @@ async function addSample() {
         `  intervals seeded:     ${seededIntervals}\n` +
         `  assignments:          ${ASSIGNMENTS.length}\n` +
         `  sessions generated:   ${sessionsCreated} (until ${until})\n` +
-        `  periods materialized: ${periodCount}\n` +
-        `  evaluation cells:     ${cells.sessions.length} (${answered} answered)`
+        `  answered periods:     ${periodCount}\n` +
+        `  evaluation cells:     ${cells.sessions.length} (${answered} answered)\n` +
+        `  custom fields:        ${connected.fields}\n` +
+        `  tasks / alerts:       ${connected.tasks} / ${connected.alerts}\n` +
+        `  cafe products:        ${connected.products}\n` +
+        `  voice transcripts:    ${connected.transcripts}\n` +
+        `  sample logins:        sample-admin/staff/viewer/accountant/kiosk\n` +
+        `  sample password:      ${SAMPLE_PASSWORD}`
     );
   } catch (err) {
     await client.query('ROLLBACK');

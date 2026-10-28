@@ -4,7 +4,7 @@
   Double-click setup.bat (which calls this), or run in PowerShell:
       powershell -ExecutionPolicy Bypass -File setup.ps1
 
-  It elevates to Administrator, makes sure Node.js (>=20) and PostgreSQL are
+  It elevates to Administrator, makes sure a Vite-compatible Node.js and PostgreSQL 15+ are
   installed (via winget), then hands off to scripts\setup.mjs, which configures
   the database, builds the app, starts it, and opens your browser.
 #>
@@ -42,12 +42,17 @@ function Update-Path {
   $env:Path = "$machine;$user"
 }
 
-function Get-NodeMajor {
-  if (-not (Test-Command node)) { return 0 }
+function Test-NodeSupported {
+  if (-not (Test-Command node)) { return $false }
   try {
     $v = (& node -v).TrimStart('v')   # e.g. 20.11.1
-    return [int]($v.Split('.')[0])
-  } catch { return 0 }
+    $parts = $v.Split('.')
+    $major = [int]$parts[0]
+    $minor = [int]$parts[1]
+    return (($major -eq 20 -and $minor -ge 19) -or
+            ($major -eq 22 -and $minor -ge 12) -or
+            $major -gt 22)
+  } catch { return $false }
 }
 
 # --- winget ----------------------------------------------------------------
@@ -55,22 +60,22 @@ if (-not (Test-Command winget)) {
   Write-Host ""
   Write-Host "winget (the Windows Package Manager) was not found." -ForegroundColor Red
   Write-Host "Install 'App Installer' from the Microsoft Store, then re-run this script."
-  Write-Host "Alternatively, install Node.js 20+ and PostgreSQL manually and run:"
+  Write-Host "Alternatively, install Node.js 20.19+ or 22.12+ and PostgreSQL 15+ manually and run:"
   Write-Host "    node scripts\setup.mjs"
   Read-Host "Press Enter to exit"
   exit 1
 }
 
 # --- Node.js ---------------------------------------------------------------
-if ((Get-NodeMajor) -lt 20) {
+if (-not (Test-NodeSupported)) {
   Write-Host ""
   Write-Host "Installing Node.js LTS via winget..." -ForegroundColor Cyan
   winget install --exact --id OpenJS.NodeJS.LTS `
     --accept-package-agreements --accept-source-agreements
   Update-Path
 }
-if ((Get-NodeMajor) -lt 20) {
-  Write-Host "Node.js 20+ is still not available on PATH." -ForegroundColor Red
+if (-not (Test-NodeSupported)) {
+  Write-Host "Node.js 20.19+ or 22.12+ is still not available on PATH." -ForegroundColor Red
   Write-Host "Close this window and run setup again (a fresh session picks up the new PATH)."
   Read-Host "Press Enter to exit"
   exit 1

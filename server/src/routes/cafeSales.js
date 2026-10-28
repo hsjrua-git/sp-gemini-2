@@ -127,12 +127,6 @@ router.post('/', async (req, res) => {
     await client.query('COMMIT');
   } catch (err) {
     await client.query('ROLLBACK');
-    if (/closed fiscal period/i.test(String(err?.message))) {
-      return res.status(409).json({
-        error: 'The entry falls in a closed fiscal period.',
-        code: 'ACCOUNTING_PERIOD_CLOSED',
-      });
-    }
     throw err;
   } finally {
     client.release();
@@ -168,20 +162,17 @@ router.post('/:id/void', async (req, res) => {
       const status = result.error === 'NOT_FOUND' ? 404 : 409;
       const messages = {
         NOT_FOUND: 'Sale not found.',
+        CAFE_SALE_ALREADY_VOIDED: 'That sale is already voided.',
+        CAFE_STUDENT_INACTIVE:
+          'A sale cannot be voided after its student has been archived.',
         ACCOUNTING_PERIOD_CLOSED: 'The entry falls in a closed fiscal period.',
       };
-      const message = messages[result.error] ?? 'That sale is already voided.';
+      const message = messages[result.error] ?? 'The sale cannot be voided.';
       return res.status(status).json({ error: message, code: result.error });
     }
     await client.query('COMMIT');
   } catch (err) {
     await client.query('ROLLBACK');
-    if (/closed fiscal period/i.test(String(err?.message))) {
-      return res.status(409).json({
-        error: 'The entry falls in a closed fiscal period.',
-        code: 'ACCOUNTING_PERIOD_CLOSED',
-      });
-    }
     throw err;
   } finally {
     client.release();

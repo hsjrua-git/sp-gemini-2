@@ -59,11 +59,9 @@ export const PERMISSIONS = [
   // Reports
   { key: 'dashboard.view', group: 'Reports', label: 'See the dashboard' },
   { key: 'data.export', group: 'Reports', label: 'Export data to CSV' },
-  { key: 'data.import', group: 'Reports', label: 'Import students from CSV' },
-  { key: 'views.share', group: 'Reports', label: 'Share saved views with others' },
+  { key: 'data.import', group: 'Reports', label: 'Import students and scores from CSV' },
 
   // Administration
-  { key: 'settings.manage', group: 'Administration', label: 'Change settings' },
   { key: 'users.manage', group: 'Administration', label: 'Manage user accounts' },
   { key: 'roles.manage', group: 'Administration', label: 'Manage roles and permissions' },
   { key: 'audit.view', group: 'Administration', label: 'Read the audit log' },
@@ -107,15 +105,14 @@ export const PREREQUISITES = {
   'accounting.manage': ['accounting.view'],
   // NOTE: scores.enter does NOT require scores.view — a "blind entry" role is
   // allowed (it can type scores but the server refuses to read them back).
-  // Both scores.view and scores.enter require schedule.view so Results and
-  // Evaluate pages can list assignments and sessions.
-  'scores.view': ['students.view', 'parameters.view', 'schedule.view'],
-  'scores.enter': ['students.view', 'parameters.view', 'schedule.view'],
+  'scores.enter': ['students.view', 'parameters.view'],
   'scores.override': ['scores.enter'],
   'parameters.manage': ['parameters.view'],
   'fields.view_restricted': ['students.view'],
   'data.import': ['students.create', 'scores.enter'],
-  'data.export': ['students.view', 'scores.view', 'schedule.view'],
+  // Export configuration reads assignments and parameters, and the cube itself
+  // contains score data. Keep custom roles coherent with the actual page/API.
+  'data.export': ['students.view', 'scores.view', 'parameters.view'],
 };
 
 // Expand a set of chosen keys to include every prerequisite, transitively.

@@ -7,6 +7,35 @@ import { generateCode } from '../lib/studentCode.js';
 
 const router = Router();
 const UNIQUE_VIOLATION = '23505';
+const CHECK_VIOLATION = '23514';
+
+function handleGroupWriteError(err, res) {
+  if (err.code === UNIQUE_VIOLATION) {
+    res.status(409).json({
+      error: 'A group with that name or code already exists here.',
+      code: 'VALIDATION_NOT_UNIQUE',
+    });
+    return true;
+  }
+  if (err.code !== CHECK_VIOLATION) return false;
+  if (/active children/.test(String(err.message))) {
+    res.status(409).json({
+      error: 'Archive or move its subgroups first.',
+      code: 'GROUPS_NOT_EMPTY',
+    });
+  } else if (/archived group/.test(String(err.message))) {
+    res.status(409).json({
+      error: 'An active group cannot be placed under an archived group.',
+      code: 'GROUPS_PARENT_ARCHIVED',
+    });
+  } else {
+    res.status(409).json({
+      error: 'A group cannot be moved inside itself or one of its subgroups.',
+      code: 'GROUPS_CYCLE',
+    });
+  }
+  return true;
+}
 
 // A group code may be given; otherwise one is generated. 1..40 chars, as the
 // schema's group_code_ck enforces.
@@ -184,12 +213,7 @@ router.post('/', async (req, res) => {
     res.status(201).json({ group: { ...group, memberCount: 0 } });
   } catch (err) {
     await client.query('ROLLBACK');
-    if (err.code === UNIQUE_VIOLATION) {
-      return res.status(409).json({
-        error: 'A group with that name already exists here.',
-        code: 'VALIDATION_NOT_UNIQUE',
-      });
-    }
+    if (handleGroupWriteError(err, res)) return;
     throw err;
   } finally {
     client.release();
@@ -347,12 +371,7 @@ router.patch('/:id', async (req, res) => {
     res.json({ group: updated.rows[0] });
   } catch (err) {
     await client.query('ROLLBACK');
-    if (err.code === UNIQUE_VIOLATION) {
-      return res.status(409).json({
-        error: 'A group with that name already exists here.',
-        code: 'VALIDATION_NOT_UNIQUE',
-      });
-    }
+    if (handleGroupWriteError(err, res)) return;
     throw err;
   } finally {
     client.release();
@@ -398,6 +417,7 @@ router.delete('/:id', async (req, res) => {
     res.status(204).end();
   } catch (err) {
     await client.query('ROLLBACK');
+    if (handleGroupWriteError(err, res)) return;
     throw err;
   } finally {
     client.release();
@@ -415,9 +435,9 @@ router.get('/:id/members', async (req, res) => {
     `SELECT s.id,
             s.full_name    AS "fullName",
             s.student_code AS "studentCode",
-            m.id                   AS "membershipId",
-            m.added_at::date::text AS "joinedOn",
-            m.left_on::text        AS "leftOn"
+            m.id           AS "membershipId",
+            m.added_at::date   AS "joinedOn",
+            m.left_on          AS "leftOn"
      FROM student_group_members m
      JOIN students s ON s.id = m.student_id AND s.deleted_at IS NULL
      WHERE m.group_id = $1

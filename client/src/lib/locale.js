@@ -33,8 +33,21 @@ export function toLatinDigits(text) {
 }
 
 function localDateFromIso(isoDate) {
-  const [year, month, day] = isoDate.split('-').map(Number);
-  return new Date(year, month - 1, day);
+  const text =
+    isoDate instanceof Date
+      ? isoDate.toISOString().slice(0, 10)
+      : String(isoDate ?? '').slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) return null;
+  const [year, month, day] = text.split('-').map(Number);
+  const date = new Date(year, month - 1, day);
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() !== month - 1 ||
+    date.getDate() !== day
+  ) {
+    return null;
+  }
+  return date;
 }
 
 function isoFromLocalDate(date) {
@@ -46,12 +59,14 @@ function isoFromLocalDate(date) {
 
 // A full date with weekday, e.g. «یکشنبه ۳ آبان ۱۴۰۵» / 'Sun, Oct 25, 2026'.
 export function formatLocaleDate(isoDate, language, options) {
+  const date = localDateFromIso(isoDate);
+  if (!date) return '—';
   const locale =
     language === 'en' ? 'en' : 'fa-IR-u-ca-persian';
   return new Intl.DateTimeFormat(
     locale,
     options ?? { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }
-  ).format(localDateFromIso(isoDate));
+  ).format(date);
 }
 
 // A compact date without weekday/year context.
@@ -67,23 +82,27 @@ export function formatLocaleNumber(value, language) {
 // Gregorian): the active language's calendar first, the other in brackets
 // with Latin digits so either reader can pin the exact day.
 export function formatBothDates(isoDate, language) {
+  const date = localDateFromIso(isoDate);
+  if (!date) return '—';
   const gregorian = new Intl.DateTimeFormat('en', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
-  }).format(localDateFromIso(isoDate));
+  }).format(date);
   const jalali = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
-  }).format(localDateFromIso(isoDate));
+  }).format(date);
   return language === 'en' ? `${gregorian} (${jalali})` : `${jalali} (${gregorian})`;
 }
 
 // --- Jalali text ⇄ ISO, for the date picker's Persian field -----------------
 
 export function jalaliTextFromIso(isoDate) {
-  const { jy, jm, jd } = toJalaali(localDateFromIso(isoDate));
+  const date = localDateFromIso(isoDate);
+  if (!date) return '';
+  const { jy, jm, jd } = toJalaali(date);
   const pad = (n) => String(n).padStart(2, '0');
   return toPersianDigits(`${jy}/${pad(jm)}/${pad(jd)}`);
 }

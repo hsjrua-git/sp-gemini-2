@@ -4,7 +4,7 @@
 #
 # Run it with:   ./setup.sh       (from the project root)
 #
-# It makes sure Node.js (>=20) and PostgreSQL are installed (using your system
+# It makes sure a Vite-compatible Node.js and PostgreSQL 15+ are installed (using your system
 # package manager, with sudo where needed), makes sure the database server is
 # running, then hands off to scripts/setup.mjs, which configures the database,
 # builds the app, starts it, and opens your browser. Safe to re-run.
@@ -36,7 +36,12 @@ fi
 
 OS="$(uname -s)"
 have() { command -v "$1" >/dev/null 2>&1; }
-node_major() { have node && node -v 2>/dev/null | sed 's/^v//' | cut -d. -f1 || echo 0; }
+node_supported() {
+  have node && node -e '
+    const [major, minor] = process.versions.node.split(".").map(Number);
+    process.exit((major === 20 && minor >= 19) || (major === 22 && minor >= 12) || major > 22 ? 0 : 1);
+  ' 2>/dev/null
+}
 
 head "Student Panel - bootstrap ($OS)"
 info "Project root: $DIR"
@@ -51,9 +56,9 @@ elif have pacman; then PM="pacman"
 elif have zypper; then PM="zypper"
 fi
 
-# --- Node.js >= 20 ---------------------------------------------------------
+# --- Node.js (the orchestrator enforces Vite's exact minimum) --------------
 install_node() {
-  head "Installing Node.js 20+"
+  head "Installing Node.js 20.19+ / 22.12+"
   case "$PM" in
     brew)
       have brew || die "Homebrew is required on macOS. Install it from https://brew.sh and re-run."
@@ -76,15 +81,15 @@ install_node() {
       $SUDO zypper install -y nodejs20 || $SUDO zypper install -y nodejs
       ;;
     *)
-      die "Could not detect a package manager. Install Node.js 20+ manually, then re-run."
+      die "Could not detect a package manager. Install Node.js 20.19+ or 22.12+ manually, then re-run."
       ;;
   esac
 }
 
-if [ "$(node_major)" -lt 20 ]; then
+if ! node_supported; then
   install_node
 fi
-[ "$(node_major)" -ge 20 ] || die "Node.js 20+ is still not available. Install it manually and re-run."
+node_supported || die "Node.js 20.19+ or 22.12+ is still not available. Install it manually and re-run."
 ok "Node.js $(node -v) is ready."
 
 # --- PostgreSQL ------------------------------------------------------------
@@ -144,4 +149,3 @@ ok "PostgreSQL client (psql) is ready."
 # --- hand off to the cross-platform orchestrator ---------------------------
 head "Handing off to the setup orchestrator"
 exec node "$DIR/scripts/setup.mjs"
-

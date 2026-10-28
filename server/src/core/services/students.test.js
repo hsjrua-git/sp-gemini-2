@@ -1,5 +1,5 @@
 // Service-layer test for students — runs the real service functions against a
-// fresh in-memory PGlite (the same adapter the on-device app will use), so it
+// fresh in-memory PGlite (the test service adapter), so it
 // exercises the exact code path: validation -> SQL -> PGlite -> shaped result.
 //
 //   node --test src/core/services/students.test.js

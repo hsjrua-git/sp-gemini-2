@@ -1,15 +1,14 @@
 // The one database handle the service layer talks to.
 //
 // The Express server imported a shared `pool` singleton (src/db/pool.js) and
-// every route used it directly. The on-device build has exactly one database
-// too — a single PGlite instance — so we mirror that pattern: the app calls
-// initDb(pool) once at startup, and services call getDb() at the point of use.
+// every route used it directly. The framework-free test mirror uses one PGlite
+// instance and mirrors that pattern: tests call initDb(pool), then services call
+// getDb() at the point of use.
 //
 // `pool` here is anything with the pg-Pool-compatible surface the services
 // need: `.query(text, params)` -> { rows, rowCount } and `.connect()` ->
-// { query, release }. In production that's the PGlite adapter (src/db/pglite.js
-// #createPglitePool). In tests it's the same adapter over a fresh in-memory
-// database, so the exact same code path is exercised.
+// { query, release }. Here it is the PGlite adapter (src/db/pglite.js) over a
+// fresh in-memory database. Production uses src/db/pool.js and Express routes.
 
 let db = null;
 

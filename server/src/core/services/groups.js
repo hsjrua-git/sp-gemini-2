@@ -1,6 +1,6 @@
 // Student groups — service layer (framework-free).
 //
-// On-device equivalent of routes/groups.js. Same peeling as the other services:
+// PGlite test mirror of routes/groups.js. Same peeling as the other services:
 // plain args in, plain data out, ServiceError instead of status codes, getDb()
 // for the pool, getLocalActor() for the audit trail, no permission gating (the
 // route split groups.manage vs groups.assign; the single admin has both). The

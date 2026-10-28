@@ -363,7 +363,8 @@ function CafeSalesPage() {
             {lines.length === 0 ? (
               <p className="hint">{t('cart.empty')}</p>
             ) : (
-              <table>
+              <div className="table-wrap">
+                <table>
                 <thead>
                   <tr>
                     <th scope="col">{t('cart.colProduct')}</th>
@@ -446,7 +447,8 @@ function CafeSalesPage() {
                     <td />
                   </tr>
                 </tfoot>
-              </table>
+                </table>
+              </div>
             )}
 
             <label htmlFor="pos-note">{t('cart.note')}</label>
@@ -518,7 +520,8 @@ function CafeSalesPage() {
           )}
 
           {sales.length > 0 && (
-            <table>
+            <div className="table-wrap">
+              <table>
               <thead>
                 <tr>
                   <th scope="col">{t('today.colTime')}</th>
@@ -584,7 +587,8 @@ function CafeSalesPage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+              </table>
+            </div>
           )}
           {voidSaleMutation.isError && (
             <p className="error" role="alert">

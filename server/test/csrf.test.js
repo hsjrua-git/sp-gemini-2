@@ -114,6 +114,22 @@ test('checkOrigin refuses a cross-origin write', () => {
   assert.equal(res.body.code, 'CSRF_ORIGIN');
 });
 
+test('checkOrigin permits an explicitly trusted native-app origin', () => {
+  const native = createCsrf({
+    secure: true,
+    enforceOrigin: true,
+    allowedOrigins: ['https://localhost'],
+  });
+  assert.equal(
+    runMiddleware(
+      native.checkOrigin,
+      makeReq({ method: 'POST', origin: 'https://localhost' }),
+      makeRes()
+    ),
+    true
+  );
+});
+
 test('checkOrigin also honours the Referer host when there is no Origin', () => {
   const ok = makeRes();
   assert.equal(

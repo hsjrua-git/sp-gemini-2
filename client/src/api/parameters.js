@@ -18,20 +18,3 @@ export function updateParameter(id, fields) {
     body: JSON.stringify(fields),
   });
 }
-
-export function createParameterChange(change) {
-  return request('/api/parameter-changes', {
-    method: 'POST',
-    body: JSON.stringify(change),
-  });
-}
-
-export function getChangeImpact({ parameterId, periodNumber, scope, action }) {
-  const params = new URLSearchParams({
-    parameterId,
-    periodNumber: String(periodNumber),
-    scope,
-    action,
-  });
-  return request(`/api/parameter-changes/impact?${params}`);
-}

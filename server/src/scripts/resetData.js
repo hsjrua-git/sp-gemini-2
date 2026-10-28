@@ -3,7 +3,8 @@ import { fileURLToPath } from 'node:url';
 
 // Resets the database to a "fresh institution" state:
 //   KEEPS  roles + role_permissions (the seeded system roles), every user
-//          holding the Administrator role (so you can still sign in), the
+//          holding the Administrator role (so you can still sign in), except
+//          development-only `sample-*` accounts; the
 //          stored secrets (`secrets`), and the system chart of accounts +
 //          default cafe-to-journal mappings (re-seeded if customized).
 //          Migrations (schema_migrations) are untouched.
@@ -13,7 +14,7 @@ import { fileURLToPath } from 'node:url';
 //          then re-seeds the 4 default intervals from migration 018), all
 //          cafe activity and catalog (sales, balances, purchases, stock
 //          movements, products, suppliers), all accounting journal entries
-//          and fiscal periods, the audit log, saved views, personal
+//          and fiscal periods, voice transcripts, the audit log, saved views, personal
 //          preferences, login sessions, and every non-admin account.
 //
 // Guarded: `npm run reset-data -- confirm` actually wipes. Without "confirm"
@@ -46,6 +47,7 @@ export async function counts(db) {
     (SELECT count(*)::int FROM saved_views)               AS saved_views,
     (SELECT count(*)::int FROM user_preferences)          AS preferences,
     (SELECT count(*)::int FROM user_sessions)             AS login_sessions,
+    (SELECT count(*)::int FROM voice_transcripts)         AS voice_transcripts,
     (SELECT count(*)::int FROM users)                     AS users`);
   return rows[0];
 }
@@ -55,7 +57,8 @@ export async function reset(db) {
   const keep = await db.query(
     `SELECT count(*)::int AS n FROM users
      WHERE role_id IN (SELECT id FROM roles WHERE lower(name) = 'administrator')
-       AND is_active`
+        AND is_active
+        AND username NOT LIKE 'sample-%'`
   );
   if (keep.rows[0].n === 0) {
     throw new Error('Refusing to reset: no active Administrator user would remain to sign in.');
@@ -81,6 +84,8 @@ export async function reset(db) {
       cafe_products, cafe_suppliers,
       acct_journal_lines, acct_journal_entries, acct_fiscal_periods
       RESTART IDENTITY CASCADE`);
+
+    await client.query('TRUNCATE voice_transcripts');
 
     await client.query(`ALTER SEQUENCE acct_entry_no_seq RESTART WITH 1000`);
 
@@ -119,12 +124,13 @@ export async function reset(db) {
     await client.query('TRUNCATE audit_log RESTART IDENTITY');
     await client.query('DELETE FROM saved_views');
     await client.query('DELETE FROM user_preferences');
-    await client.query('DELETE FROM settings');
 
-    // Every account except the Administrator(s).
+    // Every account except real Administrator(s). The known-password sample
+    // fixtures must never survive a reset into an otherwise production-like DB.
     const removed = await client.query(
       `DELETE FROM users
-       WHERE role_id NOT IN (SELECT id FROM roles WHERE lower(name) = 'administrator')`
+       WHERE role_id NOT IN (SELECT id FROM roles WHERE lower(name) = 'administrator')
+          OR username LIKE 'sample-%'`
     );
 
     // Log everyone out (server-side session store).
@@ -164,7 +170,7 @@ if (isMain) {
         'This WIPES students, groups and memberships, evaluations, parameters, the\n' +
         'whole schedule (re-seeding the 4 default intervals), cafe sales/stock/balances\n' +
         'and catalog, accounting journal entries and fiscal periods (restoring the\n' +
-        'system chart of accounts and mappings), field definitions, the audit log,\n' +
+        'system chart of accounts and mappings), voice transcripts, field definitions, the audit log,\n' +
         'saved views, preferences, and login sessions, and removes every non-admin account.\n' +
         'Roles, permissions, stored secrets, and your Administrator account stay.\n\n' +
         'To actually do it:  npm run reset-data -- confirm'

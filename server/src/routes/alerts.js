@@ -74,8 +74,8 @@ router.get('/', async (req, res) => {
   });
 });
 
-// Raise alerts for past sessions with no record, and close the ones whose
-// session has been taken care of since (lib/alerts.js has the semantics).
+// Raise alerts for overdue sessions whose selected cells are not all answered,
+// and close alerts once the session is complete or inactive.
 // Idempotent: nothing to do is a plain { raised: 0, resolved: 0 }.
 router.post('/scan', async (req, res) => {
   const client = await pool.connect();
@@ -101,9 +101,8 @@ router.post('/scan', async (req, res) => {
   }
 });
 
-// Resolving is a user decision ("we did talk about it"); un-resolving reopens
-// the alert. A manual resolution is respected by the scan: it never re-raises
-// an alert for a session that has not changed since it was resolved.
+// Resolving acknowledges the current alert. If the session remains incomplete,
+// a later scan may raise a new alert while retaining the resolved history.
 router.patch('/:id', async (req, res) => {
   const parsed = parseAlertPatch(req.body);
   if (parsed.error) {

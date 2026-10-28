@@ -30,6 +30,8 @@ describe('parseWholeNumber', () => {
     expect(parseWholeNumber('2.5')).toBeNull();
     expect(parseWholeNumber('abc')).toBeNull();
     expect(parseWholeNumber('')).toBeNull();
+    expect(parseWholeNumber('-500')).toBeNull();
+    expect(parseWholeNumber('-500', { signed: true })).toBe(-500);
   });
 });
 

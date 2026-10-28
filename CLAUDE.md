@@ -35,8 +35,9 @@ with PostgreSQL for storage.
 
 Three independently-installed packages:
 
-- `server/` — Express 5 API, session auth, PostgreSQL access, SQL migrations, shared `core/` services.
-- `client/` — React 19 + Vite single-page app (and optional Capacitor/PGlite local build).
+- `server/` — Express 5 API, session auth, PostgreSQL access, SQL migrations,
+  plus a framework-free `core/` mirror retained for PGlite tests (not mobile runtime).
+- `client/` — React 19 + Vite single-page app; Capacitor builds a connected Android companion using the same server/API.
 - `agent/` — Zero-dependency Persian/English voice and text kiosk process over the server API.
 - `deploy/` — systemd units, backup/restore scripts, an example reverse-proxy config.
 
@@ -67,6 +68,10 @@ Three independently-installed packages:
 - Build/dev: `vite@^8` (`@vitejs/plugin-react`). Tests: `vitest@^5` +
   `@testing-library/react` + `jsdom`. Lint: `eslint@^10` (flat config) with
   `react-hooks` and `react-refresh` plugins.
+- Building the client requires Node `^20.19.0 || >=22.12.0` (Vite 8).
+
+**Database:** PostgreSQL 15+ (`NULLS NOT DISTINCT` unique indexes are used by
+migration 029).
 
 ## Run / test / build commands
 
@@ -88,13 +93,16 @@ first admin, builds the client, starts the server, opens the browser). Re-runnab
   (prints a one-time temporary password).
 - `npm run seed-sample` — seed sample data (dev only).
 - `npm run reset-data` — dry run: show current row counts and what a reset would
-  wipe. `npm run reset-data -- confirm` wipes to a fresh state (seeded roles +
-  the Administrator account only; schema kept). Refuses if no active admin
-  would remain.
+  wipe. `npm run reset-data -- confirm` wipes to a fresh state while preserving
+  roles, stored secrets and real Administrator accounts and restoring the
+  default intervals/system chart/mappings; schema kept. Refuses if no active
+  admin would remain.
 - `npm test` — fast server unit tests (`node --test test/*.test.js`). The integration suite
   (`test/permissions.test.js`) is **skipped** here unless `RUN_INTEGRATION=1`.
 - `npm run test:core` — PGlite-backed core service tests (`src/core/**/*.test.js`).
 - `npm run verify-pglite` — verifies all SQL migrations and core invariants in PGlite.
+- `npm run smoke:invariants` — real-PostgreSQL two-connection race checks for
+  hierarchy, fiscal-range, and parameter/evaluation invariants.
 - `npm run test-permissions` — the integration suite (sets `RUN_INTEGRATION=1`);
   needs a running server + a throwaway DB with the seeded users.
 
@@ -109,7 +117,8 @@ first admin, builds the client, starts the server, opens the browser). Re-runnab
 
 **Environment:** copy `server/.env.example` → `server/.env`. Required:
 `DATABASE_URL`, `SESSION_SECRET` (≥32 chars). Optional: `PORT`, `HOST`,
-`NODE_ENV`, `SESSION_COOKIE_SECURE`, `TRUST_PROXY`, `CSRF_CHECK_ORIGIN` — all
+`NODE_ENV`, `SESSION_COOKIE_SECURE`, `TRUST_PROXY`, `CSRF_CHECK_ORIGIN`,
+`CSRF_ALLOWED_ORIGINS`, `ALLOW_SAMPLE_DATA` — all
 documented in `.env.example`.
 
 ## Server architecture (`server/src/`)
@@ -129,7 +138,7 @@ Boots the app and wires middleware **in this order** (order matters):
 3. `morgan`, JSON + urlencoded body parsers (1 MB limit).
 4. Static serving of `client/dist` when present (`serveClient`), with a SPA
    fallback at the very end that returns `index.html` for non-API GETs.
-5. `/api/health` (before session — cheap unauthenticated check).
+5. `/api/health` (before session — unauthenticated DB reachability check).
 6. `session(...)` — PG-backed store, cookie `httpOnly`, `sameSite:'lax'`,
    `secure: <configured>`, `rolling`, 8 h `maxAge`, name `sid`.
 7. `attachUser` — loads the user from the session onto `req.user`.
@@ -160,7 +169,7 @@ Boots the app and wires middleware **in this order** (order matters):
 
 ### CSRF — `middleware/csrf.js`
 
-`createCsrf({ secure, enforceOrigin })` returns three middlewares:
+`createCsrf({ secure, enforceOrigin, allowedOrigins })` returns three middlewares:
 - `issue` — sets a readable (`httpOnly:false`) `csrf` cookie when absent.
 - `checkOrigin` — for mutating methods, rejects when a present Origin/Referer
   host ≠ `Host`. No-op when `enforceOrigin` is false (dev, where the Vite proxy
@@ -201,8 +210,11 @@ namespace in BOTH `client/src/i18n/{fa,en}/errors.json`.
   sessions).
 - `students.js` — CRUD + list (search/sort/paginate/group filter); restricted
   custom-field values stripped for users lacking `fields.view_restricted`.
-- `parameters.js` / periods via `periods.js` + `lib/periods.js` +
-  `lib/parameterUse.js` — parameters, their change history, and the period calendar.
+- `parameters.js` / periods via `periods.js` + `lib/periods.js` — parameters
+  and persisted per-assignment periods. Only active sessions with at least one
+  answered cell attach (four sessions per period); an empty selected cell does
+  not consume a slot. Applicability is explicit cell selection; there is no
+  global period anchor or parameter-change log.
 - `evaluations.js` — `GET` (scores.view) and `PUT /evaluations/bulk`
   (scores.enter): validates, supports a `dryRun` preview (`lib/scorePreview.js`),
   lock handling + override (`lib/locks.js`), and audit of saves. Blind-entry
@@ -225,7 +237,9 @@ namespace in BOTH `client/src/i18n/{fa,en}/errors.json`.
 - `audit.js` — read the audit log (filter by category/actor, paginated); writes
   come from `middleware/audit.js` + `lib/audit.js` (+ `lib/auditRules.js` which
   redacts secret-like keys and decides what is recorded).
-- `cafe*.js` — the cafe module. Money is **bigint Toman** everywhere;
+- `cafe*.js` — the cafe module. Money is **bigint Toman** in PostgreSQL and
+  `lib/money.js` refuses any HTTP/report conversion outside JavaScript's exact
+  safe-integer range (never round money silently);
   quantities `numeric(12,3)`. `cafe_products`/`cafe_suppliers` (022,
   deactivate-not-delete); purchases + an **append-only** `cafe_stock_movements`
   ledger (023, UPDATE/DELETE refused by trigger; stock = SUM(qty); the
@@ -256,22 +270,28 @@ namespace in BOTH `client/src/i18n/{fa,en}/errors.json`.
   mapped auto-posts, the once-ever opening entry, period close with the
   automatic closing entry into retained earnings);
   `lib/accountingReports.js` builds trial balance / general ledger /
-  income statement / balance sheet over POSTED lines (the sheet returns
-  its identity check). Cafe transactions auto-post INSIDE their own
+  income statement / balance sheet over POSTED lines (the income statement
+  excludes system closing lines so historical activity remains visible; the
+  sheet returns its identity check). Cafe transactions auto-post INSIDE their own
   transactions (sale revenue+COGS, purchase, manual top-ups/refunds, waste
   at the current average cost; voiding a sale voids its entry) —
   deactivating a mapping pauses that event and the cafe keeps working
   standalone. Live rolled-back smoke: `src/scripts/accountingSmoke.mjs`.
+  Migration 031 serializes cross-row fiscal/range invariants, makes opening
+  once-ever, supports reopen → late posting → re-close, and keeps voids out of
+  closed periods. Migration 032 serializes group/account hierarchy changes,
+  forbids system opening/closing voids, and removes duplicate timestamp triggers.
+  Migration 035 aligns period membership, analysis views, and alert resolution
+  with schema 4's answered-session lifecycle.
 
 - `agent/` — the voice kiosk implementation (Phase 5): a separate
   zero-dependency Node process that runs the cafe by voice/text as a machine
   user in the `Kiosk` role, bilingual fa/en, with the confirmation protocol
   enforced in dialogue.js. See `agent/README.md` and
   `docs/voice-agent-architecture.md`.
-- `docs/voice-agent-architecture.md` — the approved design for a
-  fully-local Persian voice agent over the existing API (machine users,
-  confirmation protocol, staged rollout). No code depends on it yet; read
-  it before any kiosk work.
+- `docs/voice-agent-architecture.md` — the design record and current
+  implementation map for the local-first bilingual agent (machine users,
+  provider privacy boundaries, confirmation protocol, staged rollout).
 
 ### Scripts and tests
 
@@ -321,15 +341,15 @@ namespace in BOTH `client/src/i18n/{fa,en}/errors.json`.
 ### Routing and auth gating — `App.jsx`, `components/RequireAuth.jsx`, `components/Layout.jsx`
 
 - `App.jsx` — `LoginPage` is eager; **every other page is `React.lazy`**. Routes
-  nest under `<RequireAuth>` → `<Layout>`. The `<Suspense>` boundary for the
-  lazy pages lives in `Layout` around `<Outlet/>`.
+  nest under `<RequireAuth>` → `<Layout>`. Target chunks preload only when that
+  route is requested; live-DOM transitions respect reduced motion and move
+  focus to the new page heading. The `<Suspense>` boundary lives in `Layout`.
 - `RequireAuth.jsx` — shows loading/error, redirects to `/login` when signed
   out, and forces `/change-password` when `user.mustChangePassword`.
-- `Layout.jsx` — the app shell: a two-level, permission-filtered sidebar
-  (`NAV_PANELS` + `NAV_ITEMS` in `lib/navigation.js`, with a collapsible desktop
-  icon rail and a pinned `sidebar-account` footer for Preferences / Change
-  password / Sign out), a topbar with the page title, and a mobile drawer
-  (matchMedia, focus trap, Escape, `inert` when closed).
+- `Layout.jsx` — the app shell: a two-level, permission-filtered panel sidebar
+  (flat icon rail when collapsed), topbar page title/document title, account
+  actions pinned to the sidebar foot, and a mobile drawer (matchMedia, focus
+  trap, Escape, `inert` when closed).
 
 ### Server state — `api/` + react-query
 
@@ -341,31 +361,28 @@ namespace in BOTH `client/src/i18n/{fa,en}/errors.json`.
   `preferences`, `savedViews`, `audit`, `periods`, `auth`) that call `request()`.
 - Pages call these through `useQuery`/`useMutation`. Mutations invalidate the
   affected query keys on success (e.g. saving scores invalidates
-  `['evaluations']`, `['results']`, `['trends']`). `usePeriods` overrides
+  `['evaluations']`, `['results']`, `['trends']`, `['sessions']`, and
+  `['periods']`). `usePeriods` overrides
   `staleTime` to 30 min (near-static).
 
 ### Pages and components
 
-- `pages/` — one component per route (`DashboardPage`, `StudentsPage`,
-  `StudentDetailPage`, `TeachersPage`, `SchedulePage`, `SessionsPage`,
-  `EvaluatePage`, `ParametersPage`, `ResultsPage`, `ExportPage`,
-  `ImportStudentsPage`, `ImportScoresPage`, `CafeSalesPage`,
-  `CafeProductsPage`, `CafePurchasesPage`, `CafeInventoryPage`,
-  `CafeReportsPage`, `AccountingJournalPage`, `AccountingAccountsPage`,
-  `AccountingPeriodsPage`, `AccountingReportsPage`, `AgentPage`,
-  `AgentTranscriptsPage`, `UsersPage`, `RolesPage`, `GroupsPage`,
-  `FieldsPage`, `PreferencesPage`, `ChangePasswordPage`, `AuditPage`,
-  `LoginPage`, `NotFoundPage`).
+- `pages/` — one component per route (Dashboard, Students, StudentDetail,
+  Teachers, Schedule, Sessions, Evaluate, Parameters, Results, Export,
+  ImportStudents, ImportScores, CafeSales, CafeProducts, CafePurchases,
+  CafeInventory, CafeReports, AccountingJournal,
+  AccountingAccounts, AccountingPeriods, AccountingReports, Agent, Users, Roles,
+  Groups, Fields, Preferences, ChangePassword, Audit, Login, NotFound).
 - `components/` — shared UI: forms (`StudentForm`, `UserForm`, `ParameterForm`),
   tables/rows, `EvaluationGrid` (memoized `EvaluationRow` + `rowsEqual` so a
   keystroke re-renders only its row), `GroupFilter`, `ConnectionBanner`,
   `ErrorBoundary`, `PageLoader`, chart views, etc.
-- `lib/` — pure helpers, unit-tested alongside `src/**/*.test.{js,jsx}`:
-  `cells.js` (score parse/validate/save payload), `resultsView.js`
-  (filter/sort/stats), `dashboard.js` (aggregates), `csv.js` (CSV build with
-  formula-injection guard), `scoreImport.js`/`importNames.js` (import parsing),
-  `format.js`, `numbers.js`, `theme.js`, `studentFields.js`,
-  `useDebouncedValue.js`, `usePeriods.js`.
+- `lib/` — pure helpers, unit-tested where non-trivial: `cells.js` (score
+  parse/validate/save payload), `resultsView.js` (filter/sort/stats),
+  `dashboard.js` (aggregates), `csv.js` (CSV build with formula-injection
+  guard), `scoreImport.js`/`importNames.js` (import parsing), `format.js`,
+  `numbers.js`, `theme.js`, `studentFields.js`, `useDebouncedValue.js`,
+  `usePeriods.js`.
 - `index.css` — one token-based stylesheet. Light + dark theming via
   `:root` / `:root[data-theme='dark']` / `prefers-color-scheme` on
   `data-theme='system'`. Soft transitions gated behind

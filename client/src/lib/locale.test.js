@@ -41,6 +41,12 @@ describe('dates', () => {
     expect(en.indexOf('2026')).toBeLessThan(en.indexOf('۱۴۰۵'));
   });
 
+  it('accepts defensive Date/full-ISO inputs without crashing', () => {
+    expect(formatBothDates('2026-10-25T20:30:00.000Z', 'en')).toContain('2026');
+    expect(formatBothDates(new Date('2026-10-25T00:00:00.000Z'), 'en')).toContain('2026');
+    expect(formatBothDates('not-a-date', 'fa')).toBe('—');
+  });
+
   it('round-trips Jalali picker text through ISO', () => {
     expect(isoFromJalaliText('۱۴۰۵/۰۸/۰۳')).toBe('2026-10-25');
     expect(isoFromJalaliText('1405-8-3')).toBe('2026-10-25');

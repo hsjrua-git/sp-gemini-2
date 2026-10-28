@@ -104,13 +104,7 @@
     },
     "data": {
       "export": "Export data to CSV",
-      "import": "Import students from CSV"
-    },
-    "views": {
-      "share": "Share saved views with others"
-    },
-    "settings": {
-      "manage": "Change settings"
+      "import": "Import students and scores from CSV"
     },
     "users": {
       "manage": "Manage user accounts"
@@ -163,8 +157,6 @@
       "scores": "Scores",
       "student": "Students",
       "parameter": "Parameters",
-      "parameter_change": "Parameter changes",
-      "settings": "Settings",
       "user": "Users",
       "role": "Roles",
       "group": "Groups",
@@ -248,24 +240,8 @@
         "update": "Updated an alert"
       },
       "parameter": {
-        "create": "Added parameter {{name}}, used from Period {{period}} on",
+        "create": "Added parameter {{name}}",
         "update": "Edited parameter {{name}}"
-      },
-      "parameter_change": {
-        "create": {
-          "add": {
-            "thisPeriod": "Added {{name}} for this period only, Period {{periodNumber}}",
-            "fromHereOn": "Added {{name}} from this period on, Period {{periodNumber}}"
-          },
-          "remove": {
-            "thisPeriod": "Removed {{name}} for this period only, Period {{periodNumber}}",
-            "fromHereOn": "Removed {{name}} from this period on, Period {{periodNumber}}"
-          }
-        },
-        "delete": "Undid a parameter change"
-      },
-      "settings": {
-        "period_anchor": "Set the period start date to {{date}}"
       },
       "scores": {
         "save": {
@@ -318,59 +294,56 @@
         "archive": "Archived custom field \"{{label}}\""
       },
       "cafe_product": {
-        "create": "Added cafe product \"{{name}}\"",
-        "update": "Updated cafe product \"{{name}}\""
+        "create": "Added cafe product {{name}}",
+        "update": "Updated cafe product {{name}}",
+        "deactivate": "Deactivated cafe product {{name}}"
       },
       "cafe_supplier": {
-        "create": "Added cafe supplier \"{{name}}\"",
-        "update": "Updated cafe supplier \"{{name}}\""
+        "create": "Added cafe supplier {{name}}",
+        "update": "Updated cafe supplier {{name}}",
+        "deactivate": "Deactivated cafe supplier {{name}}"
       },
       "cafe_purchase": {
-        "create": "Recorded cafe purchase ({{lineCount}} lines, {{total}} Toman)"
+        "create": "Recorded a cafe purchase ({{count}} lines, {{total}} Toman)"
       },
       "cafe_sale": {
-        "create": "Recorded cafe sale ({{lineCount}} lines, {{total}} Toman)",
-        "void": "Voided cafe sale ({{total}} Toman)"
+        "create": "Recorded a cafe sale ({{count}} lines, {{total}} Toman)",
+        "void": "Voided a cafe sale ({{total}} Toman)"
       },
       "cafe_waste": {
-        "create": "Recorded cafe waste (qty {{qty}}, value {{costValue}} Toman)"
+        "create": "Recorded cafe waste ({{count}} lines)"
       },
       "cafe_adjustment": {
-        "create": "Recorded cafe stock adjustment ({{qty}})"
+        "create": "Recorded a cafe stock adjustment ({{count}} lines)"
       },
       "cafe_balance": {
-        "topup": "Topped up cafe balance by {{amount}} Toman (after: {{balanceAfter}})",
-        "refund": "Refunded cafe balance by {{amount}} Toman (after: {{balanceAfter}})",
-        "adjustment": "Adjusted cafe balance by {{amount}} Toman (after: {{balanceAfter}})"
-      },
-      "accounting": {
-        "opening_balance": "Generated opening balance entry #{{entryNumber}}"
-      },
-      "accounting_account": {
-        "create": "Added account \"{{name}}\" ({{code}})",
-        "update": "Updated an account"
-      },
-      "accounting_mapping": {
-        "update": "Updated accounting mapping \"{{eventKey}}\""
+        "topup": "Recorded a student balance top-up ({{amount}} Toman)",
+        "refund": "Recorded a student balance refund ({{amount}} Toman)",
+        "adjustment": "Recorded a student balance adjustment ({{amount}} Toman)"
       },
       "accounting_entry": {
-        "create": "Created journal entry #{{entryNumber}}",
-        "update": "Updated draft journal entry",
-        "post": "Posted journal entry",
-        "void": "Voided journal entry: \"{{reason}}\"",
-        "delete": "Deleted draft journal entry"
+        "draft": "Created journal draft no. {{entryNo}}",
+        "post": "Posted journal entry no. {{entryNo}}",
+        "void": "Voided journal entry no. {{entryNo}}"
       },
       "accounting_period": {
-        "create": "Created fiscal period \"{{name}}\"",
-        "close": "Closed fiscal period \"{{name}}\" (net income: {{netIncome}} Toman)"
+        "create": "Created a fiscal period",
+        "update": "Updated a fiscal period",
+        "close": "Closed a fiscal period",
+        "reopen": "Reopened a fiscal period"
+      },
+      "accounting_account": {
+        "create": "Created an account",
+        "update": "Updated an account",
+        "deactivate": "Deactivated an account"
+      },
+      "accounting_mapping": {
+        "update": "Updated a cafe-to-journal mapping"
+      },
+      "accounting": {
+        "opening_balance": "Recorded opening entry no. {{entryNo}} ({{total}} Toman)"
       }
     }
-  },
-  "settings": {
-    "title": "Settings",
-    "periodsTitle": "Periods",
-    "periodsIntro": "Evaluations are grouped into periods. Each period is one week, from Saturday to Friday, numbered from Period 1. Period 1 starts on the date below.",
-    "saved": "Saved."
   },
   "fields": {
     "readOnlyTitle": "Read-only access",
@@ -526,7 +499,7 @@
     "scan": {
       "button": "Scan for unconfirmed sessions",
       "scanning": "Scanning…",
-      "hint": "Flag past sessions that have no record — not canceled, no note, no tasks.",
+      "hint": "Flag overdue active sessions whose required evaluation cells are not all answered.",
       "nothing": "Nothing to report — every past session has a record.",
       "result_one": "Raised {{raised}} new alert, resolved {{resolved}}.",
       "result_other": "Raised {{raised}} new alerts, resolved {{resolved}}."
@@ -585,7 +558,7 @@
     },
     "alertsCard": {
       "title": "Sessions needing attention",
-      "hint": "These sessions have passed with no record — not canceled, no note, no tasks.",
+      "hint": "These active sessions are overdue and still lack one or more required evaluation answers.",
       "resolve": "Resolve",
       "showing_one": "Showing the first {{shown}} of {{total}} open alert.",
       "showing_other": "Showing the first {{shown}} of {{total}} open alerts.",

@@ -72,7 +72,8 @@ function hostOf(value) {
 // the Origin (Vite) and Host (this server) legitimately differ; enforcing there
 // would reject every dev mutation. The double-submit token still runs in both
 // modes, so development keeps its CSRF protection either way.
-export function createCsrf({ secure, enforceOrigin = true }) {
+export function createCsrf({ secure, enforceOrigin = true, allowedOrigins = [] }) {
+  const allowed = new Set(allowedOrigins);
   // Resolve the effective Secure flag for THIS request. `res.cookie` needs a
   // boolean, and 'auto' means "Secure only when the connection is HTTPS".
   function secureFor(req) {
@@ -98,7 +99,13 @@ export function createCsrf({ secure, enforceOrigin = true }) {
   function checkOrigin(req, res, next) {
     if (!enforceOrigin || SAFE_METHODS.has(req.method)) return next();
     const source = req.get('origin') ?? req.get('referer');
-    if (source && hostOf(source) !== req.get('host')) {
+    let sourceOrigin = null;
+    try {
+      sourceOrigin = source ? new URL(source).origin : null;
+    } catch {
+      sourceOrigin = null;
+    }
+    if (source && hostOf(source) !== req.get('host') && !allowed.has(sourceOrigin)) {
       return res
         .status(403)
         .json({ error: 'Cross-origin request refused.', code: 'CSRF_ORIGIN' });

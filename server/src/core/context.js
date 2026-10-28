@@ -1,9 +1,9 @@
-// Single-user identity for the on-device build.
+// Test-only single-user identity for the framework-free PGlite service mirror.
+// The shipped Capacitor app is connected and does not import this directory.
 //
 // The web app derived `req.user` (id, username, permissions) from the session
-// on every request and gated each action with permission keys. The mobile build
-// has exactly one person, who owns the device and the data — effectively the
-// administrator — so there is nothing to gate against.
+// on every request and gated each action with permission keys. Core service
+// tests collapse that context to one local administrator.
 //
 // Two things the routes used are collapsed here:
 //   * userCan(req, key)  ->  always true (CAN_SEE_RESTRICTED and friends).

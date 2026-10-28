@@ -17,6 +17,7 @@ function RequireAuth() {
     return (
       <main>
         <EmptyState
+          headingLevel={1}
           tone="danger"
           title={t('auth.sessionErrorTitle')}
           description={errorMessage(loadError)}

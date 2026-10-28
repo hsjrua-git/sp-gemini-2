@@ -5,6 +5,7 @@
 import { applyBalanceChange } from './cafeBalance.js';
 import { findEntryBySource, postMappedEvent, voidEntry } from './accountingJournal.js';
 import { recordAudit } from './audit.js';
+import { moneyNumber } from './money.js';
 
 // `user` is the acting request user ({ id, username }). Returns the created
 // sale id and totals (the caller re-reads the full row for the response).
@@ -13,7 +14,9 @@ export async function createSale(db, { user, customer, studentId, items, note })
 
   if (customer === 'student') {
     const student = await db.query(
-      'SELECT id FROM students WHERE id = $1 AND deleted_at IS NULL',
+      `SELECT id FROM students
+       WHERE id = $1 AND deleted_at IS NULL
+       FOR SHARE`,
       [studentId]
     );
     if (student.rowCount === 0) {
@@ -38,8 +41,9 @@ export async function createSale(db, { user, customer, studentId, items, note })
   const resolved = items.map((item) => ({
     productId: item.productId,
     qty: item.qty,
-    unitPrice: item.unitPrice ?? Number(byId.get(item.productId).price),
-    unitCost: Number(byId.get(item.productId).avg_cost),
+    unitPrice:
+      item.unitPrice ?? moneyNumber(byId.get(item.productId).price, 'Product price'),
+    unitCost: moneyNumber(byId.get(item.productId).avg_cost, 'Average cost'),
   }));
 
   const sale = await db.query(
@@ -70,8 +74,8 @@ export async function createSale(db, { user, customer, studentId, items, note })
      FROM cafe_sale_items WHERE sale_id = $1`,
     [saleId]
   );
-  const total = Number(totals.rows[0].total);
-  const costTotal = Number(totals.rows[0].cost_total);
+  const total = moneyNumber(totals.rows[0].total, 'Sale total');
+  const costTotal = moneyNumber(totals.rows[0].cost_total, 'Sale cost total');
   await db.query(
     'UPDATE cafe_sales SET total = $2, cost_total = $3 WHERE id = $1',
     [saleId, total, costTotal]
@@ -150,7 +154,20 @@ export async function voidSale(db, { user, saleId }) {
   );
   if (sale.rowCount === 0) return { error: 'NOT_FOUND' };
   if (sale.rows[0].voidedAt !== null) return { error: 'CAFE_SALE_ALREADY_VOIDED' };
-  const { customer, studentId, total } = sale.rows[0];
+  const { customer, studentId } = sale.rows[0];
+  const total = moneyNumber(sale.rows[0].total, 'Sale total');
+
+  if (customer === 'student') {
+    const student = await db.query(
+      `SELECT id FROM students
+       WHERE id = $1 AND deleted_at IS NULL
+       FOR SHARE`,
+      [studentId]
+    );
+    if (student.rowCount === 0) {
+      return { error: 'CAFE_STUDENT_INACTIVE' };
+    }
+  }
 
   await db.query(
     `INSERT INTO cafe_stock_movements
@@ -184,9 +201,7 @@ export async function voidSale(db, { user, saleId }) {
   const entry = await findEntryBySource(db, 'cafe_sale', saleId);
   if (entry) {
     const voidedEntry = await voidEntry(db, { user, entryId: entry.id });
-    if (voidedEntry?.error) {
-      return voidedEntry;
-    }
+    if (voidedEntry?.error) return voidedEntry;
   }
 
   await recordAudit(db, {

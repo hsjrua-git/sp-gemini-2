@@ -1,11 +1,8 @@
-// Authentication — static single-user stub (framework-free).
+// Authentication — static single-user stub for the PGlite test mirror.
 //
-// On-device equivalent of routes/auth.js, collapsed for the single-user build.
-// There is no login, logout, session, or password: the one person owns the
-// device and the data, and is effectively the administrator. So the whole
-// argon2 / session.regenerate / rate-limit / change-password surface is
-// intentionally DROPPED (the desktop route keeps it; this build has no network
-// auth to protect).
+// Framework-free equivalent of routes/auth.js, collapsed to one test admin.
+// There is no login/session surface here; production web and Capacitor clients
+// both use the authenticated Express API.
 //
 // What the client still needs from "auth" is the current user for its
 // AuthContext, with a permission list its can(key) checks against. Here that is
@@ -18,8 +15,7 @@ import { PERMISSION_KEYS } from '../../lib/permissions.js';
 
 // The user column list. This is a verbatim copy of lib/users.js#USER_COLUMNS,
 // inlined ON PURPOSE: lib/users.js imports lib/passwords.js → argon2, which is
-// a native Node addon that cannot be bundled into the browser/webview. This
-// service runs on-device, so it must not pull that chain in. Keep in sync with
+// a native Node addon unnecessary in this test mirror. Keep in sync with
 // lib/users.js if the users table shape ever changes (it hasn't since 001).
 const USER_COLUMNS = `
   id,
@@ -33,7 +29,7 @@ const USER_COLUMNS = `
   created_at           AS "createdAt"
 `;
 
-// The current (only) user — the seeded local admin, holding every permission.
+// The current test user — the seeded local admin, holding every permission.
 // Shape matches what routes/auth.js#GET /me returned, so the client's
 // AuthContext can consume it unchanged. Requires ensureLocalUser() to have run.
 export async function getMe() {

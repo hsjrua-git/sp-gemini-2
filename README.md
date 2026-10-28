@@ -7,37 +7,40 @@ by configurable roles built from fine-grained permissions.
 
 - `server/` — Express API, session auth, PostgreSQL access, migrations.
 - `client/` — React + Vite single-page app.
+- `agent/` — bilingual voice/text cafe kiosk using the same authenticated API.
 - `deploy/` — backup/restore scripts, systemd units, and an example reverse-proxy
   config for running it for real.
 
 ## What you can do
 
-- **Students** — add, rename, delete; give each one custom fields (see below);
+- **Students** — add, edit, archive; give each one custom fields (see below);
   organise them into groups.
-- **Parameters** — the things you score (with optional ranges and units), with
-  a change history so scoring stays consistent across periods.
-- **Periods** — scoring is organised into consecutive periods from a start date
-  you set on the Settings page.
-- **Evaluate** — enter or edit scores for a period in a grid, attach a short
-  note to any score, and filter the grid by group. Scores lock a week after
-  first entry (a day if entered late); people with the override permission can
-  still change a locked score by giving a written reason, which is audited.
-- **Results & Dashboard** — per-period results and trends over time, filterable
-  by group, exportable to CSV.
+- **Parameters** — coded dimensions such as Speed or Rhythm, with optional
+  integer min/max bounds shared by quality and quantity.
+- **Assignment periods** — only active sessions with an answered evaluation
+  occupy a period. The first answer attaches the session, four sessions fill
+  each assignment-local period, and empty selected cells do not consume a slot.
+  There is no school-wide period anchor.
+- **Evaluate** — select expected cells and enter quality, quantity, and a short
+  comment per dimension for one session. Cells lock from the session date
+  (seven days for current/future sessions, one day for past sessions); override
+  requires a written audited reason.
+- **Results & Dashboard** — assignment-period results, trends, and a persisted
+  2D/3D cohort constellation, filterable by group and exportable.
 - **Groups** — nest students into groups and subgroups to any depth. Filtering
   by a group includes everyone in its subgroups too.
 - **Custom fields** — admins define extra fields on students (text, long text,
   number, date, yes/no, choice). A field can be marked *restricted*, in which
   case its values are only shown to people allowed to see restricted fields.
 - **Roles & permissions** — build your own roles from a fixed catalogue of
-  permission keys. Four roles ship by default: Viewer, Staff, Accountant,
-  Administrator.
+  permission keys. Five roles ship by default: Viewer, Staff, Accountant,
+  Kiosk, and Administrator.
 - **Bilingual, Persian-first** — the whole interface is Persian/English
   (Persian default) with RTL layout and both Jalali and Gregorian calendars
   side by side; dates are entered in either calendar and stored as ISO.
 - **Teaching** — teachers, recurring assignments (every N days/months),
   generated sessions with move/cancel/archive, session tasks and reusable
-  task templates, and unconfirmed-session alerts surfaced on the dashboard.
+  task templates, and incomplete-session alerts surfaced on the dashboard.
 - **Cafe** — products and suppliers, purchases feeding an append-only stock
   ledger with a moving-average cost, a point-of-sale for walk-in and
   student sales, prepaid student balances (overdraft allowed by design,
@@ -47,9 +50,10 @@ by configurable roles built from fine-grained permissions.
   with an automatic closing entry, trial balance / ledger / income
   statement / balance sheet, and automatic posting of cafe events through
   an editable mapping table.
-- **Voice agent (design)** — a fully-local, Persian-speaking kiosk agent is
-  designed for the cafe counter; see
-  [docs/voice-agent-architecture.md](docs/voice-agent-architecture.md).
+- **Voice agent** — `agent/` implements a Persian/English text or voice cafe
+  kiosk with deterministic no-model operation, staged confirmation, optional
+  local models, and optional remote-compatible providers. See
+  [agent/README.md](agent/README.md) and the architecture record.
 
 ## Roles and permissions
 
@@ -61,11 +65,14 @@ the API is the gate.
 
 The seeded roles:
 
-- **Viewer** — read students, scores, parameters, dashboard; export CSV.
+- **Viewer** — read students, scores, parameters, and dashboard.
 - **Staff** — everything a Viewer can do, plus add/rename students, enter
-  scores, and assign students to groups.
+  scores, assign students to groups, and export data.
 - **Administrator** — everything, including managing users, roles, groups,
-  custom fields, parameters, settings, and viewing the audit log.
+  custom fields, parameters, scheduling, cafe/accounting, and the audit log.
+- **Accountant** — journal entry, posting, fiscal close, reports, and chart setup.
+- **Kiosk** — cafe menu, minimal student lookup, sales, and voids; no full
+  student-record access.
 
 Some permissions imply others (their prerequisites are ticked automatically).
 The system will not let you remove the last user who can manage users and roles,
@@ -73,8 +80,8 @@ so you can never lock yourself out.
 
 ## Requirements
 
-- Node.js 20 or newer (uses `--env-file`).
-- PostgreSQL 14 or newer.
+- Node.js 20.19+ or 22.12+ (Vite 8's supported runtime; uses `--env-file`).
+- PostgreSQL 15 or newer (`NULLS NOT DISTINCT` indexes are part of the schema).
 
 ## Quick start (automated installer)
 
@@ -101,7 +108,7 @@ takes you through the rest.
 
 What it will and won't do automatically:
 
-- **Installs prerequisites** (Node.js 20+, PostgreSQL) through the OS package
+- **Installs prerequisites** (a supported Node.js and PostgreSQL 15+) through the OS package
   manager when they are absent. If no supported package manager is found, it
   stops and tells you what to install, then you re-run it.
 - **Generates secrets** — the `SESSION_SECRET` and the application database
@@ -141,6 +148,13 @@ cd ../server && npm run migrate
 # 5. Create your first administrator (prints a one-time temporary password).
 npm run create-user -- admin "Site Administrator"
 #   Optionally pass a role name as the third argument, e.g. ... "Jo" Staff
+
+# 6. Optional development fixture: connected sample data for every module.
+#    Refused in NODE_ENV=production unless ALLOW_SAMPLE_DATA=1 is explicit.
+npm run seed-sample
+# Sample role logins share the printed development-only password.
+# Remove the complete fixture world (including ledger rows and users) with:
+npm run seed-sample -- remove
 ```
 
 ## Development
@@ -172,6 +186,12 @@ cd ../server && npm start
 ```
 
 Open `http://<this-machine>:3000`.
+
+### Android companion
+
+The Capacitor Android build uses the same server and database, so every module
+and permission stays in sync with the web app. See [`MOBILE.md`](MOBILE.md) for
+HTTPS/API-origin setup and the `cap:*` commands.
 
 ### Autostart on boot
 
@@ -258,10 +278,12 @@ npm run reset-data              # dry run: shows current rows and what would be 
 npm run reset-data -- confirm   # actually wipes
 ```
 
-It clears students, scores, parameters and their change log, groups, custom
-field definitions, the period anchor, the audit log, saved views, preferences,
-and all sessions, and removes every non-admin account. Roles, permissions, and
-your Administrator account are kept, and the schema itself is left in place. It
+It clears students, scores, parameters, groups, custom field definitions,
+the schedule, cafe/accounting runtime data, voice transcripts, the audit log,
+saved views, preferences, and all sessions, and removes every non-admin account.
+Roles/permissions, stored secrets, real Administrator accounts, the four
+default intervals, and the system chart/mappings are kept or re-seeded; the
+schema itself is left in place. It
 refuses to run if no active Administrator would remain. This is irreversible, so
 take a backup first (see above); everyone is signed out when it finishes.
 
@@ -282,12 +304,24 @@ A few defences worth knowing about when running this beyond a trusted LAN:
   CDN. See the Helmet config in `server/src/index.js`.
 - **Transport**: serve over HTTPS off a trusted LAN (see the reverse-proxy
   section above); the app is designed to run behind one proxy hop.
+- **Database roles**: `deploy/postgres-roles.example.sql` is an operator-run
+  least-privilege template for separate migration-owner, app, and read-only
+  roles; the reporting role cannot read users, sessions, or secrets.
 
 ## Tests
 
 ```bash
 cd server && npm test                 # server unit tests (node:test)
+cd server && npm run test:core        # PGlite-backed services
+cd server && npm run verify-pglite    # all migrations + DB checks
+cd server && npm run smoke:invariants # real PostgreSQL concurrency probes
+cd server && node --env-file=.env src/scripts/alertsSmoke.mjs
+cd server && node --env-file=.env src/scripts/accountingSmoke.mjs
+cd server && node --env-file=.env src/scripts/cafeStockSmoke.mjs
+cd server && node --env-file=.env src/scripts/cafeSalesSmoke.mjs
 cd client && npm test                 # client unit + component tests (Vitest)
+cd client && npm run lint && npm run build
+cd agent && npm test
 ```
 
 Server unit tests live in `server/test/` and cover the pure logic (permissions,
@@ -296,13 +330,13 @@ Client tests live next to the code (`client/src/**/*.test.{js,jsx}`) and cover
 the scoring/results/dashboard/import helpers and key components.
 
 The permission test is a separate integration test: it needs a running server
-and the three seeded users (`admin`, `staff1`, `viewer1`). Point it at a
+and three role users. On a development database, `npm run seed-sample` creates
+the default `sample-admin`, `sample-staff`, and `sample-viewer` fixtures. Point it at a
 throwaway database — the "admin can reach everything" pass issues real writes,
 and it exercises the auth, permission, and CSRF layers end to end.
 
 ```bash
 # With the server running against a test database:
 TEST_SERVER_URL=http://localhost:3000 \
-TEST_ADMIN_PASSWORD=... TEST_STAFF_PASSWORD=... TEST_VIEWER_PASSWORD=... \
 npm run test-permissions
 ```

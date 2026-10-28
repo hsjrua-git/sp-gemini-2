@@ -23,13 +23,15 @@ umask 077
 mkdir -p "$BACKUP_DIR"
 STAMP="$(date +%Y%m%d-%H%M%S)"
 OUT="$BACKUP_DIR/student-panel-$STAMP.sql.gz"
-TMP="$OUT.tmp"
+TMP="$OUT.tmp.$$"
 trap 'rm -f "$TMP"' EXIT
 
 # --clean --if-exists makes the dump safe to restore over an existing database.
 pg_dump --clean --if-exists --no-owner --no-privileges "$DATABASE_URL" \
   | gzip >"$TMP"
+gzip -t "$TMP"
 mv "$TMP" "$OUT"
+trap - EXIT
 
 echo "Wrote $OUT"
 

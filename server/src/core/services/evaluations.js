@@ -1,6 +1,6 @@
 // Evaluations (session cells) — service layer (framework-free).
 //
-// On-device equivalent of routes/evaluations.js under the schema-4 model: an
+// PGlite test mirror of routes/evaluations.js under the schema-4 model: an
 // evaluation ROW is one session cell — a session × parameter × target (a
 // member, or the whole group via membership NULL) — carrying two
 // independently-nullable ranged integers (quality, quantity), each with its
@@ -13,7 +13,7 @@
 //
 // Single-user collapse of the two permission checks the route made:
 //   * userCan(req, 'scores.view')     -> always true: the dry-run preview is
-//     never redacted (no blind-entry role on-device).
+//     never redacted (the mirror uses one all-powerful test admin).
 //   * userCan(req, 'scores.override') -> always true: the admin may always
 //     edit a locked cell. The lock itself is KEPT as a deliberate guardrail —
 //     a locked change still needs a written override reason, which is audited.
@@ -46,7 +46,9 @@ const EVALUATION_SELECT = `
          e.session_id                    AS "sessionId",
          s.assignment_id                 AS "assignmentId",
          s.code                          AS "sessionCode",
+         s.seq                           AS "sessionSeq",
          s.session_date::text            AS "sessionDate",
+         p.seq                           AS "periodSeq",
          e.parameter_id                  AS "parameterId",
          e.membership_id                 AS "membershipId",
          ms.student_id::text             AS "studentId",
@@ -59,6 +61,7 @@ const EVALUATION_SELECT = `
          e.updated_at                    AS "updatedAt"
   FROM evaluations e
   JOIN sessions s ON s.id = e.session_id
+  LEFT JOIN periods p ON p.id = s.period_id AND p.archived_at IS NULL
   LEFT JOIN student_group_members ms ON ms.id = e.membership_id
 `;
 
@@ -74,8 +77,12 @@ async function loadTargets(db, assignment) {
               s.student_code   AS "studentCode"
        FROM student_group_members ms
        JOIN students s ON s.id = ms.student_id
-       WHERE ms.id = $1 AND s.deleted_at IS NULL`,
-      [assignment.assignmentMembershipId]
+       JOIN student_groups g ON g.id = ms.group_id AND g.archived_at IS NULL
+       WHERE ms.id = $1
+         AND ms.added_at::date <= $2::date
+         AND (ms.left_on IS NULL OR ms.left_on >= $2::date)
+         AND s.deleted_at IS NULL`,
+      [assignment.assignmentMembershipId, assignment.sessionDate]
     );
     return new Map(result.rows.map((row) => [row.membershipId, row]));
   }
@@ -86,9 +93,13 @@ async function loadTargets(db, assignment) {
             s.student_code AS "studentCode"
      FROM student_group_members ms
      JOIN students s ON s.id = ms.student_id
-     WHERE ms.group_id = $1 AND ms.left_on IS NULL AND s.deleted_at IS NULL
+     JOIN student_groups g ON g.id = ms.group_id AND g.archived_at IS NULL
+     WHERE ms.group_id = $1
+       AND ms.added_at::date <= $2::date
+       AND (ms.left_on IS NULL OR ms.left_on >= $2::date)
+       AND s.deleted_at IS NULL
      ORDER BY lower(s.full_name)`,
-    [assignment.groupId]
+    [assignment.groupId, assignment.sessionDate]
   );
   return new Map(result.rows.map((row) => [row.membershipId, row]));
 }
@@ -133,9 +144,12 @@ export async function getEvaluations(filters = {}) {
     conditions.push(
       `(e.membership_id IN (SELECT id FROM student_group_members WHERE student_id = $${values.length})
         OR (e.membership_id IS NULL AND EXISTS (
-              SELECT 1 FROM assignments a2
-              JOIN student_group_members m2 ON m2.group_id = a2.group_id
-              WHERE a2.id = s.assignment_id AND m2.student_id = $${values.length})))`
+               SELECT 1 FROM assignments a2
+               JOIN student_group_members m2 ON m2.group_id = a2.group_id
+               WHERE a2.id = s.assignment_id
+                 AND m2.student_id = $${values.length}
+                 AND m2.added_at::date <= s.session_date
+                 AND (m2.left_on IS NULL OR m2.left_on >= s.session_date))))`
     );
   }
 
@@ -200,11 +214,14 @@ export async function saveEvaluationsBulk(input = {}) {
             s.canceled_at     AS "canceledAt",
             s.archived_at     AS "archivedAt",
             a.group_id        AS "groupId",
-            a.membership_id   AS "assignmentMembershipId",
-            a.code            AS "assignmentCode",
-            a.name            AS "assignmentName"
+             a.membership_id   AS "assignmentMembershipId",
+             a.code            AS "assignmentCode",
+             a.name            AS "assignmentName",
+             a.archived_at     AS "assignmentArchivedAt",
+             g.archived_at     AS "groupArchivedAt"
      FROM sessions s
      JOIN assignments a ON a.id = s.assignment_id
+     LEFT JOIN student_groups g ON g.id = a.group_id
      WHERE s.id = $1`,
     [sessionId]
   );
@@ -212,7 +229,12 @@ export async function saveEvaluationsBulk(input = {}) {
   if (!session) {
     throw ServiceError.notFound('Session not found.');
   }
-  if (session.canceledAt || session.archivedAt) {
+  if (
+    session.canceledAt ||
+    session.archivedAt ||
+    session.assignmentArchivedAt ||
+    session.groupArchivedAt
+  ) {
     throw ServiceError.conflict(
       'This session is canceled or archived; its cells cannot change.',
       { code: 'SESSIONS_NOT_ACTIVE' }
@@ -223,7 +245,8 @@ export async function saveEvaluationsBulk(input = {}) {
     loadTargets(db, session),
     db.query(
       `SELECT id, name, min_value AS "minValue", max_value AS "maxValue"
-       FROM parameters`
+       FROM parameters
+       WHERE archived_at IS NULL`
     ),
   ]);
   const parameters = new Map(
@@ -255,8 +278,7 @@ export async function saveEvaluationsBulk(input = {}) {
               locks_at            AS "locksAt",
               (locks_at <= now()) AS "isLocked"
        FROM evaluations
-       WHERE session_id = $1 AND archived_at IS NULL
-       FOR UPDATE`,
+       WHERE session_id = $1 AND archived_at IS NULL`,
       [sessionId]
     );
     const existing = new Map(
@@ -369,6 +391,12 @@ async function saveBulk({
       }
       overrideReason = reason.value;
     }
+    if (overrideReason) {
+      await client.query(
+        `SELECT set_config('app.override_reason', $1, true)`,
+        [overrideReason]
+      );
+    }
 
     for (const entry of entries) {
       const key = cellKey(entry.membershipId, entry.parameterId);
@@ -476,7 +504,7 @@ async function saveBulk({
   } catch (err) {
     await client.query('ROLLBACK').catch(() => {});
     // The range trigger speaks in check_violation; translate the common case.
-    if (err.code === '23514') {
+    if (err.code === '23514' && /outside parameter .* range/.test(String(err.message))) {
       throw ServiceError.validation(
         'A value is outside the parameter range. Nothing was saved.',
         { code: 'EVALUATIONS_INVALID_ENTRIES' }

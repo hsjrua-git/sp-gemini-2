@@ -2,12 +2,12 @@ import { PGlite } from '@electric-sql/pglite';
 
 // A pg-Pool-compatible facade over a single PGlite (Postgres-in-WASM) connection.
 //
-// The rest of the server imports a `pool` and uses exactly three things:
+// The framework-free core test mirror expects the same three pool operations:
 //   - pool.query(text, params) -> { rows, rowCount }
 //   - pool.connect() -> client with .query()/.release() for BEGIN/COMMIT/ROLLBACK
 //   - pool.end()
-// This module reproduces that surface on top of PGlite so route/lib code can run
-// unchanged in the single-user, on-device build. PGlite is a single connection,
+// This module reproduces that surface on top of PGlite for migration and core
+// tests. It is not used by the connected Capacitor client. PGlite is one connection,
 // so connect() serialises callers through a mutex to mirror pg handing out an
 // isolated client for the duration of a transaction.
 
@@ -58,22 +58,32 @@ async function run(db, text, params) {
   return shape(await db.query(text, params));
 }
 
-function parsePgInterval(raw) {
+export function parsePgInterval(raw) {
   if (raw && typeof raw === 'object') return raw;
-  const text = String(raw ?? '').trim();
-  const out = {};
-  const yearMatch = text.match(/(-?\d+)\s+years?/i);
-  const monMatch = text.match(/(-?\d+)\s+mons?/i);
-  const dayMatch = text.match(/(-?\d+)\s+days?/i);
-  if (yearMatch) out.years = Number(yearMatch[1]);
-  if (monMatch) out.months = Number(monMatch[1]);
-  if (dayMatch) out.days = Number(dayMatch[1]);
-  return out;
+  const result = {};
+  const names = {
+    year: 'years', years: 'years',
+    mon: 'months', mons: 'months', month: 'months', months: 'months',
+    day: 'days', days: 'days',
+  };
+  for (const match of String(raw ?? '').matchAll(
+    /(-?\d+(?:\.\d+)?)\s+(years?|mons?|months?|days?)/gi
+  )) {
+    result[names[match[2].toLowerCase()]] = Number(match[1]);
+  }
+  const time = String(raw ?? '').match(/([+-])?(\d+):(\d+):(\d+(?:\.\d+)?)/);
+  if (time) {
+    const sign = time[1] === '-' ? -1 : 1;
+    result.hours = sign * Number(time[2]);
+    result.minutes = sign * Number(time[3]);
+    result.seconds = sign * Number(time[4]);
+  }
+  return result;
 }
 
 export function createPglitePool(dataDir) {
-  // No dataDir => in-memory (used by the verification script). A path (or
-  // file://, idb://) => persisted, which the on-device build will use.
+  // No dataDir => in-memory (used by verification/core tests). A path is still
+  // accepted for focused tooling, but no shipped client persists PGlite.
   // Align OID 1082 (date -> 'YYYY-MM-DD') and OID 1186 (interval -> object)
   // with node-pg so route/service code behaves identically on both drivers.
   const parsers = {

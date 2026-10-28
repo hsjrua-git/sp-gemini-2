@@ -1,10 +1,8 @@
 // Portable student-code generator.
 //
-// The server version (src/lib/studentCode.js) imports node:crypto's randomInt,
-// which does not exist in a browser/webview. This copy uses the Web Crypto API
-// (globalThis.crypto.getRandomValues), which is present in both modern Node
-// (>=19, as a global) and every browser — so the same module runs unchanged
-// on-device and under `node --test`.
+// The server version (src/lib/studentCode.js) imports node:crypto's randomInt.
+// This mirror uses global Web Crypto so it stays dependency-free under PGlite
+// and `node --test`.
 //
 // Same alphabet and length as the server, so codes are indistinguishable:
 // 32 unambiguous characters (no 0/O/1/I), 8 chars long.
@@ -37,4 +35,3 @@ export function generateStudentCode() {
 
 export const generateCode = generateStudentCode;
 export const generateTeacherCode = generateStudentCode;
-

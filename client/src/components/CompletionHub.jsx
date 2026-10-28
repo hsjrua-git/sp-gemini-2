@@ -51,7 +51,8 @@ const SAT_C = 2 * Math.PI * SAT_R;
 
 function Satellite({ stat, total, index, onSelect }) {
   const { t } = useTranslation(['reports', 'common']);
-  const { parameter, count } = stat;
+  const { parameter, answeredCount } = stat;
+  const count = answeredCount ?? stat.count;
   const coverage = total > 0 ? count / total : 0;
   const filled = coverage * SAT_C;
   const label = t('cohort.satelliteLabel', {
@@ -220,4 +221,3 @@ function CompletionHub({ summary, field, stats = [], onSelect }) {
 }
 
 export default CompletionHub;
-

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   cohortField,
+  dashboardPeriodSeq,
   distribution,
   parameterStats,
   studentBreakdown,
@@ -8,6 +9,19 @@ import {
   trendSeries,
   unmeasuredStudents,
 } from './dashboard.js';
+
+describe('dashboardPeriodSeq', () => {
+  const periods = [
+    { seq: 1, answeredCount: 12 },
+    { seq: 2, answeredCount: 7 },
+    { seq: 3, answeredCount: 0 },
+  ];
+  it('keeps a valid saved period and otherwise prefers the latest populated one', () => {
+    expect(dashboardPeriodSeq(periods, 1)).toBe(1);
+    expect(dashboardPeriodSeq(periods, 99)).toBe(2);
+    expect(dashboardPeriodSeq([{ seq: 4, answeredCount: 0 }], null)).toBe(4);
+  });
+});
 
 // Server results-grid shape: rows are targets (whole-group row first), cells
 // keyed by parameter carrying BOTH dimensions plus the answered state, and
@@ -72,6 +86,14 @@ describe('summarize', () => {
     expect(summarize(results, { basis: 'valueOrComment' }).measured).toBe(4);
   });
 
+  it('completion follows the selected dimension and only its own comment', () => {
+    expect(summarize(results, { dimension: 'quantity' }).measured).toBe(2);
+    // The p2 comments are quality comments, so they do not answer quantity.
+    expect(
+      summarize(results, { dimension: 'quantity', basis: 'valueOrComment' }).measured
+    ).toBe(2);
+  });
+
   it('reports null completion when nothing is expected', () => {
     const empty = { parameters: [], rows: [studentRow('a', 'Ada', 'S1', {})] };
     expect(summarize(empty).completion).toBe(null);
@@ -104,6 +126,15 @@ describe('parameterStats', () => {
     const stats = parameterStats(results, { dimension: 'quantity' });
     const speed = stats.find((stat) => stat.parameter.id === 'p1');
     expect(speed.average).toBe(4.5); // (3 + 6) / 2
+    expect(speed.answeredCount).toBe(2);
+    expect(stats.find((stat) => stat.parameter.id === 'p2').answeredCount).toBe(0);
+  });
+
+  it('keeps numeric count separate from comment-aware coverage', () => {
+    const strength = parameterStats(results, { basis: 'valueOrComment' })
+      .find((stat) => stat.parameter.id === 'p2');
+    expect(strength.count).toBe(1);
+    expect(strength.answeredCount).toBe(2);
   });
 });
 

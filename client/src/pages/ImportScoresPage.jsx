@@ -31,27 +31,6 @@ import {
 const EMPTY = [];
 const MAX_FILE_BYTES = 2_000_000;
 
-// Mirrors the server's period rule (lib/periods.js SESSIONS_PER_PERIOD): every
-// 4 non-canceled sessions of an assignment, in date order, form period 1, 2…
-const SESSIONS_PER_PERIOD = 4;
-
-function periodSeqBySession(sessions) {
-  const ordered = sessions
-    .filter((session) => !session.canceledAt && !session.archivedAt)
-    .sort((a, b) =>
-      a.sessionDate < b.sessionDate
-        ? -1
-        : a.sessionDate > b.sessionDate
-          ? 1
-          : (a.seq ?? 0) - (b.seq ?? 0)
-    );
-  const seqs = new Map();
-  ordered.forEach((session, index) =>
-    seqs.set(session.id, Math.floor(index / SESSIONS_PER_PERIOD) + 1)
-  );
-  return seqs;
-}
-
 // How many file columns a mapped parameter occupies (its quality and/or
 // quantity column) — the review table shows one sub-column per dimension.
 function dimensionCount(columns) {
@@ -207,7 +186,6 @@ function ImportScoresPage() {
   });
   const sessionsRaw = sessionsQuery.data?.sessions;
   const sessions = useMemo(() => sessionsRaw ?? EMPTY, [sessionsRaw]);
-  const periodSeqs = useMemo(() => periodSeqBySession(sessions), [sessions]);
 
   // Default session: the first session of today or later, else the last usable
   // one. Derived (not an effect), like the assignment default above.
@@ -239,7 +217,12 @@ function ImportScoresPage() {
     if (!assignment) return EMPTY;
     if (assignment.groupId) {
       return (membersQuery.data ?? EMPTY)
-        .filter((member) => !member.leftOn)
+        .filter(
+          (member) =>
+            chosenSession?.sessionDate &&
+            member.joinedOn <= chosenSession.sessionDate &&
+            (!member.leftOn || member.leftOn >= chosenSession.sessionDate)
+        )
         .map((member) => ({
           id: member.id,
           membershipId: member.membershipId,
@@ -259,7 +242,7 @@ function ImportScoresPage() {
         studentCode: student.studentCode,
       },
     ];
-  }, [assignment, membersQuery.data, studentsQuery.data]);
+  }, [assignment, chosenSession, membersQuery.data, studentsQuery.data]);
 
   const studentsByCode = useMemo(
     () =>
@@ -447,6 +430,8 @@ function ImportScoresPage() {
           queryClient.invalidateQueries({ queryKey: ['results'] });
           queryClient.invalidateQueries({ queryKey: ['trends'] });
           queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+          queryClient.invalidateQueries({ queryKey: ['sessions'] });
+          queryClient.invalidateQueries({ queryKey: ['periods'] });
         },
       }
     );
@@ -579,9 +564,9 @@ function ImportScoresPage() {
                   <option key={session.id} value={session.id}>
                     {formatIsoDate(session.sessionDate)}
                     {' · '}
-                    {t('imports.scores.periodShort', {
-                      seq: periodSeqs.get(session.id) ?? '…',
-                    })}
+                     {t('imports.scores.periodShort', {
+                       seq: session.periodSeq ?? '…',
+                     })}
                     {session.canceledAt ? t('imports.scores.canceledTag') : ''}
                   </option>
                 ))}

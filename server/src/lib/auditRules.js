@@ -45,6 +45,8 @@ const RECORDED_BY_THEIR_OWN_ROUTES = [
   /^\/api\/users(\/|$)/,
   /^\/api\/preferences$/,
   /^\/api\/saved-views(\/|$)/,
+  // POST is supported only to carry a large read-only export filter body.
+  /^\/api\/export\/cube$/,
   /^\/api\/students\/import$/,
   /^\/api\/roles(\/|$)/,
   /^\/api\/groups(\/|$)/,

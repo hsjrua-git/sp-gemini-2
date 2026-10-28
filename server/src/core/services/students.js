@@ -1,6 +1,6 @@
 // Students — service layer (framework-free).
 //
-// This is the on-device equivalent of routes/students.js. The HTTP handlers
+// Test-only framework-free equivalent of routes/students.js. The HTTP handlers
 // have been peeled apart into plain async functions: no Express req/res, no
 // permission middleware, no status codes. Input arrives as plain arguments;
 // success returns plain data; failure throws a ServiceError (see errors.js).

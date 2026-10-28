@@ -97,8 +97,8 @@ async function seedFixture(pool) {
   for (const [name, studentId] of [['ada', ada], ['bob', bob]]) {
     memberships[name] = (
       await pool.query(
-        `INSERT INTO student_group_members (student_id, group_id)
-         VALUES ($1, $2) RETURNING id`,
+        `INSERT INTO student_group_members (student_id, group_id, added_at)
+         VALUES ($1, $2, '2020-01-01') RETURNING id`,
         [studentId, group],
       )
     ).rows[0].id;
@@ -141,7 +141,31 @@ async function seedFixture(pool) {
     return saveEvaluationsBulk({ sessionId, entries });
   }
 
-  return { assignmentId, group, memberships, sessionIds, focus, speed, save };
+  async function fillFirstPeriod() {
+    for (const sessionId of sessionIds.slice(1, 4)) {
+      await save(sessionId, [
+        {
+          membershipId: null,
+          parameterId: speed,
+          selected: true,
+          qualityValue: null,
+          quantityValue: null,
+          qualityComment: 'period attachment',
+        },
+      ]);
+    }
+  }
+
+  return {
+    assignmentId,
+    group,
+    memberships,
+    sessionIds,
+    focus,
+    speed,
+    save,
+    fillFirstPeriod,
+  };
 }
 
 test('getResults: validation, 404s, and a not-yet-bucketed period', async () => {
@@ -157,6 +181,7 @@ test('getResults: validation, 404s, and a not-yet-bucketed period', async () => 
     await expectCode('NOT_FOUND', () =>
       getResults({ assignmentId: '00000000-0000-4000-8000-000000000000', seq: 1 })
     );
+    await expectCode('VALIDATION', () => getResults({ assignmentId, seq: 1 }));
     await expectCode('VALIDATION', () =>
       getResults({ assignmentId, seq: 9 }) // no sessions bucketed there yet
     );
@@ -168,7 +193,15 @@ test('getResults: validation, 404s, and a not-yet-bucketed period', async () => 
 test('getResults: grid rows, both dimensions, and the previous-seq deltas', async () => {
   const pool = await freshDb();
   try {
-    const { assignmentId, memberships, sessionIds, focus, speed, save } =
+    const {
+      assignmentId,
+      memberships,
+      sessionIds,
+      focus,
+      speed,
+      save,
+      fillFirstPeriod,
+    } =
       await seedFixture(pool);
 
     // Period 1 (sessions 1–4): group + Ada answered; period 2 (5–8): only Bob.
@@ -176,6 +209,7 @@ test('getResults: grid rows, both dimensions, and the previous-seq deltas', asyn
       { membershipId: null, parameterId: focus, selected: true, qualityValue: 5, quantityValue: 6 },
       { membershipId: memberships.ada, parameterId: focus, selected: true, qualityValue: 7, quantityValue: 8 },
     ]);
+    await fillFirstPeriod();
     await save(sessionIds[4], [
       { membershipId: memberships.bob, parameterId: focus, selected: true, qualityValue: 9, quantityValue: null },
     ]);
@@ -220,7 +254,15 @@ test('getResults: grid rows, both dimensions, and the previous-seq deltas', asyn
 test('getTrends: per (parameter, assignment, period) averages with a dimension choice', async () => {
   const pool = await freshDb();
   try {
-    const { assignmentId, memberships, sessionIds, focus, speed, save } =
+    const {
+      assignmentId,
+      memberships,
+      sessionIds,
+      focus,
+      speed,
+      save,
+      fillFirstPeriod,
+    } =
       await seedFixture(pool);
 
     await save(sessionIds[0], [
@@ -228,6 +270,7 @@ test('getTrends: per (parameter, assignment, period) averages with a dimension c
       { membershipId: memberships.ada, parameterId: focus, selected: true, qualityValue: 8, quantityValue: 2 },
       { membershipId: memberships.ada, parameterId: speed, selected: true, qualityValue: 10, quantityValue: null },
     ]);
+    await fillFirstPeriod();
     await save(sessionIds[4], [
       { membershipId: memberships.bob, parameterId: focus, selected: true, qualityValue: 6, quantityValue: null },
     ]);
@@ -271,10 +314,17 @@ test('getSummary: expected = selected cells; group rows expand per member and me
       { membershipId: null, parameterId: focus, selected: true, qualityValue: 5, quantityValue: null },
       { membershipId: memberships.ada, parameterId: focus, selected: true, qualityValue: null, quantityValue: null },
     ]);
+    const charlieId = await addStudent(pool, 'CDEFGHJK', 'Charlie Delta');
+    await pool.query(
+      `INSERT INTO student_group_members (student_id, group_id)
+       VALUES ($1, $2)`,
+      [charlieId, group]
+    );
 
     const { students, totals } = await getSummary({ groupId: group });
     const ada = students.find((student) => student.studentCode === 'ABCDEFGH');
     const bob = students.find((student) => student.studentCode === 'BCDEFGHJ');
+    const charlie = students.find((student) => student.studentCode === 'CDEFGHJK');
     // One selected cell each: the group row (answered) expands to Bob, but
     // Ada's own unanswered row shadows it for her.
     assert.equal(ada.expected, 1);
@@ -283,6 +333,10 @@ test('getSummary: expected = selected cells; group rows expand per member and me
     assert.equal(bob.expected, 1);
     assert.equal(bob.answered, 1);
     assert.equal(bob.state, 'full');
+    // Charlie joined years after this historical session and must not inherit
+    // its whole-group score merely because he is in today's roster.
+    assert.equal(charlie.expected, 0);
+    assert.equal(charlie.answered, 0);
     assert.equal(totals.expected, 2);
     assert.equal(totals.answered, 1);
 

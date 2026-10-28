@@ -22,10 +22,9 @@ import { formatWhole } from '../lib/money.js';
 // possible and the closing entry stays. The opening entry — the adopt-
 // accounting snapshot of cafe stock and student balances — lives here too.
 
-function OpeningCard() {
+function OpeningCard({ canCreate }) {
   const { t } = useTranslation(['accountingAdmin', 'accountingReports', 'common']);
   const queryClient = useQueryClient();
-  const { can } = useAuth();
   const [date, setDate] = useState(toIsoDate(new Date()));
 
   const openingQuery = useQuery({
@@ -60,7 +59,7 @@ function OpeningCard() {
       ) : (
         <p className="hint">{t('opening.missing')}</p>
       )}
-      {can('accounting.manage') && !opening && (
+      {canCreate && !opening && (
         <div className="row">
           <label htmlFor="opening-date">{t('opening.date')}</label>
           <JalaliDatePicker
@@ -175,6 +174,8 @@ function AccountingPeriodsPage() {
   const queryClient = useQueryClient();
   const canManage = can('accounting.manage');
   const canClose = can('accounting.close');
+  const canPost = can('accounting.post');
+  const canAct = canManage || canClose;
   const [creating, setCreating] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
@@ -203,7 +204,7 @@ function AccountingPeriodsPage() {
         </div>
       </div>
 
-      <OpeningCard />
+      <OpeningCard canCreate={canManage && canPost} />
 
       <section className="section-card">
         <h2>{t('periods.title')}</h2>
@@ -225,14 +226,14 @@ function AccountingPeriodsPage() {
                 <th scope="col">{t('periods.range')}</th>
                 <th scope="col">{t('periods.status')}</th>
                 <th scope="col" className="num">{t('periods.postedCount')}</th>
-                {canManage && <th scope="col">{t('periods.actions')}</th>}
+                {canAct && <th scope="col">{t('periods.actions')}</th>}
               </tr>
             </thead>
             <tbody>
               {periods.map((period) =>
                 editingId === period.id ? (
                   <tr key={period.id}>
-                    <td colSpan={canManage ? 5 : 4}>
+                    <td colSpan={canAct ? 5 : 4}>
                       <PeriodForm
                         initial={period}
                         onDone={() => setEditingId(null)}
@@ -258,18 +259,22 @@ function AccountingPeriodsPage() {
                       </span>
                     </td>
                     <td className="num">{period.postedEntryCount}</td>
-                    {canManage && (
+                    {canAct && (
                       <td>
                         {period.status === 'open' ? (
                           <>
-                            <button
-                              type="button"
-                              className="quiet"
-                              onClick={() => setEditingId(period.id)}
-                              disabled={close.isPending || reopen.isPending}
-                            >
-                              {t('accounts.edit')}
-                            </button>{' '}
+                            {canManage && (
+                              <>
+                                <button
+                                  type="button"
+                                  className="quiet"
+                                  onClick={() => setEditingId(period.id)}
+                                  disabled={close.isPending || reopen.isPending}
+                                >
+                                  {t('accounts.edit')}
+                                </button>{' '}
+                              </>
+                            )}
                             {canClose && (
                               <button
                                 type="button"

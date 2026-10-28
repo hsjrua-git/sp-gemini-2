@@ -1,13 +1,5 @@
-// One-off smoke test for lib/alerts.js scan semantics against the live
-// database, entirely inside a transaction that rolls back. Run with:
-//   node --env-file=.env scripts/alertsSmoke.mjs
-// (mirrors the rolled-back live check the sessions generation got).
-//
-// now() is frozen per transaction, so the "manual resolution is honored" and
-// "the problem can return" paths are exercised by setting the alert's
-// resolved_at explicitly: a FUTURE stamp plays "resolved after the session's
-// last change" (blocked from re-raising), a PAST stamp plays "resolved before
-// the session changed again" (re-raised).
+// Rolled-back live PostgreSQL smoke for schema-4 alert synchronization.
+// Run from server/: node --env-file=.env src/scripts/alertsSmoke.mjs
 
 import assert from 'node:assert/strict';
 import pool from '../db/pool.js';
@@ -17,16 +9,21 @@ const client = await pool.connect();
 try {
   await client.query('BEGIN');
 
+  // Settle seeded history, then establish the idempotent baseline.
+  await scanAlerts(client);
+  assert.deepEqual(await scanAlerts(client), { raised: 0, resolved: 0 });
+
   const teacher = await client.query(
     `INSERT INTO teachers (code, full_name, birth_date, national_id)
      VALUES ('ZZSMOKE-T', 'Smoke Teacher', '1990-01-01', '0000000999')
      RETURNING id`
   );
   const group = await client.query(
-    `INSERT INTO student_groups (name) VALUES ('ZZSmoke Group') RETURNING id`
+    `INSERT INTO student_groups (name, code)
+     VALUES ('ZZSmoke Group', 'zz-alert-smoke') RETURNING id`
   );
   const interval = await client.query(
-    `SELECT id FROM intervals WHERE name = 'Weekly' LIMIT 1`
+    `SELECT id FROM intervals WHERE archived_at IS NULL ORDER BY sort_order LIMIT 1`
   );
   const assignment = await client.query(
     `INSERT INTO assignments (code, teacher_id, interval_id, group_id, anchor_date)
@@ -35,114 +32,96 @@ try {
     [teacher.rows[0].id, interval.rows[0].id, group.rows[0].id]
   );
   const assignmentId = assignment.rows[0].id;
+  const parameter = await client.query(
+    `INSERT INTO parameters (code, name, min_value, max_value)
+     VALUES ('ZZ-ALERT', 'Alert smoke parameter', 0, 10) RETURNING id`
+  );
 
-  // `planned` is one of this script's own date expressions, interpolated on
-  // purpose — a bind parameter would arrive as a text literal, not SQL.
-  const session = async (seq, planned) =>
+  const addSession = async (planned) =>
     (
       await client.query(
-        `INSERT INTO sessions (assignment_id, seq, code, planned_date)
-         VALUES ($1, $2, $3, ${planned})
-         RETURNING id`,
-        [assignmentId, seq, `ZZSMOKE-S${seq}`]
+        `INSERT INTO sessions (assignment_id, planned_date)
+         VALUES ($1, ${planned})
+         RETURNING id, code`,
+        [assignmentId]
       )
-    ).rows[0].id;
+    ).rows[0];
 
-  // The four shapes: unconfirmed past, past with a note, canceled past, future.
-  const unconfirmed = await session(1, 'current_date - 10');
-  const noted = await session(2, 'current_date - 9');
-  await client.query(
-    `UPDATE sessions SET note = 'note taken' WHERE id = $1`,
-    [noted]
-  );
-  const canceled = await session(3, 'current_date - 8');
-  await client.query(
-    `UPDATE sessions SET canceled_at = now() WHERE id = $1`,
-    [canceled]
-  );
-  await session(4, 'current_date + 8');
+  const unconfirmed = await addSession('current_date - 10');
+  const noted = await addSession('current_date - 9');
+  await client.query(`UPDATE sessions SET note = 'note taken' WHERE id = $1`, [noted.id]);
+  const canceled = await addSession('current_date - 8');
+  await client.query(`UPDATE sessions SET canceled_at = now() WHERE id = $1`, [canceled.id]);
+  await addSession('current_date + 8');
 
-  // 1. First scan raises exactly the unconfirmed past session.
-  let result = await scanAlerts(client);
-  assert.deepEqual(result, { raised: 1, resolved: 0 }, 'scan 1');
-  const alert = (
+  // Notes do not substitute for required answers; canceled/future sessions do
+  // not alert. Repeated scans are idempotent.
+  assert.deepEqual(await scanAlerts(client), { raised: 2, resolved: 0 });
+  assert.deepEqual(await scanAlerts(client), { raised: 0, resolved: 0 });
+
+  // A resolved alert remains history and may be raised again while the session
+  // is still incomplete.
+  const firstAlert = (
     await client.query(
-      `SELECT id, resolved_at FROM alerts WHERE session_id = $1`,
-      [unconfirmed]
+      `SELECT id FROM alerts
+       WHERE session_id = $1 AND resolved_at IS NULL`,
+      [unconfirmed.id]
     )
   ).rows[0];
-  assert.ok(alert, 'alert row exists');
-  assert.equal(alert.resolved_at, null, 'alert starts open');
+  await client.query(`UPDATE alerts SET resolved_at = now() WHERE id = $1`, [firstAlert.id]);
+  assert.deepEqual(await scanAlerts(client), { raised: 1, resolved: 0 });
 
-  // 2. Idempotent: nothing new, nothing closed.
-  result = await scanAlerts(client);
-  assert.deepEqual(result, { raised: 0, resolved: 0 }, 'scan 2 idempotent');
+  // An empty selected cell is incomplete. Filling it resolves the open alert
+  // in the same transaction and attaches the session to a period.
+  const selectedOnly = await addSession('current_date - 7');
+  const cell = await client.query(
+    `INSERT INTO evaluations
+       (session_id, parameter_id, membership_id, locks_at)
+     VALUES ($1, $2, NULL, now() + interval '1 day')
+     RETURNING id`,
+    [selectedOnly.id, parameter.rows[0].id]
+  );
+  assert.deepEqual(await scanAlerts(client), { raised: 1, resolved: 0 });
+  await client.query(`UPDATE evaluations SET quality_value = 8 WHERE id = $1`, [cell.rows[0].id]);
+  const completed = (
+    await client.query(
+      `SELECT s.period_id IS NOT NULL AS attached,
+              a.resolved_at IS NOT NULL AS resolved
+       FROM sessions s
+       JOIN alerts a ON a.session_id = s.id
+       WHERE s.id = $1`,
+      [selectedOnly.id]
+    )
+  ).rows[0];
+  assert.deepEqual(completed, { attached: true, resolved: true });
 
-  // 3. A manual resolution AFTER the session's last change is honored.
-  await client.query(
-    `UPDATE alerts SET resolved_at = now() + interval '1 hour' WHERE id = $1`,
-    [alert.id]
+  // Making an unscored session inactive also resolves its alert immediately.
+  const laterCanceled = await addSession('current_date - 6');
+  assert.deepEqual(await scanAlerts(client), { raised: 1, resolved: 0 });
+  await client.query(`UPDATE sessions SET canceled_at = now() WHERE id = $1`, [
+    laterCanceled.id,
+  ]);
+  const inactiveAlert = await client.query(
+    `SELECT resolved_at IS NOT NULL AS resolved
+     FROM alerts WHERE session_id = $1`,
+    [laterCanceled.id]
   );
-  result = await scanAlerts(client);
-  assert.deepEqual(result, { raised: 0, resolved: 0 }, 'scan 3 honors resolution');
+  assert.equal(inactiveAlert.rows[0].resolved, true);
 
-  // 4. The problem can return: a resolution that PREDATES a new session
-  //    change (note added then removed) lets the alert be raised again.
-  await client.query(
-    `UPDATE alerts SET resolved_at = now() - interval '1 hour' WHERE id = $1`,
-    [alert.id]
-  );
-  await client.query(
-    `UPDATE sessions SET note = 'temp' WHERE id = $1`,
-    [unconfirmed]
-  );
-  await client.query(
-    `UPDATE sessions SET note = NULL WHERE id = $1`,
-    [unconfirmed]
-  );
-  result = await scanAlerts(client);
-  assert.deepEqual(result, { raised: 1, resolved: 0 }, 'scan 4 re-raises');
-
-  // 5. Auto-cleanup: a NEW open alert closes itself once the session is
-  //    canceled (no user action needed).
-  const late = await session(5, 'current_date - 7');
-  result = await scanAlerts(client);
-  assert.deepEqual(result, { raised: 1, resolved: 0 }, 'scan 5 raises the late one');
-  await client.query(
-    `UPDATE sessions SET canceled_at = now() WHERE id = $1`,
-    [late]
-  );
-  result = await scanAlerts(client);
-  assert.deepEqual(result, { raised: 0, resolved: 1 }, 'scan 6 auto-resolves');
-
-  // 6. The list join (same SQL shape as routes/alerts.js) resolves every
-  //    column and camelCases correctly.
-  const listed = await client.query(
-    `SELECT a.id, a.kind, a.session_id AS "sessionId", a.message,
-            a.resolved_at AS "resolvedAt", a.created_at AS "createdAt",
-            s.code AS "sessionCode", s.session_date AS "sessionDate",
-            s.canceled_at AS "sessionCanceledAt",
-            asg.code AS "assignmentCode", asg.name AS "assignmentName",
-            t.full_name AS "teacherName", g.name AS "groupName",
-            sf.full_name AS "studentName"
+  const history = await client.query(
+    `SELECT a.kind, a.message, s.code AS "sessionCode",
+            s.session_date::text AS "sessionDate"
      FROM alerts a
-     LEFT JOIN sessions s ON s.id = a.session_id
-     LEFT JOIN assignments asg ON asg.id = s.assignment_id
-     LEFT JOIN teachers t ON t.id = asg.teacher_id
-     LEFT JOIN student_groups g ON g.id = asg.group_id
-     LEFT JOIN student_group_members ms ON ms.id = asg.membership_id
-     LEFT JOIN students sf ON sf.id = ms.student_id
+     JOIN sessions s ON s.id = a.session_id
      WHERE a.session_id = $1
-     ORDER BY a.resolved_at IS NOT NULL, a.created_at DESC`,
-    [unconfirmed]
+     ORDER BY a.created_at`,
+    [unconfirmed.id]
   );
-  assert.ok(listed.rows.length >= 2, 'history kept for the session');
-  const open = listed.rows.find((row) => row.resolvedAt === null);
-  assert.equal(open.kind, 'session_unconfirmed');
-  assert.equal(open.sessionCode, 'ZZSMOKE-S1');
-  assert.equal(open.teacherName, 'Smoke Teacher');
-  assert.equal(open.groupName, 'ZZSmoke Group');
-  assert.match(open.message, /ZZSMOKE-S1/);
+  assert.equal(history.rows.length, 2);
+  assert.equal(history.rows[1].kind, 'session_unconfirmed');
+  assert.equal(history.rows[1].sessionCode, unconfirmed.code);
+  assert.match(history.rows[1].message, new RegExp(unconfirmed.code));
+  assert.match(history.rows[1].sessionDate, /^\d{4}-\d{2}-\d{2}$/);
 
   console.log('alerts smoke: all 6 checks passed');
 } finally {

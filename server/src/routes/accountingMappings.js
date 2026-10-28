@@ -4,6 +4,7 @@ import { parseMappingBody } from '../validation/accounting.js';
 
 const router = Router();
 const FOREIGN_KEY_VIOLATION = '23503';
+const CHECK_VIOLATION = '23514';
 
 // The cafe→journal mapping table: which events auto-post, and against which
 // account pair. Readable with accounting.view (the journal explains itself);
@@ -37,6 +38,28 @@ router.patch('/:event', async (req, res) => {
     return res
       .status(400)
       .json({ error: parsed.error, code: parsed.code, params: parsed.params });
+  }
+
+  const current = await pool.query(
+    `SELECT debit_account_id AS "debitAccountId",
+            credit_account_id AS "creditAccountId"
+     FROM acct_mappings WHERE event = $1`,
+    [req.params.event]
+  );
+  if (current.rowCount === 0) {
+    return res.status(404).json({
+      error: 'Unknown mapping event.',
+      code: 'NOT_FOUND',
+      params: { entity: 'mapping' },
+    });
+  }
+  const nextDebit = parsed.value.debitAccountId ?? current.rows[0].debitAccountId;
+  const nextCredit = parsed.value.creditAccountId ?? current.rows[0].creditAccountId;
+  if (nextDebit === nextCredit) {
+    return res.status(400).json({
+      error: 'Debit and credit accounts must be different.',
+      code: 'ACCOUNTING_MAPPING_SAME_ACCOUNT',
+    });
   }
 
   const sets = [];
@@ -73,6 +96,12 @@ router.patch('/:event', async (req, res) => {
         error: 'Account not found.',
         code: 'NOT_FOUND',
         params: { entity: 'account' },
+      });
+    }
+    if (err.code === CHECK_VIOLATION) {
+      return res.status(400).json({
+        error: 'Debit and credit accounts must be different.',
+        code: 'ACCOUNTING_MAPPING_SAME_ACCOUNT',
       });
     }
     throw err;

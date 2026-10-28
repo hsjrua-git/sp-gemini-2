@@ -16,6 +16,10 @@ if [ ! -f "$FILE" ]; then
   echo "No such file: $FILE" >&2
   exit 1
 fi
+if ! gzip -t "$FILE"; then
+  echo "Backup is not a valid gzip archive: $FILE" >&2
+  exit 1
+fi
 
 if [ -z "${DATABASE_URL:-}" ] && [ -f "$ENV_FILE" ]; then
   DATABASE_URL="$(grep -E '^[[:space:]]*DATABASE_URL=' "$ENV_FILE" | tail -n 1 | sed -E 's/^[[:space:]]*DATABASE_URL=//; s/^["'\'']//; s/["'\'']$//')"

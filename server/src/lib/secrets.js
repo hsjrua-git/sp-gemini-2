@@ -9,7 +9,7 @@
 // can be verified without decryption. The stored blob is
 // [authTag (16 bytes)][iv (12 bytes)][ciphertext].
 import { createCipheriv, createDecipheriv, randomBytes, scryptSync } from 'node:crypto';
-import argon2 from 'argon2';
+import { hash, verify } from '@node-rs/argon2';
 
 const ALGORITHM = 'aes-256-gcm';
 const KEY_LENGTH = 32;
@@ -65,13 +65,13 @@ export function createSecretsStore(db, { sessionSecret }) {
     // Store a verify-only secret (a machine credential that is checked,
     // never read back).
     async setHashedSecret(name, plaintext) {
-      const hash = await argon2.hash(plaintext);
+      const valueHash = await hash(plaintext);
       await db.query(
         `INSERT INTO secrets (key, value_hash)
          VALUES ($1, $2)
          ON CONFLICT (key) DO UPDATE
            SET value_hash = $2, value_encrypted = NULL, updated_at = now()`,
-        [name, hash]
+        [name, valueHash]
       );
     },
 
@@ -82,7 +82,7 @@ export function createSecretsStore(db, { sessionSecret }) {
       );
       const hash = result.rows[0]?.value_hash;
       if (!hash) return false;
-      return argon2.verify(hash, plaintext);
+      return verify(hash, plaintext);
     },
 
     async deleteSecret(name) {

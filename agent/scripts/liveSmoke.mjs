@@ -27,6 +27,11 @@ const PRODUCT = 'ZZVoiceSmoke';
 const USERNAME = 'zz-voice-smoke';
 const PASSWORD = 'kiosk-smoke-' + Math.random().toString(36).slice(2, 12);
 
+if (!process.env.DATABASE_URL) {
+  throw new Error(
+    'The live smoke needs the disposable server DATABASE_URL; run it with npm run smoke.'
+  );
+}
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
 // Remove every row the smoke created for (or by) one of its users. Order

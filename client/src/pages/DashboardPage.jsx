@@ -19,6 +19,7 @@ import StudentDrawer from '../components/StudentDrawer.jsx';
 import UnmeasuredList from '../components/UnmeasuredList.jsx';
 import {
   cohortField,
+  dashboardPeriodSeq,
   parameterStats,
   studentBreakdown,
   summarize,
@@ -39,14 +40,19 @@ function DashboardPage() {
   const { can } = useAuth();
   const { preferences, update } = usePreferences();
   const options = preferences.dashboardConstellation ?? {};
-  const [groupId, setGroupId] = useState('');
+  const groupId = options.groupId ?? '';
 
   const assignmentsQuery = useQuery({
     queryKey: ['assignments'],
     queryFn: listAssignments,
   });
   const assignments = assignmentsQuery.data ?? [];
-  const assignmentId = options.assignmentId ?? assignments[0]?.id ?? null;
+  const scopedAssignments = groupId
+    ? assignments.filter((assignment) => assignment.groupId === groupId)
+    : assignments;
+  const assignmentId = scopedAssignments.some((assignment) => assignment.id === options.assignmentId)
+    ? options.assignmentId
+    : scopedAssignments[0]?.id ?? null;
 
   const periodsQuery = useQuery({
     queryKey: ['periods', assignmentId],
@@ -57,12 +63,12 @@ function DashboardPage() {
     () => (periodsQuery.data ?? []).filter((period) => period.sessionCount > 0),
     [periodsQuery.data]
   );
-  const seq = periods.some((period) => period.seq === options.seq)
-    ? options.seq
-    : periods[periods.length - 1]?.seq ?? null;
+  const seq = dashboardPeriodSeq(periods, options.seq);
   const dimension = options.dimension === 'quantity' ? 'quantity' : 'quality';
   const basis =
     options.basis === 'valueOrComment' ? 'valueOrComment' : 'value';
+  const mode = ['2d', '3d'].includes(options.mode) ? options.mode : 'auto';
+  const autoRotate = options.autoRotate !== false;
 
   const resultsQuery = useQuery({
     queryKey: ['results', { assignmentId, seq, dimension }],
@@ -105,7 +111,7 @@ function DashboardPage() {
   }
 
   function persist(changes) {
-    update.mutate({ dashboardConstellation: { ...options, ...changes } });
+    update.mutate({ dashboardConstellation: changes });
   }
 
   if (assignmentsQuery.isPending) {
@@ -162,14 +168,14 @@ function DashboardPage() {
 
       <SessionAlertsCard />
 
-      <div className="toolbar">
-        <GroupFilter value={groupId} onChange={setGroupId} />
-      </div>
-
       <details className="panel">
         <summary>{t('dashboard.optionsTitle')}</summary>
         <p className="hint">{t('dashboard.optionsHint')}</p>
         <div className="toolbar">
+          <GroupFilter
+            value={groupId}
+            onChange={(value) => persist({ groupId: value || null, assignmentId: null, seq: null })}
+          />
           <label className="field">
             <span>{t('dashboard.assignmentLabel')}</span>
             <select
@@ -178,7 +184,7 @@ function DashboardPage() {
                 persist({ assignmentId: event.target.value || null, seq: null })
               }
             >
-              {assignments.map((assignment) => (
+              {scopedAssignments.map((assignment) => (
                 <option key={assignment.id} value={assignment.id}>
                   {assignment.name ?? assignment.code}
                 </option>
@@ -230,6 +236,30 @@ function DashboardPage() {
               </label>
             ))}
           </div>
+          <div className="segmented" role="group" aria-label={t('dashboard.viewModeLabel')}>
+            {['auto', '3d', '2d'].map((value) => (
+              <label key={value}>
+                <input
+                  type="radio"
+                  name="dashboard-view-mode"
+                  value={value}
+                  checked={mode === value}
+                  onChange={() => persist({ mode: value })}
+                />
+                {t(`dashboard.viewMode.${value}`)}
+              </label>
+            ))}
+          </div>
+          {mode !== '2d' && (
+            <label className="inline">
+              <input
+                type="checkbox"
+                checked={autoRotate}
+                onChange={(event) => persist({ autoRotate: event.target.checked })}
+              />
+              {t('dashboard.autoRotate')}
+            </label>
+          )}
         </div>
       </details>
 
@@ -274,6 +304,8 @@ function DashboardPage() {
                 field={cohort}
                 stats={stats}
                 onSelect={setOpenTarget}
+                mode={mode}
+                autoRotate={autoRotate}
               />
 
               <section>

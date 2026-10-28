@@ -2,6 +2,7 @@
 // Sign conventions: asset/expense increase with DEBITS; liability/equity/
 // income increase with CREDITS. Money stays whole Toman (numbers, converted
 // from bigint).
+import { moneyNumber, sumMoney } from './money.js';
 
 const SIGNED = {
   asset: 'debit',
@@ -37,21 +38,21 @@ export async function trialBalance(db, { from, to }) {
     code: row.code,
     name: row.name,
     type: row.type,
-    debit: Number(row.debit),
-    credit: Number(row.credit),
+    debit: moneyNumber(row.debit, 'Trial-balance debit'),
+    credit: moneyNumber(row.credit, 'Trial-balance credit'),
   }));
   return {
     range: { from, to },
     accounts: rows,
-    totalDebit: rows.reduce((sum, row) => sum + row.debit, 0),
-    totalCredit: rows.reduce((sum, row) => sum + row.credit, 0),
+    totalDebit: sumMoney(rows.map((row) => row.debit), 'Trial-balance debit total'),
+    totalCredit: sumMoney(rows.map((row) => row.credit), 'Trial-balance credit total'),
   };
 }
 
 export async function generalLedger(db, { accountId, from, to }) {
   const result = await db.query(
     `SELECT e.entry_no AS "entryNo",
-            e.entry_date::text AS "entryDate",
+            e.entry_date AS "entryDate",
             e.memo AS "entryMemo",
             e.status,
             l.debit,
@@ -69,25 +70,27 @@ export async function generalLedger(db, { accountId, from, to }) {
     return { error: 'NOT_FOUND' };
   }
   const direction = SIGNED[account.rows[0].type] === 'debit' ? 1 : -1;
-  let running = 0;
+  let running = 0n;
   const lines = result.rows.map((row) => {
-    running += direction * (Number(row.debit) - Number(row.credit));
+    const debit = moneyNumber(row.debit, 'Ledger debit');
+    const credit = moneyNumber(row.credit, 'Ledger credit');
+    running += BigInt(direction) * (BigInt(debit) - BigInt(credit));
     return {
       entryNo: Number(row.entryNo),
       entryDate: row.entryDate,
       entryMemo: row.entryMemo,
       status: row.status,
-      debit: Number(row.debit),
-      credit: Number(row.credit),
+      debit,
+      credit,
       lineMemo: row.lineMemo,
-      balance: running,
+      balance: moneyNumber(running, 'Ledger running balance'),
     };
   });
   return {
     account: account.rows[0],
     range: { from, to },
     lines,
-    closingBalance: running,
+    closingBalance: moneyNumber(running, 'Ledger closing balance'),
   };
 }
 
@@ -99,7 +102,8 @@ export async function incomeStatement(db, { from, to }) {
               ELSE SUM(l.debit - l.credit)
             END::bigint AS balance
      ${postedLines(from, to)}
-     AND a.type IN ('income', 'expense')
+      AND a.type IN ('income', 'expense')
+      AND e.source_type IS DISTINCT FROM 'closing'
      GROUP BY a.id, a.code, a.name, a.type
      HAVING CASE a.type
               WHEN 'income'  THEN SUM(l.credit - l.debit)
@@ -115,20 +119,20 @@ export async function incomeStatement(db, { from, to }) {
       id: row.id,
       code: row.code,
       name: row.name,
-      balance: Number(row.balance),
+      balance: moneyNumber(row.balance, 'Income-statement balance'),
     };
     if (row.type === 'income') income.push(entry);
     else expense.push(entry);
   }
-  const totalIncome = income.reduce((sum, row) => sum + row.balance, 0);
-  const totalExpense = expense.reduce((sum, row) => sum + row.balance, 0);
+  const totalIncome = sumMoney(income.map((row) => row.balance), 'Total income');
+  const totalExpense = sumMoney(expense.map((row) => row.balance), 'Total expense');
   return {
     range: { from, to },
     income,
     expense,
     totalIncome,
     totalExpense,
-    netProfit: totalIncome - totalExpense,
+    netProfit: sumMoney([totalIncome, -totalExpense], 'Net profit'),
   };
 }
 
@@ -162,18 +166,31 @@ export async function balanceSheet(db, { asOf }) {
       id: row.id,
       code: row.code,
       name: row.name,
-      balance: Number(row.balance),
+      balance: moneyNumber(row.balance, 'Balance-sheet account balance'),
     };
     if (row.type === 'asset') assets.push(entry);
     else if (row.type === 'liability') liabilities.push(entry);
     else if (row.type === 'equity') equity.push(entry);
-    else if (row.type === 'income') incomeAllTime += entry.balance;
-    else expenseAllTime += entry.balance;
+    else if (row.type === 'income') {
+      incomeAllTime = sumMoney([incomeAllTime, entry.balance], 'All-time income');
+    } else {
+      expenseAllTime = sumMoney([expenseAllTime, entry.balance], 'All-time expense');
+    }
   }
-  const totalAssets = assets.reduce((sum, row) => sum + row.balance, 0);
-  const totalLiabilities = liabilities.reduce((sum, row) => sum + row.balance, 0);
-  const totalEquity = equity.reduce((sum, row) => sum + row.balance, 0);
-  const retainedEarnings = incomeAllTime - expenseAllTime;
+  const totalAssets = sumMoney(assets.map((row) => row.balance), 'Total assets');
+  const totalLiabilities = sumMoney(
+    liabilities.map((row) => row.balance),
+    'Total liabilities'
+  );
+  const totalEquity = sumMoney(equity.map((row) => row.balance), 'Total equity');
+  const retainedEarnings = sumMoney(
+    [incomeAllTime, -expenseAllTime],
+    'Retained earnings'
+  );
+  const rightSide = sumMoney(
+    [totalLiabilities, totalEquity, retainedEarnings],
+    'Balance-sheet right side'
+  );
   return {
     asOf,
     assets,
@@ -184,6 +201,6 @@ export async function balanceSheet(db, { asOf }) {
     totalEquity,
     retainedEarnings,
     // The accounting identity, verifiable by the client and the smoke test.
-    balanced: totalAssets === totalLiabilities + totalEquity + retainedEarnings,
+    balanced: totalAssets === rightSide,
   };
 }

@@ -31,11 +31,24 @@ test('valid stored settings are kept and the rest use defaults', () => {
   assert.equal(merged.studentsPageSize, 25);
 });
 
+test('partial dashboard settings are filled from nested defaults', () => {
+  const merged = mergePreferences({
+    dashboardConstellation: { mode: '3d', autoRotate: false },
+  });
+  assert.deepEqual(merged.dashboardConstellation, {
+    ...DEFAULT_PREFERENCES.dashboardConstellation,
+    mode: '3d',
+    autoRotate: false,
+  });
+});
+
 test('the defaults object is never shared or changed', () => {
   const merged = mergePreferences({});
   merged.hiddenParameterIds.push(ID1);
+  merged.dashboardConstellation.mode = '2d';
   assert.deepEqual(DEFAULT_PREFERENCES.hiddenParameterIds, []);
   assert.deepEqual(mergePreferences({}).hiddenParameterIds, []);
+  assert.equal(DEFAULT_PREFERENCES.dashboardConstellation.mode, 'auto');
 });
 
 test('updates accept known settings with valid values', () => {
@@ -56,6 +69,32 @@ test('updates accept known settings with valid values', () => {
       },
     }
   );
+  assert.deepEqual(
+    parsePreferencesUpdate({
+      dashboardConstellation: {
+        assignmentId: ID1,
+        seq: 2,
+        groupId: ID2,
+        dimension: 'quantity',
+        basis: 'valueOrComment',
+        mode: '3d',
+        autoRotate: false,
+      },
+    }),
+    {
+      values: {
+        dashboardConstellation: {
+          assignmentId: ID1,
+          seq: 2,
+          groupId: ID2,
+          dimension: 'quantity',
+          basis: 'valueOrComment',
+          mode: '3d',
+          autoRotate: false,
+        },
+      },
+    }
+  );
 });
 
 test('updates with unknown settings or bad values are refused', () => {
@@ -63,6 +102,8 @@ test('updates with unknown settings or bad values are refused', () => {
   assert.ok(parsePreferencesUpdate({ studentsPageSize: 30 }).error);
   assert.ok(parsePreferencesUpdate({ studentsPageSize: '25' }).error);
   assert.ok(parsePreferencesUpdate({ studentsShowCode: 'yes' }).error);
+  assert.ok(parsePreferencesUpdate({ dashboardConstellation: { mode: 'hologram' } }).error);
+  assert.ok(parsePreferencesUpdate({ dashboardConstellation: { autoRotate: 'yes' } }).error);
   assert.ok(parsePreferencesUpdate({ nonsense: 1 }).error);
   assert.ok(parsePreferencesUpdate({}).error);
   assert.ok(parsePreferencesUpdate(null).error);

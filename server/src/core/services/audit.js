@@ -1,6 +1,6 @@
 // Audit log reader — service layer (framework-free).
 //
-// On-device equivalent of routes/audit.js. A pure read: no audit of its own,
+// PGlite test mirror of routes/audit.js. A pure read: no audit of its own,
 // no req.user. Conversion is mechanical — pool→getDb(), the two 400s become
 // ServiceError.validation, and the query string is coerced explicitly by the
 // caller-facing args. The category whitelisting and the details.changes
@@ -12,50 +12,8 @@
 
 import { getDb } from '../db.js';
 import { ServiceError } from '../errors.js';
+import { AUDIT_CATEGORIES, AUDIT_CATEGORY_PREFIXES } from '../../lib/auditCategories.js';
 
-const CATEGORIES = [
-  'student',
-  'parameter',
-  'teacher',
-  'interval',
-  'assignment',
-  'session',
-  'task',
-  'task_template',
-  'alert',
-  'settings',
-  'scores',
-  'evaluation',
-  'user',
-  'role',
-  'group',
-  'field',
-  'field_definition',
-  'cafe',
-  'cafe_product',
-  'cafe_supplier',
-  'cafe_purchase',
-  'cafe_sale',
-  'cafe_inventory',
-  'cafe_waste',
-  'cafe_adjustment',
-  'cafe_balance',
-  'accounting',
-  'accounting_account',
-  'accounting_mapping',
-  'accounting_entry',
-  'accounting_period',
-  'agent',
-  'auth',
-  'api',
-];
-
-const CATEGORY_PREFIXES = {
-  cafe_inventory: ['cafe_inventory', 'cafe_waste', 'cafe_adjustment'],
-  accounting: ['accounting', 'accounting_account', 'accounting_mapping', 'accounting_entry'],
-  scores: ['scores', 'evaluation'],
-  field: ['field', 'field_definition'],
-};
 const PAGE_SIZE = 25;
 const MAX_DETAIL_CHANGES = 50;
 
@@ -76,11 +34,10 @@ export async function getAuditEntries(filters = {}) {
   const values = [];
 
   if (category !== undefined) {
-    if (typeof category !== 'string' || !CATEGORIES.includes(category)) {
+    if (typeof category !== 'string' || !AUDIT_CATEGORIES.includes(category)) {
       throw ServiceError.validation('Unknown category.');
     }
-    const prefixes = CATEGORY_PREFIXES[category] ?? [category];
-    values.push(prefixes);
+    values.push(AUDIT_CATEGORY_PREFIXES[category]);
     conditions.push(`split_part(a.action, '.', 1) = ANY($${values.length}::text[])`);
   }
   if (actor !== undefined) {

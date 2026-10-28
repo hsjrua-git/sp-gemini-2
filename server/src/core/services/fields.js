@@ -1,6 +1,6 @@
 // Custom student fields — service layer (framework-free).
 //
-// On-device equivalent of routes/fieldDefinitions.js. Same peeling as
+// Test-only framework-free equivalent of routes/fieldDefinitions.js. Same peeling as
 // services/students.js: plain args in, plain data out, ServiceError instead of
 // status codes, getDb() for the pool, getLocalActor() for the audit trail, and
 // no permission gating (the single user is the admin). The route's two local

@@ -43,7 +43,6 @@ function ByPeriodView({ evaluations, parameters, assignmentsById, dimension }) {
       ? periodView({
           evaluations,
           assignmentId,
-          periods,
           seq,
           parameters,
           dimension,

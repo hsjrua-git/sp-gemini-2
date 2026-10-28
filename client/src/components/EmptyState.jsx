@@ -4,7 +4,8 @@
 // children (e.g. a link/button), and an optional `tone` ('danger' | 'warn')
 // that tints the mark and, when no explicit `icon` is given, swaps the glyph for
 // a warning triangle. A neutral document glyph is the default.
-function EmptyState({ title, description, icon, tone, children }) {
+function EmptyState({ title, description, icon, tone, children, headingLevel = 2 }) {
+  const Heading = headingLevel === 1 ? 'h1' : 'h2';
   return (
     <div className="empty-state">
       <span
@@ -13,7 +14,7 @@ function EmptyState({ title, description, icon, tone, children }) {
       >
         {icon ?? (tone ? <WarnIcon /> : <DefaultIcon />)}
       </span>
-      <h2>{title}</h2>
+      <Heading>{title}</Heading>
       {description && <p>{description}</p>}
       {children}
     </div>

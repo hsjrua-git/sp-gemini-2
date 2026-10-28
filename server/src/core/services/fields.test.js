@@ -1,6 +1,6 @@
 // Service-layer test for custom fields — runs the real service functions
 // against a fresh in-memory PGlite, exercising validation -> SQL -> PGlite ->
-// shaped result, exactly as the on-device app will.
+// shaped result through the framework-free PGlite mirror.
 //
 //   node --test src/core/services/fields.test.js
 //

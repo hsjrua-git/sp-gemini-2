@@ -146,8 +146,49 @@ function Layout() {
   const activeTo = activePanel ? longestMatch(activePanel.items) : null;
   const flatActiveTo = longestMatch(flatItems);
 
-  const titleKey = titleKeyForPath(location.pathname, panels);
+  const titleKey =
+    location.pathname === HOME_ITEM.to
+      ? `items.${HOME_ITEM.key}`
+      : location.pathname === '/'
+        ? null
+        : (titleKeyForPath(location.pathname, NAV_PANELS) ?? 'notFound.title');
   const currentTitle = titleKey ? t(titleKey) : t('common:appName');
+
+  useEffect(() => {
+    const appName = t('common:appName');
+    document.title = currentTitle === appName ? appName : `${currentTitle} — ${appName}`;
+  }, [currentTitle, t]);
+
+  useEffect(() => {
+    let frame = 0;
+    const deadline = performance.now() + 2500;
+    const navigationFocus = document.activeElement;
+    const focusHeading = () => {
+      const active = document.activeElement;
+      if (
+        active &&
+        active !== document.body &&
+        active !== navigationFocus &&
+        active.isConnected
+      ) return;
+      const host = document.getElementById('main-content');
+      const heading = host?.querySelector('h1');
+      if (host?.style.visibility !== 'hidden' && heading) {
+        const temporaryTabIndex = !heading.hasAttribute('tabindex');
+        if (temporaryTabIndex) heading.setAttribute('tabindex', '-1');
+        heading.focus({ preventScroll: true });
+        if (temporaryTabIndex) {
+          heading.addEventListener('blur', () => heading.removeAttribute('tabindex'), {
+            once: true,
+          });
+        }
+        return;
+      }
+      if (performance.now() < deadline) frame = requestAnimationFrame(focusHeading);
+    };
+    frame = requestAnimationFrame(focusHeading);
+    return () => cancelAnimationFrame(frame);
+  }, [location.pathname]);
 
   // The icon-only rail is a desktop affordance; on mobile the sidebar is a
   // full-width overlay drawer, so collapsing never applies there. It also only

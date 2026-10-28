@@ -1,10 +1,12 @@
+import { moneyNumber } from './money.js';
+
 // Cafe reporting aggregates over posted (non-voided) sales in a date range,
 // plus the standing pictures that are always current: stock value and
 // outstanding student debt. All money is bigint Toman; quantities float.
 
 export async function getRangeReport(db, { from, to }) {
   const sales = await db.query(
-    `SELECT sold_at::date::text                    AS day,
+    `SELECT sold_at::date                          AS day,
             count(*)::int                          AS "saleCount",
             COALESCE(SUM(total), 0)::bigint        AS revenue,
             COALESCE(SUM(cost_total), 0)::bigint   AS cost,
@@ -66,39 +68,38 @@ export async function getRangeReport(db, { from, to }) {
   );
 
   const debt = await db.query(
-    `SELECT count(*)::int                       AS "debtorCount",
-            COALESCE(SUM(sb.balance), 0)::bigint AS "outstandingDebt"
-     FROM student_balances sb
-     JOIN students s ON s.id = sb.student_id
-     WHERE s.deleted_at IS NULL AND sb.balance < 0`
+    `SELECT count(*)::int                    AS "debtorCount",
+            COALESCE(SUM(balance), 0)::bigint AS "outstandingDebt"
+     FROM student_balances
+     WHERE balance < 0`
   );
 
   return {
     range: { from, to },
     totals: {
       saleCount: totals.rows[0].saleCount,
-      revenue: Number(totals.rows[0].revenue),
-      cost: Number(totals.rows[0].cost),
-      profit: Number(totals.rows[0].profit),
+      revenue: moneyNumber(totals.rows[0].revenue, 'Report revenue'),
+      cost: moneyNumber(totals.rows[0].cost, 'Report cost'),
+      profit: moneyNumber(totals.rows[0].profit, 'Report profit'),
     },
     daily: sales.rows.map((row) => ({
       day: row.day,
       saleCount: row.saleCount,
-      revenue: Number(row.revenue),
-      cost: Number(row.cost),
-      profit: Number(row.profit),
+      revenue: moneyNumber(row.revenue, 'Daily revenue'),
+      cost: moneyNumber(row.cost, 'Daily cost'),
+      profit: moneyNumber(row.profit, 'Daily profit'),
     })),
     topProducts: topProducts.rows.map((row) => ({
       id: row.id,
       productName: row.productName,
       qty: row.qty,
-      revenue: Number(row.revenue),
+      revenue: moneyNumber(row.revenue, 'Product revenue'),
     })),
-    purchasesTotal: Number(purchases.rows[0].total),
-    wasteValue: Number(waste.rows[0].value),
-    inventoryValue: Number(standing.rows[0].inventoryValue),
+    purchasesTotal: moneyNumber(purchases.rows[0].total, 'Purchase total'),
+    wasteValue: moneyNumber(waste.rows[0].value, 'Waste value'),
+    inventoryValue: moneyNumber(standing.rows[0].inventoryValue, 'Inventory value'),
     activeProducts: standing.rows[0].activeProducts,
     debtorCount: debt.rows[0].debtorCount,
-    outstandingDebt: Number(debt.rows[0].outstandingDebt),
+    outstandingDebt: moneyNumber(debt.rows[0].outstandingDebt, 'Outstanding debt'),
   };
 }

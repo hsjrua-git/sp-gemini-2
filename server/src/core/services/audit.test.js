@@ -107,10 +107,23 @@ test('getAuditEntries: filters by category and by actor', async () => {
   const pool = await freshDb();
   try {
     await createGroup({ name: 'Alpha' });
+    await pool.query(
+      `INSERT INTO audit_log (actor, action, details) VALUES
+         ('local', 'cafe_adjustment.create', '{}'::jsonb),
+         ('local', 'accounting_entry.post', '{}'::jsonb)`
+    );
 
     // Matching category keeps the row.
     const groups = await getAuditEntries({ category: 'group' });
     assert.equal(groups.total, 1);
+
+    const inventory = await getAuditEntries({ category: 'cafe_inventory' });
+    assert.equal(inventory.total, 1);
+    assert.equal(inventory.entries[0].action, 'cafe_adjustment.create');
+
+    const accounting = await getAuditEntries({ category: 'accounting' });
+    assert.equal(accounting.total, 1);
+    assert.equal(accounting.entries[0].action, 'accounting_entry.post');
 
     // A different, valid category matches nothing.
     const users = await getAuditEntries({ category: 'user' });
@@ -119,7 +132,7 @@ test('getAuditEntries: filters by category and by actor', async () => {
 
     // Actor filter is case-insensitive and matches 'local'.
     const byActor = await getAuditEntries({ actor: 'LOCAL' });
-    assert.equal(byActor.total, 1);
+    assert.equal(byActor.total, 3);
 
     const byNobody = await getAuditEntries({ actor: 'nobody' });
     assert.equal(byNobody.total, 0);

@@ -20,6 +20,7 @@ function NotFoundPage() {
   return (
     <main>
       <EmptyState
+        headingLevel={1}
         icon={<CompassIcon />}
         title={t('notFound.title')}
         description={t('notFound.hint')}

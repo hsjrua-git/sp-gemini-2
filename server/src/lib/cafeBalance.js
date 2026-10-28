@@ -9,27 +9,29 @@
 // mapping is active.
 
 import { postMappedEvent } from './accountingJournal.js';
+import { moneyNumber } from './money.js';
 
 export async function applyBalanceChange(
   db,
   { studentId, delta, kind, referenceType = null, referenceId = null, note = null, createdBy }
 ) {
+  const safeDelta = moneyNumber(delta, 'Balance change');
   const balance = await db.query(
     `INSERT INTO student_balances (student_id, balance)
      VALUES ($1, $2)
      ON CONFLICT (student_id)
      DO UPDATE SET balance = student_balances.balance + $2, updated_at = now()
      RETURNING balance`,
-    [studentId, delta]
+    [studentId, safeDelta]
   );
-  const balanceAfter = Number(balance.rows[0].balance);
+  const balanceAfter = moneyNumber(balance.rows[0].balance, 'Student balance');
 
   const txn = await db.query(
     `INSERT INTO student_balance_transactions
        (student_id, kind, amount, balance_after, reference_type, reference_id, note, created_by)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
      RETURNING id`,
-    [studentId, kind, delta, balanceAfter, referenceType, referenceId, note, createdBy]
+    [studentId, kind, safeDelta, balanceAfter, referenceType, referenceId, note, createdBy]
   );
 
   if (
@@ -42,7 +44,7 @@ export async function applyBalanceChange(
       sourceId: txn.rows[0].id,
       date: null,
       memo: kind === 'topup' ? 'Balance top-up' : 'Balance refund',
-      pairs: [{ event: `balance.${kind}`, amount: Math.abs(delta) }],
+      pairs: [{ event: `balance.${kind}`, amount: Math.abs(safeDelta) }],
     });
   }
 

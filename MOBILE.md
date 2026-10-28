@@ -1,119 +1,73 @@
-# Building the mobile app (Capacitor)
+# Android companion app (Capacitor)
 
-This turns the on-device build of Student Panel into a native Android app. The
-whole app — UI, business logic, and the PostgreSQL-compatible database (PGlite,
-running as WebAssembly and persisting to the WebView's IndexedDB) — runs inside
-the app. There is no server, no network, and no PC involved once it is installed.
+The mobile build is a **connected companion** for the same Student Panel
+server. It bundles the React UI in an Android shell and talks to the configured
+HTTPS API origin, so scheduling, scoring, cafe, accounting, audit, and the voice
+agent panel have exactly the same data and permission enforcement as browsers.
 
-Everything below is run from the `client/` directory unless noted. **These steps
-have not been run in this environment** (no Android SDK / JDK / device here), so
-treat them as the exact sequence to run on your own machine and adjust versions
-if your toolchain differs.
+It is not an offline copy of PostgreSQL. There is one authoritative database on
+the server; the phone must be able to reach it.
 
-## Prerequisites (install once, on your machine)
+## Requirements
 
-- **Node.js ≥ 20** and npm (same as the web build).
-- **Android Studio** (includes the Android SDK and an emulator). Install it and
-  open it once so it finishes downloading the default SDK + platform tools.
-- **JDK 21** (Android Studio bundles a compatible JDK; a standalone JDK also
-  works). Capacitor 7 targets modern Android toolchains.
-- For a physical phone: enable Developer Options + USB debugging, or use the
-  Android Studio emulator instead.
+- Node.js 20.19+ or 22.12+
+- Android Studio / Android SDK
+- JDK 21 (Android Studio's bundled JDK is suitable)
+- A Student Panel server reachable from the phone over **HTTPS**
 
-> iOS is **not** covered here: building an iOS app requires macOS + Xcode. The
-> same project supports it — run `npm run build`, `npx cap add ios`, then
-> `npx cap open ios` on a Mac — but it cannot be done from Windows/Linux.
+Plain HTTP should be limited to temporary emulator/LAN development. Production
+credentials and session cookies must not travel over an untrusted network.
 
-## One-time project setup
+## Configure the server origin
 
-The Capacitor config and dependencies are already committed:
+From `client/`:
 
-- `client/capacitor.config.json` — `appId` `app.studentpanel.mobile`,
-  `appName` "Student Panel", `webDir` `dist` (Vite's build output).
-- `client/package.json` — `@capacitor/core`, `@capacitor/android` (deps) and
-  `@capacitor/cli` (dev dep), plus the `cap:*` scripts below.
+```bash
+cp mobile.env.example .env.mobile.local
+```
 
-Install dependencies and add the Android platform:
+Edit `.env.mobile.local`:
+
+```dotenv
+VITE_API_BASE_URL=https://panel.example.com
+```
+
+The value is compiled into the mobile bundle. Capacitor's HTTP and Cookies
+bridges are enabled in `capacitor.config.json`; the existing fetch wrapper still
+uses the server's session cookie and double-submit CSRF token.
+
+## Create and run Android
 
 ```bash
 cd client
 npm install
-npm run build            # produces dist/ — Capacitor copies this into the app
-npm run cap:add:android  # creates client/android/ (first time only)
+npm run cap:add:android       # first time only
+npm run cap:sync              # mobile Vite build + cap sync
+npm run cap:open:android      # open Android Studio
+# or install on a connected emulator/device:
+npm run cap:run:android
 ```
 
-`npm run cap:add:android` generates the native `android/` project. It is
-git-ignored by default (see `client/.gitignore`) because it is reproducible from
-`dist/` + `capacitor.config.json`; delete those two lines in `.gitignore` if you
-prefer to commit and customize it.
+`client/android/` is generated and git-ignored. Re-run `cap:sync` whenever the
+web client changes.
 
-## Build, sync, and run
+## Build an APK/AAB
 
-Whenever you change the web app, rebuild and sync so the native shell picks up
-the new `dist/`:
+Open Android Studio with `npm run cap:open:android`, then use:
 
-```bash
-cd client
-npm run cap:sync            # = vite build && cap sync (copies dist/ + updates native deps)
-```
+- **Build → Build Bundle(s) / APK(s) → Build APK(s)** for a local debug APK.
+- **Build → Generate Signed Bundle / APK** for release. Keep the keystore and
+  passwords outside Git.
 
-Then open it in Android Studio and press Run, or go straight to a device:
+## Server-side deployment checklist
 
-```bash
-npm run cap:open:android    # opens client/android/ in Android Studio
-# — or —
-npm run cap:run:android     # build + sync + install/launch on a connected device/emulator
-```
+1. Serve the panel through HTTPS (see `deploy/Caddyfile.example`).
+2. Set `HOST=127.0.0.1`, `TRUST_PROXY=1`, and
+   `SESSION_COOKIE_SECURE=true` behind the reverse proxy. If the native HTTP
+   bridge sends its WebView origin, also set
+   `CSRF_ALLOWED_ORIGINS=https://localhost`.
+3. Confirm the phone can open the same HTTPS URL in its browser.
+4. Build the app with that exact URL in `.env.mobile.local`.
 
-The `cap:*` scripts:
-
-| Script | Does |
-| --- | --- |
-| `npm run cap:add:android` | Create the native `android/` project (first time only). |
-| `npm run cap:sync` | `vite build` then `cap sync` — the normal rebuild step. |
-| `npm run cap:open:android` | Open the Android project in Android Studio. |
-| `npm run cap:run:android` | Build + sync + install and launch on a device/emulator. |
-
-## Producing an installable APK / AAB
-
-In Android Studio (opened via `cap:open:android`):
-
-- **Build → Build Bundle(s) / APK(s) → Build APK(s)** for a debug APK you can
-  sideload to your own phone.
-- For a signed release build (Play Store or long-term personal install), use
-  **Build → Generate Signed Bundle / APK** and create a keystore. Keep that
-  keystore and its passwords safe and **out of git** — treat them like secrets.
-
-## Notes specific to this app
-
-- **Data lives on the device.** PGlite stores the database in the WebView's
-  IndexedDB (`idb://student-panel`). Uninstalling the app or clearing its storage
-  erases all students/scores — there is no server copy. Consider adding an
-  export/backup step before relying on it for real data.
-- **First launch runs migrations.** The same `server/src/db/migrations/*.sql`
-  files run in-browser on first open to create the schema; this is a one-off and
-  is idempotent (tracked in `schema_migrations`).
-- **No CSP meta tag is set** in `client/index.html`, so the WebView's default
-  policy applies and PGlite loads normally. If you later add a
-  `Content-Security-Policy` meta tag, it must allow **`'unsafe-eval'`** (PGlite's
-  bundled runtime uses direct `eval()` — the build prints `[EVAL]` warnings about
-  this, which are harmless), plus `wasm-unsafe-eval` and `blob:`/`data:` workers,
-  or PGlite will fail to start.
-- **Absolute asset paths are fine.** Capacitor serves the bundle from the app
-  origin root (`https://localhost` on Android), so Vite's default `base: '/'`
-  resolves `/assets/*` correctly — no `base` change is needed.
-- **On-device local API coverage.** `client/src/api/local.js` currently wires
-  authentication, students, groups, field definitions, parameters, periods,
-  evaluations, results, dashboard, preferences, saved views, audit, users, and
-  roles to PGlite. Newer feature APIs (`teachers`, `schedule`, `sessions`,
-  `tasks`, `alerts`, `cafe`, `accounting`, `agent`, `exports`) still call
-  `api/http.js` and require either a reachable server or wiring their
-  corresponding `server/src/core/services/*` handlers into `client/src/api/`.
-
-## Verification status
-
-Prepared but **not executed here** (no Android toolchain / device in this
-environment): `npm install`, `npm run build`, `npm run cap:add:android`,
-`cap sync`, and the native Android build. Run the sequence above on a machine
-with Android Studio to produce and test the app.
-
+The ordinary web build is unchanged: when `VITE_API_BASE_URL` is absent,
+requests stay relative and Vite/Express use the existing same-origin setup.

@@ -18,5 +18,8 @@ export const DEFAULT_PREFERENCES = {
     basis: 'value',
     assignmentId: null,
     seq: null,
+    groupId: null,
+    mode: 'auto',
+    autoRotate: true,
   },
 };

@@ -68,6 +68,19 @@ describe('buildCube', () => {
     expect(cube.valueAt('s1', 'balance', periodKey(A1, 1))).toBe(5);
   });
 
+  it('uses session sequence to order two sessions held on the same date', () => {
+    const later = {
+      ...cell('s1', 'speed', A1, 1, '2024-01-20', 8),
+      sessionSeq: 2,
+    };
+    const earlier = {
+      ...cell('s1', 'speed', A1, 1, '2024-01-20', 3),
+      sessionSeq: 1,
+    };
+    const cube = makeCube({ cells: [later, earlier] });
+    expect(cube.valueAt('s1', 'speed', periodKey(A1, 1))).toBe(8);
+  });
+
   it('switches the value column with the dimension', () => {
     const cube = makeCube({ dimension: 'quantity' });
     expect(cube.valueAt('s1', 'speed', periodKey(A1, 1))).toBe(null);

@@ -107,6 +107,12 @@ test('updatePreferences: merges partial patches and persists them', async () => 
     assert.equal(out.preferences.theme, 'dark');
     assert.equal(out.preferences.studentsPageSize, 50);
 
+    await updatePreferences({ dashboardConstellation: { dimension: 'quantity' } });
+    out = await updatePreferences({ dashboardConstellation: { mode: '3d' } });
+    assert.equal(out.preferences.dashboardConstellation.dimension, 'quantity');
+    assert.equal(out.preferences.dashboardConstellation.mode, '3d');
+    assert.equal(out.preferences.dashboardConstellation.basis, 'value');
+
     // A fresh read sees the persisted, merged settings.
     const read = await getPreferences();
     assert.equal(read.preferences.theme, 'dark');

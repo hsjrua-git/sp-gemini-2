@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Fully-local Persian voice agent for the Student Panel cafe counter (see docs/voice-agent-architecture.md)",
+  "description": "Local-first Persian/English voice agent for the Student Panel cafe counter",
   "engines": {
     "node": ">=20"
   },
@@ -11,6 +11,6 @@
     "start": "node src/index.js",
     "start:text": "node src/index.js --text",
     "test": "node --test test/*.test.js",
-    "smoke": "node scripts/liveSmoke.mjs"
+    "smoke": "node --env-file=../server/.env scripts/liveSmoke.mjs"
   }
 }

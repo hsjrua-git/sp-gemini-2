@@ -21,6 +21,7 @@ class ErrorBoundary extends Component {
       return (
         <main>
           <EmptyState
+            headingLevel={1}
             tone="danger"
             title={i18next.t('nav:errors.ui.title')}
             description={i18next.t('nav:errors.ui.description')}

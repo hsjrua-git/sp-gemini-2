@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -10,10 +13,15 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "cap:add:android": "cap add android",
+    "cap:sync": "node scripts/checkMobileEnv.mjs && vite build --mode mobile && cap sync android",
+    "cap:open:android": "cap open android",
+    "cap:run:android": "node scripts/checkMobileEnv.mjs && vite build --mode mobile && cap sync android && cap run android"
   },
   "dependencies": {
-    "@electric-sql/pglite": "^0.5.8",
+    "@capacitor/android": "^7.6.9",
+    "@capacitor/core": "^7.6.9",
     "@tanstack/react-query": "^5.103.1",
     "fflate": "0.8.3",
     "i18next": "^26.5.10",
@@ -29,6 +37,7 @@
     "write-excel-file": "4.1.1"
   },
   "devDependencies": {
+    "@capacitor/cli": "^7.6.9",
     "@eslint/js": "^10.0.1",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",

@@ -35,6 +35,9 @@ export const DEFAULT_PREFERENCES = {
     basis: 'value',
     assignmentId: null,
     seq: null,
+    groupId: null,
+    mode: 'auto',
+    autoRotate: true,
   },
 };
 
@@ -71,9 +74,18 @@ const CHECKS = {
       value.seq === undefined ||
       value.seq === null ||
       (Number.isInteger(value.seq) && value.seq >= 1);
+    const groupOk =
+      value.groupId === undefined ||
+      value.groupId === null ||
+      isUuid(value.groupId);
+    const mode = value.mode === undefined ? 'auto' : value.mode;
+    const rotateOk = value.autoRotate === undefined || typeof value.autoRotate === 'boolean';
     return (
       assignmentOk &&
       seqOk &&
+      groupOk &&
+      rotateOk &&
+      ['auto', '3d', '2d'].includes(mode) &&
       (dimension === 'quality' || dimension === 'quantity') &&
       (basis === 'value' || basis === 'valueOrComment')
     );
@@ -118,11 +130,18 @@ export function parsePreferencesUpdate(body) {
 }
 
 export function mergePreferences(stored) {
-  const result = { ...DEFAULT_PREFERENCES, hiddenParameterIds: [] };
+  const result = {
+    ...DEFAULT_PREFERENCES,
+    hiddenParameterIds: [],
+    dashboardConstellation: { ...DEFAULT_PREFERENCES.dashboardConstellation },
+  };
   if (stored !== null && typeof stored === 'object') {
     for (const key of Object.keys(CHECKS)) {
       if (Object.hasOwn(stored, key) && CHECKS[key](stored[key])) {
-        result[key] = stored[key];
+        result[key] =
+          key === 'dashboardConstellation'
+            ? { ...DEFAULT_PREFERENCES.dashboardConstellation, ...stored[key] }
+            : stored[key];
       }
     }
   }

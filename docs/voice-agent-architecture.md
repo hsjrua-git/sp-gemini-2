@@ -1,15 +1,15 @@
 # Voice + Local-AI Agent Architecture
 
-A design document for a Persian-speaking, fully-local voice agent that operates
-the cafe (and later the accounting) through the existing Student Panel API.
-**This is a design, not an implementation** — nothing here is wired into the
-app yet. The document exists so that when the kiosk hardware arrives, the
-integration decisions are already made and consistent with the system's
-security model.
+A design record and implementation map for the Persian/English voice agent in
+`agent/`. It operates the cafe through the existing Student Panel API; the
+React administration pages expose its status and retained transcripts. The
+deterministic text path and local model adapters are implemented. Real kiosk
+hardware, microphone/model quality, and production rollout remain deployment
+work.
 
-Status: proposed (Phase 5 of the roadmap, 2026-10-25). Owner: the project
-maintainer. Review trigger: before any hardware purchase or any stage-2
-rollout.
+Status: implemented software foundation (Phase 5, updated 2026-10-28). Owner:
+the project maintainer. Review trigger: before hardware purchase, remote-provider
+configuration, transcript retention changes, or stage-3/4 rollout.
 
 ---
 
@@ -20,9 +20,10 @@ rollout.
 1. A walk-up counter experience: a student or the cafe operator *speaks* an
    order in Persian; the system confirms and records it through the same
    API the web POS uses.
-2. Fully local: every model runs on premises. No audio, transcript, or
-   identifier ever leaves the LAN. The cafe works through a network outage;
-   the voice agent is a convenience layer, not a dependency.
+2. Local-first: the deterministic brain and local Whisper/Piper/Ollama paths
+   run on premises. Optional OpenAI-compatible endpoints are implemented, but a
+   remote endpoint explicitly leaves the local-only privacy boundary. The cafe
+   remains usable without the agent.
 3. Least privilege end to end: the agent is a *user of the API*, with the
    same permission keys, audit trail, and session rules as a human cashier.
    It can never do more than the role it is granted.
@@ -35,14 +36,13 @@ rollout.
 
 **Non-goals**
 
-- No cloud AI services at any stage (no OpenAI/Google/ Azure calls, no
-  "hybrid" fallback). If the local model can't answer, it says so.
+- No silent cloud fallback. Remote-compatible LLM/STT/TTS is used only when an
+  operator configures its provider/URL/key and accepts that privacy trade-off.
 - No general-purpose chatbot. The agent's tool set is bounded: cafe menu
   questions, the student balance flow, and (stage 3+) the sale/top-up
   actions. Small talk is politely refused.
-- No speech in the web SPA itself, no microphone in the browser, no new
-  user-facing pages beyond the kiosk screen. The agent is a separate
-  process with a kiosk UI, not a feature of the React app.
+- No speech capture in the web SPA. The agent remains a separate process with
+  its kiosk UI; the SPA has read-only status/transcript administration pages.
 - No biometric identification. A customer states their student code; the
   agent looks it up exactly like the POS finder does. No face/voice
   identification, ever — that data is not collected anywhere in the system.
@@ -52,7 +52,7 @@ rollout.
 
 **Product decisions this design inherits** (see the roadmap memory):
 
-- Dialogue language: **Persian only** (A8).
+- Dialogue language: **Persian and English**, with Persian as the default.
 - Audio: **ephemeral by default** — raw audio is deleted immediately after
   transcription; transcripts and the audit trail are kept.
 - Overdraft is allowed at the cafe, so the agent never *refuses* a sale for
@@ -91,9 +91,9 @@ counter.
 
 ## 3. Agent decomposition
 
-Six cooperating components, each small and testable. All state lives in the
-Student Panel database; the agents are stateless between turns apart from
-the dialogue context window.
+Small cooperating components, each testable. Business state lives behind the
+Student Panel API; dialogue state is per process/session. Transcript persistence
+is a private JSONL file plus an optional least-privilege PostgreSQL sink.
 
 ```
                         ┌────────────────────────────┐
@@ -109,10 +109,9 @@ the dialogue context window.
                                                   Student Panel API (Express)
 ```
 
-- **VoiceAgent** — the audio loop only: 16 kHz mono capture → Silero VAD →
-  chunked STT → text out; text in → streamed TTS → speaker; barge-in
-  handling (TTS stops the moment VAD sees speech). Knows nothing about the
-  business.
+- **Voice loop** — 16 kHz mono `arecord` capture with RMS/end-silence VAD,
+  whisper.cpp or compatible STT, and Piper or compatible TTS. It knows nothing
+  about business rules.
 - **SupervisorAgent** — the dialogue brain: keeps the turn context, decides
   which specialist to call, composes the final spoken answer, and enforces
   the confirmation policy. The only component allowed to call money-moving
@@ -141,25 +140,26 @@ loads them all and the Supervisor routes. Separation is by *capability*
 
 ---
 
-## 4. Local model stack
+## 4. Model/provider stack
 
-All open weights, all local, per stage:
+The local deployment uses open weights; compatible remote endpoints are an
+explicit optional mode:
 
 | Role | Choice | Why | Notes |
 |---|---|---|---|
-| VAD | **Silero VAD** | tiny, fast, the standard | runs on CPU anywhere |
-| STT | **faster-whisper `large-v3`** (GPU) / **whisper.cpp `medium` int8** (CPU) | best open Persian WER; `large-v3` handles colloquial orders well | whisper.cpp for the CPU floor; both expose word timestamps used for barge-in |
-| TTS | **Piper `fa_IR-gyro- medium`** (or `fa_IR-amir`) | the only solid open Persian TTS; streams sentence-by-sentence | numbers pre-normalized to Persian words before synthesis |
-| LLM | **Qwen2.5-7B/14B-Instruct** or **Llama-3.1-8B-Instruct** via **Ollama/llama.cpp** with JSON-schema tool calling | Persian-capable, reliable structured tool calls at small sizes | temperature 0–0.3; a system prompt locks the persona and the refusal rules |
+| VAD | Shipped RMS/start/end-silence detector; Silero is a future upgrade | zero dependency today | runs on CPU anywhere |
+| STT | whisper.cpp locally or an OpenAI-compatible transcription endpoint | local Persian models or an explicitly configured service | provider chosen in `agent/.env` |
+| TTS | Piper locally or an OpenAI-compatible speech endpoint | local Persian voice or configured service | numbers are normalized to Persian words before synthesis |
+| LLM | Deterministic rule brain, Ollama, or OpenAI-compatible tool calling | the rule path needs no model | bounded tools and confirmation gate remain outside the model |
 | Numbers/text | `lib/numbers.js` conventions server-side; a small Persian number-to-words helper in the agent | prices must be *spoken* correctly («دویست و پنجاه هزار تومان») | same digit-normalization rules as the client |
 
-Model files live under `/srv/student-panel/models/` (git-ignored, listed by
-checksum in `docs/voice-models.md` when stage 1 lands). Ollama is the
-runtime at stages 1–2 for convenience; llama.cpp directly at stage 3+ for
-deterministic JSON-schema enforcement.
+Model files should live outside the repository and be pinned operationally.
+The shipped adapters support Ollama, whisper.cpp, Piper, and OpenAI-compatible
+LLM/STT/TTS APIs; the deterministic intent brain is always available.
 
-**Barge-in:** while TTS is playing, VAD keeps running; speech pauses TTS
-within ~150 ms, keeps the recognized partial as the next user turn.
+**Future barge-in:** the current playback call is not interruptible by VAD.
+Stopping TTS on new speech remains hardware-stage work and must be measured on
+the real counter before autonomous rollout.
 
 ---
 
@@ -183,12 +183,9 @@ human cashier** — over HTTP, with a session, under permissions, audited.
   the SPA's. Speech-driven actions therefore appear in the audit log with
   the kiosk user as actor — the existing `cafe_sale.create`,
   `cafe_sale.void`, `cafe_balance.*` entries need no new plumbing.
-- **Defense-in-depth (stage 3+):** a dedicated PostgreSQL role
-  (`student_panel_kiosk`) with USAGE on the schema and
-  SELECT/INSERT limited to the cafe tables, so even a compromised agent
-  process cannot touch `evaluations`, `users`, or the journal. The agent's
-  `DATABASE_URL` (its own, never the server's) points at this role. The
-  Express server keeps its full-rights role.
+- **Transcript sink only:** when `AGENT_DATABASE_URL` is configured, it should
+  use a dedicated role with only the schema access and INSERT privilege needed
+  for `voice_transcripts`. Business reads/writes never use that connection.
 - **The agent never speaks to Postgres directly** for business actions —
   all writes go through the API so triggers, transactional invariants
   (stock ledger, balance replay), auto-posting, and audit all apply
@@ -224,10 +221,10 @@ human cashier** — over HTTP, with a session, under permissions, audited.
  mic (16 kHz mono s16le)
    │
    ▼
- Silero VAD ──speech segment──▶ whisper (chunked, VAD-aligned)
-   ▲                                 │ partial + final text
-   │ barge-in                        ▼
- speaker ◀── Piper (sentence-streamed) ── SupervisorAgent
+ RMS/end VAD ─speech segment─▶ whisper.cpp / STT API
+                                     │ final text
+                                     ▼
+ speaker ◀── Piper / TTS API ── SupervisorAgent
                                      │  tool calls (JSON schema)
                                      ▼
                           Student Panel API (machine user, HTTPS/LAN)
@@ -246,25 +243,18 @@ reaching for their card/wallet anyway.
 
 ## 8. Privacy
 
-- **Audio is ephemeral by default:** ring buffer in RAM; each recognized
-  segment is deleted the moment the final transcript is produced. No audio
-  ever touches the disk. (A `VOICE_KEEP_AUDIO=0/1` env flag exists for
-  debugging; when set, recordings go to a folder owned by root, rotated
-  daily, and the kiosk shows a visible "recording kept for debugging"
-  notice.)
-- **Transcripts are kept** (per A8) in the agent's own Postgres schema:
-  turn text, intent, tool calls, and the linked audit entries. They are
-  PII-lite (order content + student code) and are treated like the audit
-  log: retained, admin-readable, never exported with student identity.
+- **Audio is ephemeral:** captured segments remain in memory and are dropped
+  after transcription. The shipped code has no keep-audio mode.
+- **Transcripts are kept** in mode-0600 daily JSONL files and optionally in the
+  main app's `voice_transcripts` table through a restricted DB credential.
+  Utterances may contain a name, code, order, or balance question and therefore
+  must be treated as personal data.
 - **Consent at the kiosk:** a permanent sign at the counter (fa/en) plus a
   first-visit screen explaining the microphone; the hard mute button is
   the opt-out and is always visible.
-- **No cloud calls:** verified by an outbound firewall rule on the kiosk
-  and server boxes (fail-closed: the agent logs and refuses to start if it
-  can't confirm egress is blocked at boot).
-- **Redaction:** transcripts store the student **code**, not names;
-  spoken answers pronounce the name only after successful lookup, never
-  store it in agent logs.
+- **Local-only deployments:** configure loopback/LAN provider URLs (or `none`)
+  and enforce egress policy outside the app. The shipped process does not claim
+  to verify firewall state.
 
 ---
 
@@ -277,11 +267,11 @@ stage below it keeps working.
 |---|---|---|---|---|
 | **0. Button kiosk** | touch screen runs a thin web view of the existing POS (product pad + balance lookup); no voice | screen, mic, speaker (mic unused) | none — it is the web app | a week of counter use without complaints |
 | **1. STT display** | speech → text on screen; the operator taps; zero actions from speech | nothing new | audio handling only (ephemeral) | Persian order transcription ≥95% intelligible on the real counter noise |
-| **2. Read-only Q&A** | spoken menu/balance answers via Menu/Customer agents; still no speech-driven writes | nothing new | mis-speak balance → mitigated by screen mirror | 2 weeks, <1% wrong-balance complaints |
+| **2. Operator-confirmed** | speech may prepare/read a cart, but spoken yes never writes; the screen operator is the only write gate | nothing new | operator mistake → screen mirror + void | 2 weeks, no unreviewed writes |
 | **3. Confirmed actions** | SalesAgent records sales/top-ups after spoken+screen confirmation; handover + kill switch live | GPU if latency demands | wrong-cart recording → mitigated by the double confirmation + voids | a month with zero uncorrected money errors |
 | **4. Autonomous ordering** | spoken "yes" alone completes (screen still shows the receipt); AccountingAgent Q&A for the operator | — | conversational manipulation → bounded tools, per-turn audit review dashboard | explicit maintainer sign-off after stage-3 data review |
 
-- **systemd units** (added at the stage that needs them):
+- **Planned deployment units** (not shipped yet; add at the hardware stage):
   `student-panel-voice.service` (the agent; `After=student-panel.service`),
   `student-panel-voice-ui.service` (kiosk browser in kiosk mode),
   `ollama.service` or a `llama-server.service` per stage. All
@@ -291,13 +281,12 @@ stage below it keeps working.
   directory swap + a scripted regression set (20 recorded counter phrases
   with expected intents, kept out of the repo) run before promoting a new
   model; rollback is flipping a symlink.
-- **Per-stage config lives in `agent/.env`** (the future agent repo
-  layout): `PANEL_BASE_URL`, kiosk login credentials (machine user),
-  `VOICE_KEEP_AUDIO`, `VOICE_STAGE`, model names.
+- **Per-stage config lives in `agent/.env`:** `PANEL_BASE_URL`, kiosk login
+  credentials, `VOICE_STAGE`, language, model/provider URLs and names.
 
 ---
 
-## 10. What the app must provide (checklist for implementation)
+## 10. Implementation status
 
 Almost everything exists already; this is the delta:
 
@@ -306,11 +295,11 @@ Almost everything exists already; this is the delta:
 - [x] Sale + void + balance endpoints with audit — done (P3).
 - [x] Reports for the AccountingAgent — done (P3/P4).
 - [x] Roles/permissions + machine-user creation script — done.
-- [ ] A `Kiosk` role seed (one migration or `npm run create-user` docs).
+- [x] A seeded least-privilege `Kiosk` role (migration 027).
 - [ ] Optional: a rate limit on `POST /api/cafe/sales` for the kiosk user
       (the global login limiter exists; a per-route one may be worth it).
-- [ ] The agent process + kiosk UI (out of scope for this repo; it gets its
-      own repository `student-panel-voice` when stage 1 is funded).
+- [x] Agent process, rule brain, provider adapters, confirmation supervisor,
+      kiosk UI, transcript sinks, and deterministic tests in `agent/`.
 
 ---
 

@@ -3,7 +3,7 @@
 //
 //   node --test src/core/services/evaluations.test.js
 //
-// Each test gets its own in-memory database. The single-admin collapse means
+// Each test gets its own in-memory database. The test-admin collapse means
 // the dry-run preview is never redacted and there is no "no override" refusal,
 // but the lock guardrail is kept: changing a locked cell needs a written
 // reason (audited).
@@ -106,8 +106,8 @@ async function seedSchedule(pool) {
   for (const [name, studentId] of [['ada', ada], ['bob', bob]]) {
     memberships[name] = (
       await pool.query(
-        `INSERT INTO student_group_members (student_id, group_id)
-         VALUES ($1, $2) RETURNING id`,
+        `INSERT INTO student_group_members (student_id, group_id, added_at)
+         VALUES ($1, $2, '2020-01-01') RETURNING id`,
         [studentId, group],
       )
     ).rows[0].id;
@@ -156,6 +156,7 @@ test('getEvaluations: needs a filter, validates ids, reads stored rows', async (
     assert.equal(bySession.evaluations[0].qualityValue, 7);
     assert.equal(bySession.evaluations[0].isLocked, false); // fresh save locks in the future
     assert.equal(bySession.evaluations[0].sessionDate, sessionDate);
+    assert.equal(bySession.evaluations[0].periodSeq, 1);
 
     // The whole-group row concerns every member; the member row is their own.
     const adaId = (
@@ -257,6 +258,64 @@ test('an individual assignment refuses whole-group rows', async () => {
       ],
     });
     assert.deepEqual(saved, { sessionId: session.id, changed: 1 });
+  } finally {
+    await pool.end();
+  }
+});
+
+test('group targets are memberships active on the session date, not today', async () => {
+  const pool = await freshDb();
+  try {
+    const { sessionId, memberships } = await seedSchedule(pool);
+    const parameter = await createParameter({
+      code: 'history',
+      name: 'Historical membership',
+      minValue: 0,
+      maxValue: 10,
+    });
+
+    await pool.query(
+      `UPDATE student_group_members
+       SET left_on = (SELECT session_date - 1 FROM sessions WHERE id = $2)
+       WHERE id = $1`,
+      [memberships.bob, sessionId]
+    );
+    await expectCode('VALIDATION', () =>
+      saveEvaluationsBulk({
+        sessionId,
+        entries: [
+          {
+            membershipId: memberships.bob,
+            parameterId: parameter.id,
+            selected: true,
+            qualityValue: 5,
+            quantityValue: null,
+          },
+        ],
+      })
+    );
+
+    await pool.query(
+      `UPDATE student_group_members
+       SET left_on = NULL,
+           added_at = (SELECT session_date + 1 FROM sessions WHERE id = $2)
+       WHERE id = $1`,
+      [memberships.bob, sessionId]
+    );
+    await expectCode('VALIDATION', () =>
+      saveEvaluationsBulk({
+        sessionId,
+        entries: [
+          {
+            membershipId: memberships.bob,
+            parameterId: parameter.id,
+            selected: true,
+            qualityValue: 5,
+            quantityValue: null,
+          },
+        ],
+      })
+    );
   } finally {
     await pool.end();
   }

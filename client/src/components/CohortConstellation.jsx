@@ -237,11 +237,13 @@ export default function CohortConstellation({
   field = [],
   stats = [],
   onSelect,
+  autoRotate = true,
 }) {
   const { t } = useTranslation(['reports', 'common']);
   const hostRef = useRef(null);
   const sceneRef = useRef(null);
   const pctRef = useRef(summary?.completion ?? null);
+  const autoRotateRef = useRef(autoRotate);
   // The mount effect below runs once; mirror the latest onSelect into a ref so its
   // pointer handlers can call the current callback without re-running (and tearing
   // the whole scene down) whenever the parent re-renders with a new function.
@@ -249,6 +251,9 @@ export default function CohortConstellation({
   useEffect(() => {
     onSelectRef.current = onSelect;
   }, [onSelect]);
+  useEffect(() => {
+    autoRotateRef.current = autoRotate;
+  }, [autoRotate]);
   const completion = summary?.completion ?? null;
 
   // --- Scene scaffolding: built once, torn down on unmount. ---
@@ -726,7 +731,7 @@ export default function CohortConstellation({
     };
 
     renderer.setAnimationLoop(() => {
-      if (!bag.paused && !bag.dragging) assembly.rotation.y += 0.0045; // hover/drag holds the spin
+      if (autoRotateRef.current && !bag.paused && !bag.dragging) assembly.rotation.y += 0.0045; // hover/drag holds the spin
       assembly.updateMatrixWorld(true);
       // Keep the flat rings facing the camera (so they read as 2D circles) while
       // pinned at the origin — i.e. exactly at the core's centre depth. Because the
@@ -914,13 +919,14 @@ export default function CohortConstellation({
     // progress reads as a different colour over an arc, not as opacity. The blurred
     // stroke has no hard rim, so the rings blend into the moving ripples. Radius is
     // just position in the fan (kept in the parameters' own order), not a magnitude.
-    // Gate to a legible count.
-    const params = stats.filter((s) => s.parameter?.inUse).slice(0, 12);
+    // Every in-use parameter is represented; the 2D and accessible views expose
+    // the same complete set rather than silently truncating at twelve.
+    const params = stats.filter((s) => s.parameter?.inUse);
     const n = params.length;
     const span = n > 1 ? (RING_MAX - RING_INNER) / (n - 1) : 0;
     params.forEach((stat, i) => {
       const { coverage } = satelliteAppearance({
-        count: stat.count,
+        count: stat.answeredCount ?? stat.count,
         total: field.length,
       });
       const radius = RING_INNER + i * span;
@@ -981,7 +987,7 @@ export default function CohortConstellation({
   // tech and keyboard users actually operate. Each button opens the same drawer a
   // click on the corresponding 3D mark would, so every target — the class summary,
   // each in-use parameter, each student — is reachable without the WebGL render.
-  const jumpStats = stats.filter((s) => s.parameter?.inUse).slice(0, 12);
+  const jumpStats = stats.filter((s) => s.parameter?.inUse);
   const rosterTotal = field.length;
 
   function handleControlsKeyDown(event) {
@@ -1025,7 +1031,7 @@ export default function CohortConstellation({
             {jumpStats.map((stat) => {
               const pct =
                 rosterTotal > 0
-                  ? Math.round((stat.count / rosterTotal) * 100)
+                  ? Math.round(((stat.answeredCount ?? stat.count) / rosterTotal) * 100)
                   : 0;
               return (
                 <li key={stat.parameter.id}>

@@ -64,6 +64,7 @@ test('unknown changes are still recorded; self-logged ones are skipped', () => {
   assert.equal(classifyRequest('PUT', '/api/evaluations/bulk', 200), null);
   assert.equal(classifyRequest('POST', '/api/users', 201), null);
   assert.equal(classifyRequest('PATCH', '/api/users/abc', 200), null);
+  assert.equal(classifyRequest('POST', '/api/export/cube', 200), null);
 });
 
 test('request bodies are redacted and size-limited', () => {

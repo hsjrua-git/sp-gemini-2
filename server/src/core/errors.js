@@ -2,7 +2,7 @@
 //
 // Route handlers used to signal outcomes with HTTP status codes
 // (res.status(400)/(404)/(500)). Service functions can't know about HTTP —
-// they run on-device in the webview — so they throw a ServiceError with a
+// the retained PGlite service mirror has no HTTP response object — so they throw a ServiceError with a
 // stable `code` instead. The (thin) caller that adapts a service to the client
 // maps these codes to whatever it needs (a status, a toast, a form error).
 //

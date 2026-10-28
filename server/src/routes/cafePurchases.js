@@ -4,6 +4,7 @@ import { recordAudit } from '../lib/audit.js';
 import { postMappedEvent } from '../lib/accountingJournal.js';
 import { updateAverageCost } from '../lib/cafeStock.js';
 import { isUuid } from '../lib/ids.js';
+import { moneyNumber } from '../lib/money.js';
 import { isValidIsoDate } from '../lib/periods.js';
 import { parsePurchaseBody } from '../validation/cafe.js';
 
@@ -19,7 +20,7 @@ const PURCHASE_COLUMNS = `
   pu.supplier_id            AS "supplierId",
   s.name                    AS "supplierName",
   pu.note,
-  pu.purchased_at::text     AS "purchasedAt",
+  pu.purchased_at           AS "purchasedAt",
   pu.created_by             AS "createdBy",
   pu.created_at             AS "createdAt",
   COALESCE(i.items, '[]')   AS items,
@@ -183,7 +184,7 @@ router.post('/', async (req, res) => {
        FROM cafe_purchase_items WHERE purchase_id = $1`,
       [purchaseId]
     );
-    const purchaseTotal = Number(totals.rows[0].total);
+    const purchaseTotal = moneyNumber(totals.rows[0].total, 'Purchase total');
 
     // Auto-post Dr Inventory / Cr Cash when the mapping is active — inside
     // the same transaction as the purchase itself.
@@ -218,12 +219,6 @@ router.post('/', async (req, res) => {
     res.status(201).json({ purchase: full.rows[0] });
   } catch (err) {
     await client.query('ROLLBACK');
-    if (/closed fiscal period/i.test(String(err?.message))) {
-      return res.status(409).json({
-        error: 'The entry falls in a closed fiscal period.',
-        code: 'ACCOUNTING_PERIOD_CLOSED',
-      });
-    }
     throw err;
   } finally {
     client.release();

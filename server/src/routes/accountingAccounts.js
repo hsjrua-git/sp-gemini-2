@@ -6,6 +6,7 @@ import { parseAccountBody } from '../validation/accounting.js';
 const router = Router();
 const UNIQUE_VIOLATION = '23505';
 const FOREIGN_KEY_VIOLATION = '23503';
+const CHECK_VIOLATION = '23514';
 
 const ACCOUNT_COLUMNS = `
   a.id,
@@ -86,6 +87,12 @@ router.post('/', async (req, res) => {
         error: 'Parent account not found.',
         code: 'NOT_FOUND',
         params: { entity: 'account' },
+      });
+    }
+    if (err.code === CHECK_VIOLATION && /hierarchy/.test(String(err.message))) {
+      return res.status(409).json({
+        error: 'An account cannot be moved under one of its subaccounts.',
+        code: 'ACCOUNTING_ACCOUNT_CYCLE',
       });
     }
     throw err;
@@ -189,6 +196,12 @@ router.patch('/:id', async (req, res) => {
         error: 'Parent account not found.',
         code: 'NOT_FOUND',
         params: { entity: 'account' },
+      });
+    }
+    if (err.code === CHECK_VIOLATION && /hierarchy/.test(String(err.message))) {
+      return res.status(409).json({
+        error: 'An account cannot be moved under one of its subaccounts.',
+        code: 'ACCOUNTING_ACCOUNT_CYCLE',
       });
     }
     throw err;

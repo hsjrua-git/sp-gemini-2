@@ -1,9 +1,12 @@
 # Voice Agent (کیوسک صوتی)
 
-A fully-local assistant that runs the **cafe counter by voice**, in Persian
-and English, through the same Student Panel API a human cashier uses. It is
-the implementation of `docs/voice-agent-architecture.md` — read that first
-for the security model and the staged rollout.
+A local-first assistant that runs the **cafe counter by voice**, in Persian
+and English, through the same Student Panel API a human cashier uses. The rule
+brain, local Whisper/Piper, and Ollama paths can run without cloud services.
+Optional OpenAI-compatible providers are also supported; configuring a remote
+endpoint sends the corresponding text or audio off the LAN and therefore is
+not a fully-local deployment. See `docs/voice-agent-architecture.md` for the
+security model and staged rollout.
 
 ## What it is (in one paragraph)
 
@@ -60,7 +63,12 @@ the Confirm / Cancel / Mute / Kill buttons.
    like «دو تا»/«نیم»/two-and-a-half, confirmations, voids, reports) with
    **no model at all**. Limitation: an utterance must contain the product
    name (or a Latin name for a Latin-named product) — paraphrase is the
-   LLM's job.
+    LLM's job.
+
+> **Privacy boundary:** a remote LLM may receive dialogue/tool context; remote
+> STT receives microphone audio; remote TTS receives spoken response text. Use
+> only loopback/LAN endpoints when the deployment must remain fully local. Keep
+> all provider API keys in mode-600 `agent/.env`.
 
 Whatever the brain, the **confirmation protocol never depends on the
 model**: yes/no while confirming are matched literally, and the `record_sale`
@@ -103,6 +111,19 @@ npm test        # 21 unit tests: confirmation protocol, intents, Persian numbers
 npm run smoke   # live smoke against the running server — seeds a kiosk user,
                 # walks menu→balance→sale→void over REAL HTTP, cleans up after
 ```
+
+The smoke loads the disposable server database URL from `server/.env` because
+its cleanup needs database-owner privileges. Never point this command at a
+production database. Normal agent business actions still use only the HTTP API.
+
+## Transcript storage
+
+Every turn is appended to `agent/logs/transcripts-YYYY-MM-DD.jsonl`; the agent
+forces the directory/file to modes 0700/0600. If `AGENT_DATABASE_URL` is set,
+it also inserts into `voice_transcripts`. Give that URL a dedicated PostgreSQL
+role with INSERT on `voice_transcripts` only—do not reuse the server's full
+database credential. Transcript retention/rotation is an operator policy; raw
+audio remains ephemeral in the shipped implementation.
 
 ## Files
 

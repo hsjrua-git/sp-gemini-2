@@ -4,6 +4,7 @@ import pool from '../db/pool.js';
 import { recordAudit } from '../lib/audit.js';
 import { postMappedEvent } from '../lib/accountingJournal.js';
 import { isUuid } from '../lib/ids.js';
+import { moneyNumber } from '../lib/money.js';
 import { parseInventoryBody } from '../validation/cafeInventory.js';
 
 const router = Router();
@@ -128,7 +129,12 @@ router.post('/', async (req, res) => {
        FOR UPDATE`,
       [productIds]
     );
-    const byId = new Map(products.rows.map((row) => [row.id, Number(row.avg_cost)]));
+    const byId = new Map(
+      products.rows.map((row) => [
+        row.id,
+        moneyNumber(row.avg_cost, 'Average cost'),
+      ])
+    );
     if (byId.size !== new Set(productIds).size) {
       await client.query('ROLLBACK');
       return res.status(400).json({
@@ -159,9 +165,14 @@ router.post('/', async (req, res) => {
     // Waste is a loss valued at the current average cost — auto-post the
     // pair (Dr expenses / Cr inventory) when the mapping is active.
     if (kind === 'waste') {
-      const wasteValue = items.reduce(
-        (sum, item) => sum + Math.abs(item.qty) * byId.get(item.productId),
-        0
+      const wasteValue = moneyNumber(
+        Math.round(
+          items.reduce(
+            (sum, item) => sum + Math.abs(item.qty) * byId.get(item.productId),
+            0
+          )
+        ),
+        'Waste value'
       );
       if (wasteValue > 0) {
         await postMappedEvent(client, {
@@ -170,7 +181,7 @@ router.post('/', async (req, res) => {
           sourceId: randomUUID(),
           date: null,
           memo: 'Cafe waste',
-          pairs: [{ event: 'cafe.waste', amount: Math.round(wasteValue) }],
+          pairs: [{ event: 'cafe.waste', amount: wasteValue }],
         });
       }
     }
@@ -194,12 +205,6 @@ router.post('/', async (req, res) => {
     res.status(201).json({ recorded: items.length });
   } catch (err) {
     await client.query('ROLLBACK');
-    if (/closed fiscal period/i.test(String(err?.message))) {
-      return res.status(409).json({
-        error: 'The entry falls in a closed fiscal period.',
-        code: 'ACCOUNTING_PERIOD_CLOSED',
-      });
-    }
     throw err;
   } finally {
     client.release();

@@ -70,6 +70,8 @@ export function buildCube({
   const sortedCells = cells.slice().sort((a, b) => {
     const cmp = String(a.sessionDate).localeCompare(String(b.sessionDate));
     if (cmp !== 0) return cmp;
+    const seq = (a.sessionSeq ?? 0) - (b.sessionSeq ?? 0);
+    if (seq !== 0) return seq;
     if (a.viaGroup !== b.viaGroup) return a.viaGroup ? -1 : 1;
     return 0;
   });

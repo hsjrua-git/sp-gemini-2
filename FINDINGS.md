@@ -1,9 +1,30 @@
-# Findings — project audit 2026-10-25
+# Findings — final independent audit disposition (2026-10-29)
 
-Outcome of the "fix everything" pass. **All findings from the first audit are
-resolved or explicitly dispositioned**; the remaining items are listed at the
-end. The repo is clean, every suite is green, and the full API surface is
-smoke-verified.
+The 2026-10-25 material below is retained as a historical record, but its
+claims and test counts are superseded by the independent OpenCode re-audit in
+`docs/audit-2026-10-28-sp-gemini-1-opencode.md`.
+
+All confirmed critical-through-minor product findings are now remediated. In
+particular, migrations 031–035 harden real-PostgreSQL races/accounting and apply
+the authoritative schema-4 academic lifecycle: a session receives persisted
+`period_id` membership only after its first answer, empty selected cells do not
+consume a slot, and detach/reactivation/analysis/alerts are database-maintained.
+The application-only auth, custom-field, cafe, accounting, agent, preferences,
+and two-comment extensions remain intact.
+
+Release verification covered a fresh isolated PostgreSQL schema through all 35
+migrations, connected all-module seed and clean removal; 141 server tests (135
+pass + 6 integration-gated), 55 PGlite core tests, 214 client tests, 21 agent
+tests, all 6 permission integrations, 52 API reads, real two-connection race
+checks, accounting/cafe/alert/agent smokes, client lint/build, Capacitor Android
+add/sync, a real compressed backup, and every SPA route at the harness's 454 px
+minimum width. The remaining environment limits—not product defects—are signed
+APK/iOS compilation, physical audio/model quality, manual screen-reader/browser
+matrix testing, and long soak/load testing.
+
+---
+
+# Historical findings — 2026-10-25
 
 ## Fixed
 
@@ -61,17 +82,14 @@ smoke-verified.
 - **Topbar title** — correct on load and after reload; no lag reproduced
   after the fixes above (earlier screenshot was a stale bundle).
 
-## Remaining (deliberate, for the maintainer)
+## Superseded follow-ups
 
-- The **demo user** (`demo` / `panel-demo-2026-tour`, Administrator) exists
-  for the tour — delete or demote it whenever you're done looking around.
-- A **full manual visual pass** (every page, both languages, keyboard + screen
-  reader) was beyond this pass; the automated probes (document overflow,
-  visible errors, error boundaries) are clean on all 30 routes at 1440×900
-  and 390×844.
-- The UI tour found one wording nit worth a follow-up: the Evaluate page h1
-  says «ثبت نمره» while the nav/topbar say «ثبت نمرات» — align whichever you
-  prefer.
+- The old tour-only `demo` account/credential is not part of this repository or
+  the final fixture. Development sample users are scoped and removable.
+- The route/error-boundary/title/focus/overflow sweep was repeated in the final
+  audit; the harness reached 454 px. Manual screen-reader and cross-browser
+  testing remains an environment limitation, not a claimed verification.
+- The Persian Evaluate heading now matches the navigation wording «ثبت نمرات».
 
 ---
 
@@ -140,9 +158,10 @@ PGlite mirror.
   **quantity** (each with its own ≤500-char comment) and `locks_at`. A stored
   row IS the expectation; both values NULL = "selected, unanswered". Saving
   `selected: false` deletes the row.
-- Periods are per ASSIGNMENT: every 4 non-canceled sessions in date order form
-  period 1, 2, 3… (deterministic bucketing in `lib/periods.js`, materialized
-  idempotently). The school-wide anchor and `parameter_changes` are gone.
+- Periods are per ASSIGNMENT: a session attaches on its first active answer,
+  four answered active sessions fill a period, and it detaches when inactive or
+  when its final answer disappears. Empty selected cells do not occupy a slot.
+  The school-wide anchor and `parameter_changes` are gone.
 - Locking re-anchored to the session date (7d current/future, 1d past);
   override keeps the written-reason + audit flow.
 - Parameters: unique code replaces unit; integer min/max shared by both

@@ -57,10 +57,18 @@ export function PreferencesProvider({ children }) {
     onMutate: async (changes) => {
       await queryClient.cancelQueries({ queryKey: KEY });
       const previous = queryClient.getQueryData(KEY);
-      queryClient.setQueryData(KEY, {
-        ...(previous ?? DEFAULT_PREFERENCES),
+      const base = previous ?? DEFAULT_PREFERENCES;
+      const next = {
+        ...base,
         ...changes,
-      });
+      };
+      if (changes.dashboardConstellation) {
+        next.dashboardConstellation = {
+          ...base.dashboardConstellation,
+          ...changes.dashboardConstellation,
+        };
+      }
+      queryClient.setQueryData(KEY, next);
       return { previous };
     },
     onError: (error, changes, context) => {

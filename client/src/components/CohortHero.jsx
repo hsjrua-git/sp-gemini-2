@@ -22,15 +22,24 @@ const CohortConstellation = lazyWithReload(() =>
 export default function CohortHero(props) {
   const reduced = useReducedMotion();
   const { t } = useTranslation(['reports', 'common']);
+  const mode = props.mode ?? 'auto';
+  const finePointer =
+    typeof window === 'undefined' || !window.matchMedia
+      ? true
+      : window.matchMedia('(pointer: fine)').matches;
+  const use3d =
+    hasWebGL() &&
+    mode !== '2d' &&
+    (mode === '3d' || (finePointer && !reduced));
 
-  if (reduced || !hasWebGL()) {
+  if (!use3d) {
     return <CompletionHub {...props} />;
   }
 
   return (
     <Suspense fallback={<CompletionHub {...props} />}>
       <section className="cohort-hero" aria-label={t('cohort.heroLabel')}>
-        <CohortConstellation {...props} />
+        <CohortConstellation {...props} autoRotate={Boolean(props.autoRotate) && !reduced} />
       </section>
     </Suspense>
   );

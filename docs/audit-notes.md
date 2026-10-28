@@ -1,7 +1,15 @@
 # Comprehensive 4-Pass Repository Audit Report (`sp-gemini-main`)
 
+> **Historical pre-remediation evidence.** The harness and credentials named
+> below were throwaway audit fixtures and are not shipped. Findings were
+> independently reconciled and finally dispositioned in
+> [`audit-2026-10-28-sp-gemini-1-opencode.md`](audit-2026-10-28-sp-gemini-1-opencode.md).
+
 Audited across `server/`, `client/`, `agent/`, `scripts/`, and `deploy/` without modifying any repository source files.
-An external runtime harness (`/live-audit-server.mjs`) hosts the application and a richly seeded database on port `3000` (`admin` / `Admin12345!`, `staff1` / `Staff12345!`, `accountant1` / `Accountant1!`, `blind1` / `BlindEntry1!`, `cafe-kiosk` / `KioskVoice1!`) so both the unshimmed failures (`[AUDIT-REPRO]` in server stdout) and the live shimmed application can be inspected directly.
+An external runtime harness (`/live-audit-server.mjs`) hosted the application
+and a richly seeded database on port `3000` with throwaway role-specific users
+(passwords redacted), so both the unshimmed failures (`[AUDIT-REPRO]` in server
+stdout) and the live shimmed application could be inspected directly.
 
 ---
 

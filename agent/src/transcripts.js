@@ -5,7 +5,7 @@
 //      server's node_modules (same repo, no duplicate install); if it is
 //      unavailable the file sink keeps working alone.
 
-import { appendFile, mkdir } from 'node:fs/promises';
+import { appendFile, chmod, mkdir, open } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
@@ -16,8 +16,12 @@ const requireFromServer = createRequire(join(repoServerDir, 'package.json'));
 
 export async function createTranscripts() {
   const logsDir = join(dirname(fileURLToPath(import.meta.url)), '..', 'logs');
-  await mkdir(logsDir, { recursive: true });
+  await mkdir(logsDir, { recursive: true, mode: 0o700 });
+  await chmod(logsDir, 0o700);
   const file = join(logsDir, `transcripts-${new Date().toISOString().slice(0, 10)}.jsonl`);
+  const fileHandle = await open(file, 'a', 0o600);
+  await fileHandle.chmod(0o600);
+  await fileHandle.close();
 
   let db = null;
   if (config.databaseUrl) {
@@ -42,7 +46,7 @@ export async function createTranscripts() {
     sinks: db ? ['file', 'postgres'] : ['file'],
     async record(entry) {
       const line = JSON.stringify({ at: new Date().toISOString(), ...entry });
-      await appendFile(file, `${line}\n`).catch(() => {});
+      await appendFile(file, `${line}\n`, { mode: 0o600 }).catch(() => {});
       if (db) await db.record(entry).catch(() => {});
     },
   };

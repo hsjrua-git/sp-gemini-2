@@ -1,11 +1,10 @@
 // Dashboard trends + constellation summary — service layer (framework-free).
 //
-// On-device equivalent of routes/dashboard.js under the schema-4 model:
+// PGlite test mirror of routes/dashboard.js under the schema-4 model:
 //
 //  * getTrends — the cohort trend lines: the average of ONE dimension per
-//    (parameter, assignment, period), where periods are re-bucketed from the
-//    sessions (4 per period, in date order). Optionally scoped to a group
-//    subtree. Pure GET → just pool→getDb() and a ServiceError guard.
+//    (parameter, assignment, persisted answered-session period). Optionally
+//    scoped to a group subtree. Pure GET → just pool→getDb() and a guard.
 //  * getSummary — the constellation's data: per-student expectation vs answer
 //    counts. An evaluation ROW is the expectation ("selected"); it is answered
 //    once any value or comment is present. Whole-group rows count for every
@@ -23,7 +22,6 @@ import { getDb } from '../db.js';
 import { ServiceError } from '../errors.js';
 import { descendantGroupIds } from '../../lib/groups.js';
 import { isUuid } from '../../lib/ids.js';
-import { SESSIONS_PER_PERIOD } from '../../lib/periods.js';
 
 function dimensionColumn(dimension) {
   return dimension === 'quantity' ? 'e.quantity_value' : 'e.quality_value';
@@ -51,34 +49,28 @@ export async function getTrends(input = {}) {
   }
 
   const valueColumn = dimensionColumn(dimension);
-  const values = [SESSIONS_PER_PERIOD];
+  const values = [];
   const groupFilter = await groupScope(db, groupId, values);
 
   const result = await db.query(
-    `WITH bucketed AS (
-       SELECT s.id AS session_id,
-              s.assignment_id,
-              (ROW_NUMBER() OVER (PARTITION BY s.assignment_id
-                                  ORDER BY s.session_date, s.seq) - 1)
-                / $1::int + 1 AS seq
-       FROM sessions s
-       WHERE s.canceled_at IS NULL AND s.archived_at IS NULL
-     )
-     SELECT e.parameter_id  AS "parameterId",
-            b.assignment_id AS "assignmentId",
+    `SELECT e.parameter_id  AS "parameterId",
+            s.assignment_id AS "assignmentId",
             a.name          AS "assignmentName",
-            b.seq           AS "periodSeq",
+            p.seq           AS "periodSeq",
             round(avg(${valueColumn}), 2)::float8 AS average,
             count(*)::int   AS count,
-            max(s.session_date::text) AS "lastSessionDate"
+            max(s.session_date)::text AS "lastSessionDate"
      FROM evaluations e
-     JOIN bucketed b ON b.session_id = e.session_id
      JOIN sessions s ON s.id = e.session_id
-     JOIN assignments a ON a.id = b.assignment_id
-     WHERE e.archived_at IS NULL AND ${valueColumn} IS NOT NULL
+     JOIN periods p ON p.id = s.period_id AND p.archived_at IS NULL
+     JOIN assignments a ON a.id = s.assignment_id
+     WHERE e.archived_at IS NULL
+       AND s.canceled_at IS NULL
+       AND s.archived_at IS NULL
+       AND ${valueColumn} IS NOT NULL
        ${groupFilter}
-     GROUP BY e.parameter_id, b.assignment_id, a.name, b.seq
-     ORDER BY b.assignment_id, e.parameter_id, b.seq`,
+     GROUP BY e.parameter_id, s.assignment_id, a.name, p.seq
+     ORDER BY s.assignment_id, e.parameter_id, p.seq`,
     values
   );
   return { trends: result.rows };
@@ -118,15 +110,19 @@ export async function getSummary(input = {}) {
   const cells = await db.query(
     `WITH group_cells AS (
        SELECT e.id, e.session_id, e.parameter_id,
-              (e.quality_value IS NOT NULL OR e.quantity_value IS NOT NULL
-               OR e.quality_comment IS NOT NULL OR e.quantity_comment IS NOT NULL)
-                AS answered,
+               evaluation_is_answered(
+                 e.quality_value, e.quantity_value,
+                 e.quality_comment, e.quantity_comment
+               )
+                 AS answered,
               ms.id AS "membershipId"
        FROM evaluations e
        JOIN sessions s ON s.id = e.session_id
        JOIN assignments a ON a.id = s.assignment_id
        JOIN student_group_members ms
-         ON ms.group_id = a.group_id AND ms.left_on IS NULL
+          ON ms.group_id = a.group_id
+         AND ms.added_at::date <= s.session_date
+         AND (ms.left_on IS NULL OR ms.left_on >= s.session_date)
        WHERE e.membership_id IS NULL AND e.archived_at IS NULL
          AND ${scopeConditions.join(' AND ')}
          AND NOT EXISTS (
@@ -138,9 +134,11 @@ export async function getSummary(input = {}) {
      ),
      member_cells AS (
        SELECT e.id, e.session_id, e.parameter_id,
-              (e.quality_value IS NOT NULL OR e.quantity_value IS NOT NULL
-               OR e.quality_comment IS NOT NULL OR e.quantity_comment IS NOT NULL)
-                AS answered,
+               evaluation_is_answered(
+                 e.quality_value, e.quantity_value,
+                 e.quality_comment, e.quantity_comment
+               )
+                 AS answered,
               e.membership_id AS "membershipId"
        FROM evaluations e
        JOIN sessions s ON s.id = e.session_id
@@ -154,8 +152,8 @@ export async function getSummary(input = {}) {
        UNION ALL
        SELECT id, session_id, parameter_id, answered, "membershipId" FROM member_cells
      ) cells
-     JOIN student_group_members ms ON ms.id = cells."membershipId"
-       AND ms.left_on IS NULL`,
+      JOIN student_group_members ms ON ms.id = cells."membershipId"
+        AND ms.left_on IS NULL`,
     scopeValues
   );
 

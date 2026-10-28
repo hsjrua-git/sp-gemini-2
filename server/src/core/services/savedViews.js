@@ -1,6 +1,6 @@
 // Saved result views — service layer (framework-free).
 //
-// On-device equivalent of routes/savedViews.js. Same peeling as the other
+// Test-only framework-free equivalent of routes/savedViews.js. Same peeling as the other
 // services: plain args in, plain data out, ServiceError instead of status
 // codes, getDb() for the pool, getLocalUserId() in place of req.user.id.
 // The route's router.param('id') uuid guard (which returned 404 for a

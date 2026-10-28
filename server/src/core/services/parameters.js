@@ -1,6 +1,6 @@
 // Parameters — service layer (framework-free).
 //
-// On-device equivalent of routes/parameters.js under the schema-4 model: a
+// PGlite test mirror of routes/parameters.js under the schema-4 model: a
 // parameter is identified by a NOT NULL unique code, its bounds are integers
 // (both dimensions share the range), and there is no change log — the
 // period-scoped add/remove changes and their impact math are gone. One

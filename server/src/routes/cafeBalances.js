@@ -5,6 +5,7 @@ import { applyBalanceChange } from '../lib/cafeBalance.js';
 import { requireAnyPermission, requirePermission } from '../middleware/auth.js';
 import { isUuid } from '../lib/ids.js';
 import { parseBalanceBody } from '../validation/cafe.js';
+import { moneyNumber } from '../lib/money.js';
 
 const router = Router();
 const MAX_LISTED = 100;
@@ -47,7 +48,12 @@ router.get('/students', async (req, res) => {
     ,
     values
   );
-  res.json({ students: result.rows });
+  res.json({
+    students: result.rows.map((student) => ({
+      ...student,
+      balance: moneyNumber(student.balance, 'Student balance'),
+    })),
+  });
 });
 
 router.get('/:studentId', async (req, res) => {
@@ -88,7 +94,7 @@ router.get('/:studentId', async (req, res) => {
     [req.params.studentId]
   );
   res.json({
-    balance: Number(balance.rows[0].balance),
+    balance: moneyNumber(balance.rows[0].balance, 'Student balance'),
     transactions: history.rows.slice(0, MAX_LISTED),
     truncated: history.rows.length > MAX_LISTED,
   });
@@ -109,7 +115,9 @@ router.post('/', requirePermission('cafe.balance'), async (req, res) => {
   try {
     await client.query('BEGIN');
     const student = await client.query(
-      'SELECT id FROM students WHERE id = $1 AND deleted_at IS NULL',
+      `SELECT id FROM students
+       WHERE id = $1 AND deleted_at IS NULL
+       FOR SHARE`,
       [studentId]
     );
     if (student.rowCount === 0) {
@@ -140,12 +148,6 @@ router.post('/', requirePermission('cafe.balance'), async (req, res) => {
     res.status(201).json({ balanceAfter });
   } catch (err) {
     await client.query('ROLLBACK');
-    if (/closed fiscal period/i.test(String(err?.message))) {
-      return res.status(409).json({
-        error: 'The entry falls in a closed fiscal period.',
-        code: 'ACCOUNTING_PERIOD_CLOSED',
-      });
-    }
     throw err;
   } finally {
     client.release();

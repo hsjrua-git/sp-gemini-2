@@ -219,10 +219,11 @@ export function applyView({ rows, parameters, config }) {
     compare = byName;
   }
   const sorted = [...matching].sort(compare);
+  const studentRows = sorted.filter((row) => !row.isGroup);
 
   const stats = {};
   for (const parameter of parameters) {
-    const measured = sorted
+    const measured = studentRows
       .map((row) => valueOf(row, parameter.id, dimension))
       .filter((value) => value !== undefined && value !== null);
     stats[parameter.id] =

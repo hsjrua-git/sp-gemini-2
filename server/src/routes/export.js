@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import pool from '../db/pool.js';
-import { SESSIONS_PER_PERIOD } from '../lib/periods.js';
 import { isValidIsoDate } from '../lib/periods.js';
 import { descendantGroupIds } from '../lib/groups.js';
 import { isUuid } from '../lib/ids.js';
@@ -159,10 +158,10 @@ async function handleCube(req, res) {
 
   // Cell filters: the scope filters run against the `expanded` output (the
   // branches have already excluded archived rows/canceled+archived sessions
-  // via the bucketed join), so the outer query never touches raw tables.
-  const cellValues = [SESSIONS_PER_PERIOD, rosterIds];
+  // and sessions outside an active persisted period.
+  const cellValues = [rosterIds];
   const cellFilters = [
-    `cell_student.id = ANY($2::uuid[])`,
+    `cell_student.id = ANY($1::uuid[])`,
   ];
   if (assignmentId !== undefined) {
     cellValues.push(assignmentId);
@@ -186,33 +185,29 @@ async function handleCube(req, res) {
   }
 
   const cellsResult = await pool.query(
-    `WITH bucketed AS (
-       SELECT s.id AS session_id,
-              s.assignment_id,
-              (ROW_NUMBER() OVER (PARTITION BY s.assignment_id
-                                  ORDER BY s.session_date, s.seq) - 1)
-                / $1::int + 1 AS seq
-       FROM sessions s
-       WHERE s.canceled_at IS NULL AND s.archived_at IS NULL
-     ),
-     expanded AS (
+    `WITH expanded AS (
        -- Whole-group rows: one cell per current member of the target group,
        -- except where the member has their own row for the same cell.
        SELECT e.id, e.parameter_id   AS "parameterId",
               e.quality_value   AS "qualityValue",
-              e.quantity_value  AS "quantityValue",
-              ms.id AS "membershipId", ms.student_id AS "studentId",
-              s.assignment_id   AS "assignmentId",
-              bucket.seq, s.session_date::text AS "sessionDate",
-              true AS "viaGroup"
-       FROM evaluations e
-       JOIN sessions s ON s.id = e.session_id
-       JOIN bucketed bucket ON bucket.session_id = s.id
-       JOIN assignments a ON a.id = s.assignment_id
-       JOIN student_group_members ms
-         ON ms.group_id = a.group_id AND ms.left_on IS NULL
-       WHERE e.archived_at IS NULL
-         AND e.membership_id IS NULL
+               e.quantity_value  AS "quantityValue",
+               ms.id AS "membershipId", ms.student_id AS "studentId",
+               s.assignment_id   AS "assignmentId",
+               p.seq, s.seq AS "sessionSeq",
+               s.session_date::text AS "sessionDate",
+               true AS "viaGroup"
+        FROM evaluations e
+        JOIN sessions s ON s.id = e.session_id
+        JOIN periods p ON p.id = s.period_id AND p.archived_at IS NULL
+        JOIN assignments a ON a.id = s.assignment_id
+        JOIN student_group_members ms
+          ON ms.group_id = a.group_id
+         AND ms.added_at::date <= s.session_date
+         AND (ms.left_on IS NULL OR ms.left_on >= s.session_date)
+        WHERE e.archived_at IS NULL
+          AND s.canceled_at IS NULL
+          AND s.archived_at IS NULL
+          AND e.membership_id IS NULL
          AND NOT EXISTS (
            SELECT 1 FROM evaluations own
            WHERE own.session_id = e.session_id
@@ -222,28 +217,31 @@ async function handleCube(req, res) {
        UNION ALL
        SELECT e.id, e.parameter_id,
               e.quality_value,
-              e.quantity_value, e.membership_id,
-              ms.student_id, s.assignment_id, bucket.seq,
-              s.session_date::text, false
-       FROM evaluations e
-       JOIN sessions s ON s.id = e.session_id
-       JOIN bucketed bucket ON bucket.session_id = s.id
-       JOIN student_group_members ms ON ms.id = e.membership_id
-       WHERE e.archived_at IS NULL
-         AND e.membership_id IS NOT NULL
+               e.quantity_value, e.membership_id,
+               ms.student_id, s.assignment_id, p.seq, s.seq,
+               s.session_date::text, false
+        FROM evaluations e
+        JOIN sessions s ON s.id = e.session_id
+        JOIN periods p ON p.id = s.period_id AND p.archived_at IS NULL
+        JOIN student_group_members ms ON ms.id = e.membership_id
+        WHERE e.archived_at IS NULL
+          AND s.canceled_at IS NULL
+          AND s.archived_at IS NULL
+          AND e.membership_id IS NOT NULL
      )
      SELECT expanded."parameterId"   AS "parameterId",
             expanded."studentId"     AS "studentId",
-            expanded."assignmentId"  AS "assignmentId",
-            expanded.seq             AS "periodSeq",
-            expanded."sessionDate",
+             expanded."assignmentId"  AS "assignmentId",
+             expanded.seq             AS "periodSeq",
+             expanded."sessionSeq",
+             expanded."sessionDate",
             expanded."qualityValue"  AS quality,
             expanded."quantityValue" AS quantity,
             expanded."viaGroup"
      FROM expanded
      JOIN students cell_student ON cell_student.id = expanded."studentId"
      WHERE ${cellFilters.join(' AND ')}
-     ORDER BY expanded."sessionDate", expanded."parameterId"`,
+      ORDER BY expanded."sessionDate", expanded."sessionSeq", expanded."parameterId"`,
     cellValues
   );
 
@@ -256,23 +254,15 @@ async function handleCube(req, res) {
     [assignmentId ?? null]
   );
   const periodsResult = await pool.query(
-    `WITH bucketed AS (
-       SELECT s.assignment_id,
-              (ROW_NUMBER() OVER (PARTITION BY s.assignment_id
-                                  ORDER BY s.session_date, s.seq) - 1)
-                / $1::int + 1 AS seq,
-              s.session_date
-       FROM sessions s
-       WHERE s.canceled_at IS NULL AND s.archived_at IS NULL
-         AND ($2::uuid IS NULL OR s.assignment_id = $2)
-     )
-     SELECT assignment_id AS "assignmentId", seq,
-            min(session_date)::text AS "startDate",
-            max(session_date)::text AS "endDate"
-     FROM bucketed
-     GROUP BY assignment_id, seq
+    `SELECT assignment_id AS "assignmentId",
+            seq,
+            started_on::text AS "startDate",
+            ended_on::text AS "endDate"
+     FROM period_summary
+     WHERE sessions_count > 0
+       AND ($1::uuid IS NULL OR assignment_id = $1)
      ORDER BY assignment_id, seq`,
-    [SESSIONS_PER_PERIOD, assignmentId ?? null]
+    [assignmentId ?? null]
   );
 
   const cube = buildCube({

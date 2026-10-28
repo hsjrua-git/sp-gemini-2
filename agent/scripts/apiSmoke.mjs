@@ -17,7 +17,8 @@ const { hashPassword, verifyPassword } = requireFromServer('../server/src/lib/pa
 const { config } = await import('../src/config.js');
 const { Panel, PanelError } = await import('../src/panel.js');
 
-const today = new Date().toISOString().slice(0, 10);
+const local = new Date();
+const today = `${local.getFullYear()}-${String(local.getMonth() + 1).padStart(2, '0')}-${String(local.getDate()).padStart(2, '0')}`;
 const monthAgo = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
 
 // Every GET endpoint with the query its own UI sends. Path params are
@@ -79,23 +80,35 @@ try {
     await pool.query(`SELECT id FROM users WHERE username = 'zz-api-smoke'`)
   ).rows[0];
   if (stale) {
-    await pool.query('ALTER TABLE acct_journal_lines DISABLE TRIGGER acct_lines_draft_only_trg');
-    await pool.query('ALTER TABLE acct_journal_lines DISABLE TRIGGER acct_entry_balance_trg');
-    await pool.query('ALTER TABLE acct_journal_entries DISABLE TRIGGER acct_entry_lifecycle_trg');
-    await pool.query(
-      `DELETE FROM acct_journal_lines WHERE entry_id IN
-         (SELECT id FROM acct_journal_entries WHERE posted_by = $1 OR created_by = $1)`,
-      [stale.id]
-    );
-    await pool.query(
-      `DELETE FROM acct_journal_entries WHERE posted_by = $1 OR created_by = $1`,
-      [stale.id]
-    );
-    await pool.query(`DELETE FROM audit_log WHERE user_id = $1`, [stale.id]);
-    await pool.query('ALTER TABLE acct_journal_entries ENABLE TRIGGER acct_entry_lifecycle_trg');
-    await pool.query('ALTER TABLE acct_journal_lines ENABLE TRIGGER acct_entry_balance_trg');
-    await pool.query('ALTER TABLE acct_journal_lines ENABLE TRIGGER acct_lines_draft_only_trg');
-    await pool.query(`DELETE FROM users WHERE id = $1`, [stale.id]);
+    // Trigger toggles are transactional. A killed/failed cleanup therefore
+    // rolls them back instead of leaving ledger protection disabled globally.
+    const cleanup = await pool.connect();
+    try {
+      await cleanup.query('BEGIN');
+      await cleanup.query('ALTER TABLE acct_journal_lines DISABLE TRIGGER acct_lines_draft_only_trg');
+      await cleanup.query('ALTER TABLE acct_journal_lines DISABLE TRIGGER acct_entry_balance_trg');
+      await cleanup.query('ALTER TABLE acct_journal_entries DISABLE TRIGGER acct_entry_lifecycle_trg');
+      await cleanup.query(
+        `DELETE FROM acct_journal_lines WHERE entry_id IN
+           (SELECT id FROM acct_journal_entries WHERE posted_by = $1 OR created_by = $1)`,
+        [stale.id]
+      );
+      await cleanup.query(
+        `DELETE FROM acct_journal_entries WHERE posted_by = $1 OR created_by = $1`,
+        [stale.id]
+      );
+      await cleanup.query(`DELETE FROM audit_log WHERE user_id = $1`, [stale.id]);
+      await cleanup.query(`DELETE FROM users WHERE id = $1`, [stale.id]);
+      await cleanup.query('ALTER TABLE acct_journal_entries ENABLE TRIGGER acct_entry_lifecycle_trg');
+      await cleanup.query('ALTER TABLE acct_journal_lines ENABLE TRIGGER acct_entry_balance_trg');
+      await cleanup.query('ALTER TABLE acct_journal_lines ENABLE TRIGGER acct_lines_draft_only_trg');
+      await cleanup.query('COMMIT');
+    } catch (err) {
+      await cleanup.query('ROLLBACK');
+      throw err;
+    } finally {
+      cleanup.release();
+    }
   }
   const username = 'zz-api-smoke';
   const password = 'api-smoke-' + Math.random().toString(36).slice(2, 12);

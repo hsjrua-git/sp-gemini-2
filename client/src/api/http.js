@@ -1,4 +1,5 @@
 const SAFE_METHOD = /^(GET|HEAD|OPTIONS)$/i;
+const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/+$/, '');
 
 // Read a cookie by name from document.cookie (returns null if absent).
 function readCookie(name) {
@@ -7,7 +8,25 @@ function readCookie(name) {
   const match = document.cookie.match(
     new RegExp('(?:^|; )' + escaped + '=([^;]*)')
   );
-  return match ? decodeURIComponent(match[1]) : null;
+  if (!match) return null;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
+}
+
+async function readCsrfToken() {
+  if (!API_BASE) return readCookie('csrf');
+  try {
+    // In a Capacitor bundle the page origin is localhost while API cookies
+    // belong to the configured panel host. Read that host's native cookie jar.
+    const { CapacitorCookies } = await import('@capacitor/core');
+    const cookies = await CapacitorCookies.getCookies({ url: API_BASE });
+    return cookies.csrf ?? null;
+  } catch {
+    return readCookie('csrf');
+  }
 }
 
 export async function request(url, options = {}) {
@@ -17,7 +36,7 @@ export async function request(url, options = {}) {
   // sets a readable `csrf` cookie; we send it back in a header it can verify.
   const csrfHeaders = {};
   if (!SAFE_METHOD.test(method)) {
-    const token = readCookie('csrf');
+    const token = await readCsrfToken();
     if (token) csrfHeaders['X-CSRF-Token'] = token;
   }
 
@@ -30,8 +49,10 @@ export async function request(url, options = {}) {
 
   let response;
   try {
-    response = await fetch(url, {
+    const target = API_BASE && url.startsWith('/') ? `${API_BASE}${url}` : url;
+    response = await fetch(target, {
       ...options,
+      credentials: 'include',
       headers: {
         ...baseHeaders,
         ...csrfHeaders,

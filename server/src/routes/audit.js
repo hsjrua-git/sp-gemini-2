@@ -1,51 +1,11 @@
 import { Router } from 'express';
 import pool from '../db/pool.js';
+import { AUDIT_CATEGORIES, AUDIT_CATEGORY_PREFIXES } from '../lib/auditCategories.js';
+import { redactRestrictedFields } from '../lib/auditPrivacy.js';
+import { userCan } from '../middleware/auth.js';
 
 const router = Router();
 
-const CATEGORIES = [
-  'student',
-  'parameter',
-  'teacher',
-  'interval',
-  'assignment',
-  'session',
-  'task',
-  'task_template',
-  'alert',
-  'settings',
-  'scores',
-  'evaluation',
-  'user',
-  'role',
-  'group',
-  'field',
-  'field_definition',
-  'cafe',
-  'cafe_product',
-  'cafe_supplier',
-  'cafe_purchase',
-  'cafe_sale',
-  'cafe_inventory',
-  'cafe_waste',
-  'cafe_adjustment',
-  'cafe_balance',
-  'accounting',
-  'accounting_account',
-  'accounting_mapping',
-  'accounting_entry',
-  'accounting_period',
-  'agent',
-  'auth',
-  'api',
-];
-
-const CATEGORY_PREFIXES = {
-  cafe_inventory: ['cafe_inventory', 'cafe_waste', 'cafe_adjustment'],
-  accounting: ['accounting', 'accounting_account', 'accounting_mapping', 'accounting_entry'],
-  scores: ['scores', 'evaluation'],
-  field: ['field', 'field_definition'],
-};
 const PAGE_SIZE = 25;
 const MAX_DETAIL_CHANGES = 50;
 
@@ -62,15 +22,14 @@ router.get('/', async (req, res) => {
   const values = [];
 
   if (category !== undefined) {
-    if (typeof category !== 'string' || !CATEGORIES.includes(category)) {
+    if (typeof category !== 'string' || !AUDIT_CATEGORIES.includes(category)) {
       return res.status(400).json({
         error: 'Unknown category.',
         code: 'VALIDATION_INVALID_CHOICE',
         params: { field: 'category' },
       });
     }
-    const prefixes = CATEGORY_PREFIXES[category] ?? [category];
-    values.push(prefixes);
+    values.push(AUDIT_CATEGORY_PREFIXES[category]);
     conditions.push(`split_part(a.action, '.', 1) = ANY($${values.length}::text[])`);
   }
   if (actor !== undefined) {
@@ -113,7 +72,7 @@ router.get('/', async (req, res) => {
     ),
   ]);
 
-  const entries = listResult.rows.map((row) => {
+  let entries = listResult.rows.map((row) => {
     const changes = row.details?.changes;
     if (Array.isArray(changes) && changes.length > MAX_DETAIL_CHANGES) {
       return {
@@ -127,6 +86,19 @@ router.get('/', async (req, res) => {
     }
     return row;
   });
+
+  if (!userCan(req, 'fields.view_restricted')) {
+    const restricted = await pool.query(
+      `SELECT id FROM student_field_definitions WHERE is_restricted`
+    );
+    const restrictedIds = new Set(restricted.rows.map((row) => row.id));
+    entries = entries.map((row) => ({
+      ...row,
+      details: redactRestrictedFields(row.details, restrictedIds),
+      oldData: redactRestrictedFields(row.oldData, restrictedIds),
+      newData: redactRestrictedFields(row.newData, restrictedIds),
+    }));
+  }
 
   res.json({
     entries,

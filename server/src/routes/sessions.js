@@ -4,7 +4,6 @@ import { recordAudit } from '../lib/audit.js';
 import { isUuid } from '../lib/ids.js';
 import { isValidIsoDate, todayIso } from '../lib/periods.js';
 import { locksAtFor } from '../lib/locks.js';
-import { assignPeriods, syncAssignmentPeriods } from '../lib/periods.js';
 import { generateSessions } from '../lib/sessions.js';
 
 const router = Router();
@@ -21,6 +20,8 @@ const SESSION_COLUMNS = `
   s.canceled_at    AS "canceledAt",
   s.note,
   s.archived_at    AS "archivedAt",
+  s.period_id      AS "periodId",
+  p.seq            AS "periodSeq",
   (SELECT count(*)::int FROM tasks tk WHERE tk.session_id = s.id)
                   AS "taskCount",
   a.code           AS "assignmentCode",
@@ -39,43 +40,8 @@ const SESSION_FROM = `
   LEFT JOIN student_groups g ON g.id = a.group_id
   LEFT JOIN student_group_members ms ON ms.id = a.membership_id
   LEFT JOIN students sf ON sf.id = ms.student_id
+  LEFT JOIN periods p ON p.id = s.period_id AND p.archived_at IS NULL
 `;
-
-// Label each session with its assignment's period seq (the deterministic
-// 4-sessions-per-period bucketing; canceled/archived sessions sit outside
-// every period and get null). Always buckets against ALL sessions of the
-// affected assignments so date/status filters or single-row fetches never
-// renumber periods from 1.
-async function withPeriodSeqs(db, sessions) {
-  if (sessions.length === 0) return [];
-  const assignmentIds = [...new Set(sessions.map((s) => s.assignmentId))];
-  const allRows = await db.query(
-    `SELECT id,
-            assignment_id AS "assignmentId",
-            seq,
-            session_date::text AS "sessionDate",
-            canceled_at   AS "canceledAt",
-            archived_at   AS "archivedAt"
-     FROM sessions
-     WHERE assignment_id = ANY($1::uuid[])`,
-    [assignmentIds]
-  );
-  const byAssignment = new Map();
-  for (const row of allRows.rows) {
-    if (!byAssignment.has(row.assignmentId)) {
-      byAssignment.set(row.assignmentId, []);
-    }
-    byAssignment.get(row.assignmentId).push(row);
-  }
-  const labels = new Map();
-  for (const rows of byAssignment.values()) {
-    for (const [id, seq] of assignPeriods(rows)) labels.set(id, seq);
-  }
-  return sessions.map((session) => ({
-    ...session,
-    periodSeq: labels.get(session.id) ?? null,
-  }));
-}
 
 router.param('id', (req, res, next, value) => {
   if (!isUuid(value)) {
@@ -153,9 +119,10 @@ router.get('/', async (req, res) => {
     values
   );
 
-  const sessions = await withPeriodSeqs(pool, result.rows.slice(0, MAX_LISTED));
-
-  res.json({ sessions, truncated: result.rows.length > MAX_LISTED });
+  res.json({
+    sessions: result.rows.slice(0, MAX_LISTED),
+    truncated: result.rows.length > MAX_LISTED,
+  });
 });
 
 // Generate the missing planned sessions for active assignments, up to a
@@ -183,15 +150,6 @@ router.post('/generate', async (req, res) => {
     await client.query('BEGIN');
     const created = await generateSessions(client, { until, assignmentId });
     if (created > 0) {
-      // New sessions fill out the period buckets — materialize them.
-      for (const row of (await client.query(
-        `SELECT id FROM assignments
-         WHERE archived_at IS NULL
-           ${assignmentId ? 'AND id = $1' : ''}`,
-        assignmentId ? [assignmentId] : []
-      )).rows) {
-        await syncAssignmentPeriods(client, row.id);
-      }
       await recordAudit(client, {
         userId: req.user.id,
         actor: req.user.username,
@@ -285,7 +243,9 @@ router.patch('/:id', async (req, res) => {
        SET ${sets.join(', ')}
        WHERE id = $${values.length}
        RETURNING id, assignment_id,
-                 session_date::text AS "sessionDate"`,
+                  session_date::text AS "sessionDate",
+                  canceled_at AS "canceledAt",
+                  archived_at AS "archivedAt"`,
       values
     );
     if (result.rowCount === 0) {
@@ -301,7 +261,7 @@ router.patch('/:id', async (req, res) => {
     // A move changes the effective date: the lock windows of still-unlocked
     // rows re-anchor to the new date (locked ones keep their old window —
     // changing them already needs an override).
-    if ('movedTo' in body) {
+    if ('movedTo' in body && !updated.canceledAt && !updated.archivedAt) {
       await client.query(
         `UPDATE evaluations
          SET locks_at = $1
@@ -312,11 +272,15 @@ router.patch('/:id', async (req, res) => {
         ]
       );
     }
-    // Any operational change can re-bucket the assignment's periods.
-    await syncAssignmentPeriods(client, updated.assignment_id);
     await client.query('COMMIT');
   } catch (err) {
     await client.query('ROLLBACK');
+    if (err.code === '23514' && /active evaluation cells/.test(String(err.message))) {
+      return res.status(409).json({
+        error: 'Archive or remove the active evaluation cells before canceling this session.',
+        code: 'SESSIONS_HAS_EVALUATIONS',
+      });
+    }
     throw err;
   } finally {
     client.release();
@@ -326,8 +290,7 @@ router.patch('/:id', async (req, res) => {
     `SELECT ${SESSION_COLUMNS} ${SESSION_FROM} WHERE s.id = $1`,
     [req.params.id]
   );
-  const [labeled] = await withPeriodSeqs(pool, full.rows);
-  res.json({ session: labeled });
+  res.json({ session: full.rows[0] });
 });
 
 export default router;

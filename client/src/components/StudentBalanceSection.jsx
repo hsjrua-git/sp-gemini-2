@@ -4,9 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { getStudentBalance, recordBalanceEvent } from '../api/cafeSales.js';
 import { useAuth } from '../auth/AuthContext.jsx';
 import { errorMessage } from '../i18n/errors.js';
-import { toLatinDigits } from '../lib/locale.js';
 import { formatDateTime } from '../lib/format.js';
-import { formatWhole } from '../lib/money.js';
+import { formatWhole, parseWholeNumber } from '../lib/money.js';
 
 const KINDS = ['topup', 'refund', 'adjustment'];
 
@@ -38,11 +37,11 @@ function StudentBalanceSection({ student }) {
   };
 
   const submit = useMutation({
-    mutationFn: () =>
+    mutationFn: (parsedAmount) =>
       recordBalanceEvent({
         studentId: student.id,
         kind,
-        amount: Number(toLatinDigits(amount).replace(/[,\s٬]/g, '')),
+        amount: parsedAmount,
         note: note.trim() === '' ? undefined : note.trim(),
       }),
     onSuccess: () => {
@@ -54,7 +53,9 @@ function StudentBalanceSection({ student }) {
 
   function handleSubmit(event) {
     event.preventDefault();
-    if (amount.trim() !== '') submit.mutate();
+    const parsed = parseWholeNumber(amount, { signed: kind === 'adjustment' });
+    if (parsed === null || parsed === 0) return;
+    submit.mutate(parsed);
   }
 
 
@@ -120,11 +121,13 @@ function StudentBalanceSection({ student }) {
             maxLength={500}
             disabled={submit.isPending}
           />
-          <button type="submit" disabled={submit.isPending || amount.trim() === ''}>
-            {submit.isPending
-              ? t('common:actions.saving')
-              : t('balance.submit')}
-          </button>
+          <div className="row">
+            <button type="submit" disabled={submit.isPending || amount.trim() === ''}>
+              {submit.isPending
+                ? t('common:actions.saving')
+                : t('balance.submit')}
+            </button>
+          </div>
           {submit.isError && (
             <p className="error" role="alert">
               {errorMessage(submit.error)}
@@ -139,7 +142,8 @@ function StudentBalanceSection({ student }) {
       )}
 
       {transactions.length > 0 && (
-        <table>
+        <div className="table-wrap">
+          <table>
           <thead>
             <tr>
               <th scope="col">{t('balance.when')}</th>
@@ -164,7 +168,8 @@ function StudentBalanceSection({ student }) {
               </tr>
             ))}
           </tbody>
-        </table>
+          </table>
+        </div>
       )}
       {balanceQuery.data?.truncated && (
         <p className="hint">{t('balance.truncated')}</p>

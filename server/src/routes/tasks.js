@@ -7,6 +7,18 @@ import { parseTaskFields } from '../validation/schedule.js';
 const router = Router();
 const MAX_SESSIONS_PER_ASSIGN = 200;
 const FOREIGN_KEY_VIOLATION = '23503';
+const CHECK_VIOLATION = '23514';
+
+function handleTaskReferenceError(err, res) {
+  if (err.code !== FOREIGN_KEY_VIOLATION && err.code !== CHECK_VIOLATION) {
+    return false;
+  }
+  res.status(400).json({
+    error: 'Choose an active parameter and a membership valid for the session date.',
+    code: 'VALIDATION_INVALID_CHOICE',
+  });
+  return true;
+}
 
 const TASK_COLUMNS = `
   id,
@@ -70,7 +82,13 @@ router.post('/', async (req, res) => {
   }
 
   const session = await pool.query(
-    'SELECT id FROM sessions WHERE id = $1 AND archived_at IS NULL',
+    `SELECT s.id
+     FROM sessions s
+     JOIN assignments a ON a.id = s.assignment_id
+     WHERE s.id = $1
+       AND s.archived_at IS NULL
+       AND s.canceled_at IS NULL
+       AND a.archived_at IS NULL`,
     [sessionId]
   );
   if (session.rowCount === 0) {
@@ -97,12 +115,7 @@ router.post('/', async (req, res) => {
     );
     res.status(201).json({ task: result.rows[0] });
   } catch (err) {
-    if (err.code === FOREIGN_KEY_VIOLATION) {
-      return res.status(400).json({
-        error: 'Choose a valid parameter or membership.',
-        code: 'VALIDATION_INVALID_CHOICE',
-      });
-    }
+    if (handleTaskReferenceError(err, res)) return;
     throw err;
   }
 });
@@ -183,6 +196,7 @@ router.post('/from-template', async (req, res) => {
     res.status(201).json({ created: result.rowCount });
   } catch (err) {
     await client.query('ROLLBACK');
+    if (handleTaskReferenceError(err, res)) return;
     throw err;
   } finally {
     client.release();
@@ -267,12 +281,7 @@ router.patch('/:id', async (req, res) => {
     }
     res.json({ task: result.rows[0] });
   } catch (err) {
-    if (err.code === FOREIGN_KEY_VIOLATION) {
-      return res.status(400).json({
-        error: 'Choose a valid parameter or membership.',
-        code: 'VALIDATION_INVALID_CHOICE',
-      });
-    }
+    if (handleTaskReferenceError(err, res)) return;
     throw err;
   }
 });

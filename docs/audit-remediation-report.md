@@ -1,5 +1,11 @@
 # Audit Remediation & Changes Report
 
+> **Historical report.** This was the earlier remediation pass and contains
+> superseded period/permission claims. The independent final audit and current
+> verification record are in
+> [`audit-2026-10-28-sp-gemini-1-opencode.md`](audit-2026-10-28-sp-gemini-1-opencode.md)
+> and [`schema-4-adaptation.md`](schema-4-adaptation.md).
+
 This document records every bug fix, schema/trigger hardening, UI/state fix, security improvement, and cleanup applied across `server/`, `client/`, `agent/`, `deploy/`, and project documentation following the full repository audit (`docs/audit-notes.md`) and runtime error analysis. It also documents what was intentionally left untouched (or could not be executed in the container environment) and why.
 
 ---

@@ -122,7 +122,7 @@
   "parameters": {
     "title": "Parameters",
     "readOnlyDescription": "You do not have permission to manage parameters.",
-    "hint": "A parameter is something you evaluate, like Speed or Rhythm. Which parameters each period uses comes from the change history at the bottom.",
+    "hint": "A parameter is something you evaluate, such as Speed or Rhythm. Evaluators select the relevant cells for each session.",
     "addTitle": "Add a parameter",
     "allTitle": "All parameters",
     "loading": "Loading parameters…",

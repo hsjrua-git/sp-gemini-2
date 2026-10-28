@@ -86,6 +86,10 @@ function readCheckOrigin() {
   return process.env.NODE_ENV === 'production';
 }
 const enforceCsrfOrigin = readCheckOrigin();
+const csrfAllowedOrigins = (process.env.CSRF_ALLOWED_ORIGINS ?? '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
 // How many proxy hops to trust for X-Forwarded-* headers. Default OFF: when the
 // app is exposed directly on the LAN (no proxy), trusting those headers would
@@ -135,7 +139,14 @@ app.use(
     crossOriginEmbedderPolicy: false,
   })
 );
-app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
+// Query strings contain student-name searches and report filters. Keep those
+// out of access logs while retaining the useful method/path/status metadata.
+morgan.token('path-only', (req) => req.originalUrl.split('?')[0]);
+const accessLogFormat =
+  process.env.NODE_ENV === 'production'
+    ? ':remote-addr - :remote-user [:date[clf]] ":method :path-only HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"'
+    : ':method :path-only :status :response-time ms - :res[content-length]';
+app.use(morgan(accessLogFormat));
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: false, limit: '1mb' }));
 
@@ -153,8 +164,13 @@ if (serveClient) {
   app.use(express.static(clientDist, { index: false, maxAge: '1h' }));
 }
 
-app.get('/api/health', (req, res) => {
-  res.json({ ok: true });
+app.get('/api/health', async (req, res) => {
+  try {
+    await pool.query('SELECT 1');
+    res.json({ ok: true, database: 'ok' });
+  } catch {
+    res.status(503).json({ ok: false, database: 'unavailable' });
+  }
 });
 
 app.use(
@@ -179,7 +195,11 @@ app.use('/api', attachUser);
 // run the Origin check early enough to also cover the login route. The
 // double-submit token check is mounted after requireLogin below, so an
 // unauthenticated mutation still fails as a plain 401.
-const csrf = createCsrf({ secure: cookieSecure, enforceOrigin: enforceCsrfOrigin });
+const csrf = createCsrf({
+  secure: cookieSecure,
+  enforceOrigin: enforceCsrfOrigin,
+  allowedOrigins: csrfAllowedOrigins,
+});
 app.use('/api', csrf.issue);
 app.use('/api', csrf.checkOrigin);
 
@@ -205,10 +225,13 @@ app.use(
   '/api/parameters',
   authorize({ GET: 'parameters.view', POST: 'parameters.manage', PATCH: 'parameters.manage' })
 );
+app.use('/api', parametersRouter);
 // The period calendar carries no dedicated key — any signed-in user needs it
 // for the app to function. `true` means just login.
 app.use('/api/periods', authorize({ GET: true }));
+app.use('/api', periodsRouter);
 app.use('/api/evaluations', authorize({ GET: 'scores.view', PUT: 'scores.enter' }));
+app.use('/api', evaluationsRouter);
 app.use('/api/audit', authorize({ GET: 'audit.view' }), auditRouter);
 app.use(
   '/api/users',
@@ -271,7 +294,7 @@ app.use(
 app.use(
   '/api/assignments',
   authorize({
-    GET: 'schedule.view',
+    GET: ['schedule.view', 'scores.enter', 'scores.view', 'dashboard.view', 'data.export'],
     POST: 'schedule.manage',
     PATCH: 'schedule.manage',
     DELETE: 'schedule.manage',
@@ -281,7 +304,7 @@ app.use(
 app.use(
   '/api/sessions',
   authorize({
-    GET: 'schedule.view',
+    GET: ['schedule.view', 'scores.enter', 'scores.view', 'dashboard.view', 'data.export'],
     POST: 'schedule.manage',
     PATCH: 'schedule.manage',
   }),
@@ -401,7 +424,10 @@ app.use(
   '/api/accounting/periods',
   authorize({
     GET: 'accounting.view',
-    POST: 'accounting.manage',
+    // POST actions have different authorities: create/opening use manage
+    // (opening also needs post), while close/reopen use accounting.close.
+    // Route-level guards below keep those independent custom-role ladders.
+    POST: true,
     PATCH: 'accounting.manage',
   }),
   accountingPeriodsRouter
@@ -435,10 +461,6 @@ app.use(
   savedViewsRouter
 );
 
-app.use('/api', periodsRouter);
-app.use('/api', parametersRouter);
-app.use('/api', evaluationsRouter);
-
 app.use('/api', (req, res) => {
   res.status(404).json({ error: 'Not found.', code: 'NOT_FOUND' });
 });
@@ -456,13 +478,29 @@ if (serveClient) {
 }
 
 app.use((err, req, res, next) => {
-  const status = err.status || 500;
+  if (res.headersSent) return next(err);
+  const closedPeriod = /(?:post|void).*closed fiscal period/i.test(String(err?.message));
+  const malformedJson = err?.type === 'entity.parse.failed';
+  const tooLarge = err?.type === 'entity.too.large';
+  const status = closedPeriod ? 409 : malformedJson ? 400 : tooLarge ? 413 : (err.status || 500);
   if (status >= 500) console.error(err);
   res.status(status).json({
-    error: status >= 500 ? 'Something went wrong on the server.' : err.message,
+    error: closedPeriod
+      ? 'That transaction falls in a closed fiscal period.'
+      : malformedJson
+        ? 'The request body is not valid JSON.'
+        : tooLarge
+          ? 'The request body is too large.'
+          : status >= 500 ? 'Something went wrong on the server.' : err.message,
     // Forward a machine-readable code (and its translation params) when the
     // error carries one; JSON serialization drops the keys when undefined.
-    code: err.code,
+    code: closedPeriod
+      ? 'ACCOUNTING_PERIOD_CLOSED'
+      : malformedJson
+        ? 'VALIDATION_INVALID_JSON'
+        : tooLarge
+          ? 'VALIDATION_TOO_LARGE'
+          : err.code,
     params: err.params,
   });
 });
