@@ -332,3 +332,17 @@ accounting smokes pass. `COVERAGE.md` records 499 full reads and explicit limits
   the user narrowed the Review pane after programmatic resizing failed.
 - Shared `fix-ui-checkpoint/`: client **233/233**, production build and clean lint
   pass. Initial lint ref-cleanup warning was fixed and its output retained.
+
+### A25 — localized digits in score entry
+
+- Reuses the existing digit normalizer before strict integer/range validation.
+  Retained parser/payload/no-op controls change **2 pass / 4 fail → 6/6 pass**;
+  ASCII, blank, zero, invalid syntax and out-of-range behavior remain covered.
+- Real Persian browser input **۷ / ۶** enables Save, submits numeric **7 / 6**,
+  and receives **200 / changed:1**. Independent readback matches (`fix-a25/`).
+- Initial cleanup was correctly refused because A36's archived target also
+  archived its sessions. The fixture helper now restores only its durable
+  synthetic target before clearing scores and re-archiving. The original failure
+  is retained; `cleanup-restored` and independent `cleanup-verified` pass:
+  viewer restored, blind role absent, zero remaining evaluations, all entities
+  inactive. Shared client **233/233**, lint/build checks pass.

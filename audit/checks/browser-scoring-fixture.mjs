@@ -7,7 +7,7 @@ import { api, login, openDatabase } from './isolated.mjs';
 // Only synthetic entities and the disposable sample-viewer's role are changed.
 const file = new URL('../runtime/browser-scoring-fixture.json', import.meta.url);
 const mode = process.argv[2];
-assert.ok(['prepare', 'individual', 'blind', 'sighted', 'readback', 'cleanup'].includes(mode));
+assert.ok(['prepare', 'individual', 'blind', 'sighted', 'archive-target', 'readback', 'cleanup'].includes(mode));
 const db = openDatabase();
 const admin = api();
 let fixture;
@@ -79,14 +79,28 @@ try {
     } else if (mode === 'blind' || mode === 'sighted') {
       await db.query('UPDATE users SET role_id=$1 WHERE id=$2', [mode === 'blind' ? fixture.roleId : fixture.viewer.role_id, fixture.viewer.id]);
       console.log(`Disposable sample-viewer role ${mode === 'blind' ? 'set to blind fixture' : 'restored'}.`);
+    } else if (mode === 'archive-target') {
+      await request(`/api/assignments/${fixture.assignmentId}`, 'DELETE', undefined, 204);
+      await request(`/api/groups/${fixture.groupId}`, 'DELETE', undefined, 204);
+      console.log(JSON.stringify({ assignmentId: fixture.assignmentId, groupId: fixture.groupId, archived: true }));
     } else if (mode === 'readback') {
       for (const id of fixture.sessions) {
         console.log(JSON.stringify({ sessionId: id, ...(await request(`/api/evaluations?sessionId=${id}`)) }));
       }
     } else {
       await db.query('UPDATE users SET role_id=$1 WHERE id=$2', [fixture.viewer.role_id, fixture.viewer.id]);
-      if (fixture.roleId) await request(`/api/roles/${fixture.roleId}`, 'DELETE', undefined, 204);
+      const roles = (await request('/api/roles')).roles;
+      if (roles.some(role => role.id === fixture.roleId)) {
+        await request(`/api/roles/${fixture.roleId}`, 'DELETE', undefined, 204);
+      }
+      // A36 archives the target, which also archives its sessions. Restore only
+      // this durable synthetic fixture before removing its selected cells.
+      if (fixture.groupId) await request(`/api/groups/${fixture.groupId}`, 'PATCH', { archived: false });
+      for (const id of [fixture.assignmentId, fixture.individualAssignmentId].filter(Boolean)) {
+        await request(`/api/assignments/${id}`, 'PATCH', { archived: false });
+      }
       for (const id of fixture.sessions) {
+        await request(`/api/sessions/${id}`, 'PATCH', { archived: false });
         const rows = (await request(`/api/evaluations?sessionId=${id}`)).evaluations;
         if (rows.length) await request('/api/evaluations/bulk', 'PUT', { sessionId: id,
           overrideReason: 'Audit browser fixture cleanup', entries: rows.map(r => ({

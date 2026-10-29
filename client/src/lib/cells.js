@@ -5,6 +5,8 @@
 // row's existence: a stored row IS the expectation ("selected"), and selected
 // with no values just means "not answered yet".
 
+import { toLatinDigits } from './locale.js';
+
 export function cellKey(membershipId, parameterId) {
   return `${membershipId ?? 'group'}:${parameterId}`;
 }
@@ -26,7 +28,7 @@ const INTEGER_PATTERN = /^[+-]?\d+$/;
 // One dimension's value: a whole number inside the parameter's own range.
 // An empty input means "no value" (null), not zero.
 export function parseDimension(text, parameter) {
-  const trimmed = text.trim();
+  const trimmed = toLatinDigits(text).trim();
   if (trimmed === '') return { value: null };
   if (!INTEGER_PATTERN.test(trimmed)) return { error: 'Enter a whole number.' };
   const value = Number(trimmed);

@@ -1,0 +1,14 @@
+✔ ASCII whole scores, blank and zero retain their established meaning (5.644766ms)
+✔ Persian score digits denote the same whole numbers (5.191392ms)
+✔ Arabic-Indic keyboard digits denote the same whole numbers (0.629035ms)
+✔ localized drafts create numeric save entries and preserve saved comments (3.3939ms)
+✔ typing the same saved score in localized digits is a no-op (2.748492ms)
+✔ digit normalization must retain strict syntax and range checks (3.212334ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 852.010477
