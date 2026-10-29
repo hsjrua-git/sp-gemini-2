@@ -1,0 +1,15 @@
+{
+  "command": [
+    "npm",
+    "view",
+    "zod@4.6.6",
+    "version",
+    "dist.integrity",
+    "--json"
+  ],
+  "directory": "client",
+  "started": "2026-10-29T21:28:11.733Z",
+  "ended": "2026-10-29T21:28:15.994Z",
+  "code": 0,
+  "signal": null
+}

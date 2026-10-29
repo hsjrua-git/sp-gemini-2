@@ -1,0 +1,23 @@
+{"path":"","from":"0.0.0","to":"0.0.0","changedKeys":["devDependencies"]}
+{"path":"node_modules/@oxc-project/types","from":"0.150.0","to":"0.156.0","changedKeys":["version","resolved","integrity"]}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: patch-only
+
+'0.150' !== '0.156'
+
+    at file:///home/hsjrua/Documents/sp-gemini-1/audit/checks/patched-tooling.mjs:13:40
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: '0.150',
+  expected: '0.156',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.15.0

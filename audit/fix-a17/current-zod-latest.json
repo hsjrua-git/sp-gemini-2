@@ -1,0 +1,14 @@
+{
+  "command": [
+    "npm",
+    "view",
+    "zod",
+    "version",
+    "--json"
+  ],
+  "directory": "client",
+  "started": "2026-10-29T21:29:58.195Z",
+  "ended": "2026-10-29T21:30:00.821Z",
+  "code": 0,
+  "signal": null
+}

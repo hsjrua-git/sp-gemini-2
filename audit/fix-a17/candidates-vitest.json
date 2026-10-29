@@ -1,0 +1,16 @@
+{
+  "command": [
+    "npm",
+    "view",
+    "vitest@5.0.3",
+    "version",
+    "engines",
+    "dependencies",
+    "--json"
+  ],
+  "directory": "client",
+  "started": "2026-10-29T21:28:11.667Z",
+  "ended": "2026-10-29T21:28:15.773Z",
+  "code": 0,
+  "signal": null
+}

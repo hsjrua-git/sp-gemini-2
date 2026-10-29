@@ -1,0 +1,14 @@
+{
+  "command": [
+    "npm",
+    "install",
+    "--save-dev",
+    "vite@8.3.3",
+    "vitest@5.0.3"
+  ],
+  "directory": "client",
+  "started": "2026-10-29T21:29:13.710Z",
+  "ended": "2026-10-29T21:29:39.029Z",
+  "code": 0,
+  "signal": null
+}

@@ -245,3 +245,24 @@ accounting smokes pass. `COVERAGE.md` records 499 full reads and explicit limits
   at `after-http-before-a20.*`; synthetic fixture cleanup completed.
 - Shared full verification follows A20's response-shape correction. Alternate
   weighting and completion-denominator policies remain ASK.
+
+### A17 — patched client tooling and vulnerable transitives
+
+- Updated Vite to 8.3.3, Vitest/mocker/spy to 5.0.3, source-map-js to 1.2.2
+  and Zod to 4.6.7. Direct dependency ranges retain the existing caret style.
+- User delegated the two required non-patch transitive choices; retained
+  @oxc-project/types 0.150.0→0.156.0 (pinned by Rolldown 1.2.16) and
+  why-is-node-running 2.3.0→3.2.1 (pinned by Vitest). Lock review verifies exact
+  exceptions, registry/integrity fields, unchanged retained-package licenses,
+  and only siginfo/stackback removals. Saved npm audit reports **0 vulnerabilities**.
+- `fix-a17/lock-review` executed no check (stdin was not forwarded); its empty
+  exit-0 output is not verification. `lock-review-executed` failed the original
+  blanket patch-only assertion; `lock-review-approved` actually passes the
+  reviewed scope. All outputs remain retained.
+- Shared `fix-reporting-checkpoint/`: lint and separate production build pass;
+  client **233/233**, server **149/six integration skips**, core **57/57**, all
+  **35** PGlite migrations/sanity checks pass. Initial parallel client run had
+  two timeouts; one-worker rerun passes with unchanged timeouts. Initial server
+  run exposed an incorrect A20 shape expectation, corrected in that fix.
+- These lint/build outputs precede A25–A35 UI edits; fresh UI verification follows.
+  Lockfile review is metadata/scope verification, not a full dependency-source audit.

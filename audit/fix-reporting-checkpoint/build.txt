@@ -1,0 +1,97 @@
+npm notice run client@0.0.0 build
+npm notice run vite build --config ../audit/checks/live-client.vite.config.mjs
+vite v8.3.3 building client environment for production...
+transforming...
+✓ 1013 modules transformed.
+rendering chunks...
+computing gzip size...
+../audit/.tmp/stage2-client-dist/index.html                                   2.48 kB │ gzip:   0.95 kB
+../audit/.tmp/stage2-client-dist/assets/manrope-variable-DHIcAJRg.woff2      24.83 kB
+../audit/.tmp/stage2-client-dist/assets/vazirmatn-Regular-CtGL0YI-.woff2     50.68 kB
+../audit/.tmp/stage2-client-dist/assets/vazirmatn-Bold-_OhAJEdh.woff2        51.02 kB
+../audit/.tmp/stage2-client-dist/assets/vazirmatn-SemiBold-26ZP1ILp.woff2    51.03 kB
+../audit/.tmp/stage2-client-dist/assets/vazirmatn-Medium-D86t5Axy.woff2      51.12 kB
+../audit/.tmp/stage2-client-dist/assets/index-Bu78fXBR.css                   61.08 kB │ gzip:  12.21 kB
+../audit/.tmp/stage2-client-dist/assets/periods-JthJ_evJ.js                   0.12 kB │ gzip:   0.13 kB
+../audit/.tmp/stage2-client-dist/assets/prefs-Cjlc7grs.js                     0.14 kB │ gzip:   0.12 kB
+../audit/.tmp/stage2-client-dist/assets/results-CGmlh7Dd.js                   0.20 kB │ gzip:   0.17 kB
+../audit/.tmp/stage2-client-dist/assets/useDebouncedValue-CzzGZdta.js         0.26 kB │ gzip:   0.20 kB
+../audit/.tmp/stage2-client-dist/assets/StatCard-DsX72RTp.js                  0.29 kB │ gzip:   0.20 kB
+../audit/.tmp/stage2-client-dist/assets/parameters-iIr4wwdf.js                0.29 kB │ gzip:   0.19 kB
+../audit/.tmp/stage2-client-dist/assets/agent-CfxivkB4.js                     0.32 kB │ gzip:   0.23 kB
+../audit/.tmp/stage2-client-dist/assets/alerts-D090hKx6.js                    0.38 kB │ gzip:   0.27 kB
+../audit/.tmp/stage2-client-dist/assets/roles-P88jHDo_.js                     0.40 kB │ gzip:   0.23 kB
+../audit/.tmp/stage2-client-dist/assets/fields-ihU8s_rC.js                    0.44 kB │ gzip:   0.25 kB
+../audit/.tmp/stage2-client-dist/assets/audit-pnh116He.js                     0.51 kB │ gzip:   0.34 kB
+../audit/.tmp/stage2-client-dist/assets/teachers-BYDBqqCW.js                  0.57 kB │ gzip:   0.33 kB
+../audit/.tmp/stage2-client-dist/assets/money-CtwQa7pE.js                     0.61 kB │ gzip:   0.36 kB
+../audit/.tmp/stage2-client-dist/assets/evaluations-B2Z5MPSB.js               0.65 kB │ gzip:   0.36 kB
+../audit/.tmp/stage2-client-dist/assets/groups-BJYHB1Hd.js                    0.69 kB │ gzip:   0.32 kB
+../audit/.tmp/stage2-client-dist/assets/sessions-B9CmiyMh.js                  0.71 kB │ gzip:   0.40 kB
+../audit/.tmp/stage2-client-dist/assets/rolldown-runtime-XKyaHtl9.js          0.72 kB │ gzip:   0.42 kB
+../audit/.tmp/stage2-client-dist/assets/NotFoundPage-C29d8HqP.js              0.74 kB │ gzip:   0.45 kB
+../audit/.tmp/stage2-client-dist/assets/ExportButton-BB896U31.js              0.76 kB │ gzip:   0.49 kB
+../audit/.tmp/stage2-client-dist/assets/accountingJournal-BK82EFst.js         0.84 kB │ gzip:   0.43 kB
+../audit/.tmp/stage2-client-dist/assets/format-AFaKq5h8.js                    0.89 kB │ gzip:   0.50 kB
+../audit/.tmp/stage2-client-dist/assets/GroupFilter-Dnh-Wcwe.js               0.92 kB │ gzip:   0.56 kB
+../audit/.tmp/stage2-client-dist/assets/cafeSales-BKW3M2Wj.js                 1.02 kB │ gzip:   0.46 kB
+../audit/.tmp/stage2-client-dist/assets/JalaliDatePicker-BBdjPNJv.js          1.02 kB │ gzip:   0.57 kB
+../audit/.tmp/stage2-client-dist/assets/cafe-B3mR035X.js                      1.03 kB │ gzip:   0.40 kB
+../audit/.tmp/stage2-client-dist/assets/students-DRUTa1Nj.js                  1.08 kB │ gzip:   0.50 kB
+../audit/.tmp/stage2-client-dist/assets/schedule-DFwREVX7.js                  1.16 kB │ gzip:   0.50 kB
+../audit/.tmp/stage2-client-dist/assets/accountingAdmin-C1phfHhQ.js           1.54 kB │ gzip:   0.47 kB
+../audit/.tmp/stage2-client-dist/assets/ChangePasswordPage-BLpujfmw.js        1.94 kB │ gzip:   0.78 kB
+../audit/.tmp/stage2-client-dist/assets/cells-EvFQjdmF.js                     2.11 kB │ gzip:   0.83 kB
+../audit/.tmp/stage2-client-dist/assets/views-aHosMoCa.js                     2.21 kB │ gzip:   0.86 kB
+../audit/.tmp/stage2-client-dist/assets/FilterEditor-DEjmohyq.js              2.27 kB │ gzip:   0.96 kB
+../audit/.tmp/stage2-client-dist/assets/http-B_k8K0tQ.js                      2.57 kB │ gzip:   1.37 kB
+../audit/.tmp/stage2-client-dist/assets/AgentPage-Rft1fopJ.js                 3.05 kB │ gzip:   0.86 kB
+../audit/.tmp/stage2-client-dist/assets/studentFields-C2lfbd2V.js             3.71 kB │ gzip:   1.52 kB
+../audit/.tmp/stage2-client-dist/assets/AgentTranscriptsPage-DmuMUgTa.js      3.75 kB │ gzip:   1.25 kB
+../audit/.tmp/stage2-client-dist/assets/locale-q7zSqlV5.js                    4.20 kB │ gzip:   1.98 kB
+../audit/.tmp/stage2-client-dist/assets/FieldsPage-BTORL4Qm.js                4.29 kB │ gzip:   1.41 kB
+../audit/.tmp/stage2-client-dist/assets/AuditPage-Dsm8hYWd.js                 4.77 kB │ gzip:   1.64 kB
+../audit/.tmp/stage2-client-dist/assets/audit-DEjCzo6P.js                     5.14 kB │ gzip:   1.33 kB
+../audit/.tmp/stage2-client-dist/assets/TeachersPage-P6qjED1b.js              5.29 kB │ gzip:   1.66 kB
+../audit/.tmp/stage2-client-dist/assets/RolesPage-BVemx3L7.js                 5.73 kB │ gzip:   1.94 kB
+../audit/.tmp/stage2-client-dist/assets/ParametersPage-D2wg0Wyw.js            5.88 kB │ gzip:   1.67 kB
+../audit/.tmp/stage2-client-dist/assets/CafeReportsPage-D12BQSjZ.js           5.94 kB │ gzip:   1.38 kB
+../audit/.tmp/stage2-client-dist/assets/AccountingPeriodsPage-BxvUzo7a.js     6.37 kB │ gzip:   1.85 kB
+../audit/.tmp/stage2-client-dist/assets/icons-BB3ObEfy.js                     6.92 kB │ gzip:   1.71 kB
+../audit/.tmp/stage2-client-dist/assets/StudentsPage-gMDCFbXK.js              7.15 kB │ gzip:   2.49 kB
+../audit/.tmp/stage2-client-dist/assets/UsersPage-Dk2w4fuS.js                 7.23 kB │ gzip:   2.21 kB
+../audit/.tmp/stage2-client-dist/assets/dist-BGniM--l.js                      7.28 kB │ gzip:   2.94 kB
+../audit/.tmp/stage2-client-dist/assets/PreferencesPage-simdquJD.js           7.76 kB │ gzip:   1.87 kB
+../audit/.tmp/stage2-client-dist/assets/GroupsPage-DTgeTBvb.js                7.84 kB │ gzip:   2.22 kB
+../audit/.tmp/stage2-client-dist/assets/AccountingAccountsPage-B_7P1o35.js    8.04 kB │ gzip:   2.01 kB
+../audit/.tmp/stage2-client-dist/assets/CafePurchasesPage-DmoLVXSy.js         8.45 kB │ gzip:   2.67 kB
+../audit/.tmp/stage2-client-dist/assets/ImportStudentsPage-CyiYX_eT.js        8.47 kB │ gzip:   2.66 kB
+../audit/.tmp/stage2-client-dist/assets/AccountingReportsPage-BAKAY91J.js     8.99 kB │ gzip:   2.09 kB
+../audit/.tmp/stage2-client-dist/assets/download-DBtZbPe-.js                  9.37 kB │ gzip:   3.47 kB
+../audit/.tmp/stage2-client-dist/assets/CafeProductsPage-DNVIyeTQ.js          9.42 kB │ gzip:   2.23 kB
+../audit/.tmp/stage2-client-dist/assets/AccountingJournalPage-CCbRPKTv.js     9.62 kB │ gzip:   2.79 kB
+../audit/.tmp/stage2-client-dist/assets/Trans-DRscjcJZ.js                    10.83 kB │ gzip:   4.58 kB
+../audit/.tmp/stage2-client-dist/assets/CafeInventoryPage-Ck4x9mXi.js        10.86 kB │ gzip:   2.95 kB
+../audit/.tmp/stage2-client-dist/assets/ResultsPage-Ctf6fGSE.js              10.95 kB │ gzip:   3.62 kB
+../audit/.tmp/stage2-client-dist/assets/CafeSalesPage--37jmf9h.js            11.30 kB │ gzip:   3.00 kB
+../audit/.tmp/stage2-client-dist/assets/fflate-Dl_SHTFz.js                   11.62 kB │ gzip:   5.71 kB
+../audit/.tmp/stage2-client-dist/assets/EvaluatePage-Dk4roLca.js             12.58 kB │ gzip:   4.17 kB
+../audit/.tmp/stage2-client-dist/assets/SchedulePage-DKPVqT9_.js             13.20 kB │ gzip:   3.44 kB
+../audit/.tmp/stage2-client-dist/assets/CohortConstellation-BXAEBVCB.js      13.91 kB │ gzip:   5.46 kB
+../audit/.tmp/stage2-client-dist/assets/AreaChart-Dj85CDkT.js                14.00 kB │ gzip:   5.04 kB
+../audit/.tmp/stage2-client-dist/assets/SessionsPage-Bo1uzEkI.js             15.57 kB │ gzip:   3.74 kB
+../audit/.tmp/stage2-client-dist/assets/importNames-DtK4kb_y.js              20.17 kB │ gzip:   7.35 kB
+../audit/.tmp/stage2-client-dist/assets/ImportScoresPage-pAaN4eSs.js         20.66 kB │ gzip:   6.20 kB
+../audit/.tmp/stage2-client-dist/assets/StudentDetailPage-D1hoehr4.js        22.19 kB │ gzip:   5.93 kB
+../audit/.tmp/stage2-client-dist/assets/DashboardPage-D97dkGox.js            22.48 kB │ gzip:   6.92 kB
+../audit/.tmp/stage2-client-dist/assets/dashboard-VRLizEmi.js                24.49 kB │ gzip:   8.23 kB
+../audit/.tmp/stage2-client-dist/assets/react-query-CeOdOLjs.js              43.08 kB │ gzip:  13.03 kB
+../audit/.tmp/stage2-client-dist/assets/useTranslation-B0izj2q9.js           49.57 kB │ gzip:  16.29 kB
+../audit/.tmp/stage2-client-dist/assets/xlsx-CdqwFKS0.js                     59.73 kB │ gzip:  14.38 kB
+../audit/.tmp/stage2-client-dist/assets/ExportPage-wDcazLlA.js               92.38 kB │ gzip:  24.67 kB
+../audit/.tmp/stage2-client-dist/assets/index-plr6r_CF.js                   221.06 kB │ gzip:  65.37 kB
+../audit/.tmp/stage2-client-dist/assets/react-vendor-kV0N1Qz_.js            247.95 kB │ gzip:  78.63 kB
+../audit/.tmp/stage2-client-dist/assets/chartTheme-CHYcxpNS.js              342.90 kB │ gzip: 100.06 kB
+../audit/.tmp/stage2-client-dist/assets/three-BysAfd0b.js                   544.19 kB │ gzip: 135.12 kB
+
+✓ built in 11.55s
