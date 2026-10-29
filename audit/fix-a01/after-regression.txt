@@ -1,0 +1,12 @@
+✔ backup retention preserves path boundaries: "backups with spaces" (85.03159ms)
+✔ backup retention preserves path boundaries: "backups\twith\nlines and 'quotes'" (77.569833ms)
+✔ KEEP=0 prunes all completed dumps but preserves unrelated files (70.966327ms)
+✔ failed dump preserves existing backups and removes its temporary file (52.428373ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 511.802686

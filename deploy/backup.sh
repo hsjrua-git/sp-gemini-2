@@ -35,7 +35,19 @@ trap - EXIT
 
 echo "Wrote $OUT"
 
-# Keep only the newest $KEEP dumps.
-ls -1t "$BACKUP_DIR"/student-panel-*.sql.gz 2>/dev/null \
-  | tail -n +"$((KEEP + 1))" \
-  | xargs -r rm -f
+# Keep only the newest $KEEP dumps, ordered by modification time. Keep paths in
+# a Bash array throughout: line/word-based pipelines split spaces and newlines.
+dumps=("$OUT")
+for file in "$BACKUP_DIR"/student-panel-*.sql.gz; do
+  [ "$file" = "$OUT" ] && continue
+  [ -f "$file" ] || continue
+  index=${#dumps[@]}
+  while ((index > 0)) && [[ "$file" -nt "${dumps[index - 1]}" ]]; do
+    dumps[index]="${dumps[index - 1]}"
+    index=$((index - 1))
+  done
+  dumps[index]="$file"
+done
+for ((index = KEEP; index < ${#dumps[@]}; index++)); do
+  rm -f -- "${dumps[index]}"
+done

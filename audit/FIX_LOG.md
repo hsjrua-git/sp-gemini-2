@@ -24,4 +24,16 @@ accounting smokes pass. `COVERAGE.md` records 499 full reads and explicit limits
 
 ## Fixes
 
-No fixes completed yet.
+### A01 — filename-safe backup retention
+
+- Replaced whitespace/line-delimited pruning with Bash array ordering by mtime
+  and quoted deletion of complete paths in `deploy/backup.sh`.
+- Retained `server/test/backupRetention.test.js`: spaced/tab/newline/quoted
+  directories, mtime order contrary to names, KEEP=0, unrelated-file preservation,
+  valid compressed output, and failed-dump cleanup. Baseline **3 fail / 1 pass**;
+  fixed **4/4 pass** (`fix-a01/before-regression` and `after-regression`).
+- Original real-`pg_dump` reproduction now preserves the unrelated sentinel,
+  removes the expired backup and retains exactly one dump. Bash syntax passes.
+- Full server suite: **139 pass / six integration skips**, exit 0. Other full
+  suite results remain the Stage 1 baseline pending the Stage 2 checkpoint run.
+- Evidence: `fix-a01/*.{txt,json}`. Original failing evidence is preserved.

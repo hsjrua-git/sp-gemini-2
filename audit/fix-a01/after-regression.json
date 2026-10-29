@@ -1,0 +1,12 @@
+{
+  "command": [
+    "node",
+    "--test",
+    "test/backupRetention.test.js"
+  ],
+  "directory": "server",
+  "started": "2026-10-29T20:35:25.446Z",
+  "ended": "2026-10-29T20:35:26.130Z",
+  "code": 0,
+  "signal": null
+}

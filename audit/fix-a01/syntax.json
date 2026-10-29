@@ -1,0 +1,12 @@
+{
+  "command": [
+    "bash",
+    "-n",
+    "deploy/backup.sh"
+  ],
+  "directory": ".",
+  "started": "2026-10-29T20:35:25.495Z",
+  "ended": "2026-10-29T20:35:25.535Z",
+  "code": 0,
+  "signal": null
+}
