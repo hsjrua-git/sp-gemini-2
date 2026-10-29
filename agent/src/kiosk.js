@@ -43,8 +43,14 @@ export function startKiosk({
     }
   }
 
-  const server = createServer(async (req, res) => {
-    const url = new URL(req.url, `http://${req.headers.host}`);
+  async function handleRequest(req, res) {
+    let url;
+    try {
+      url = new URL(req.url, `http://${req.headers.host}`);
+    } catch {
+      res.writeHead(400).end();
+      return;
+    }
     if (url.pathname === '/events') {
       res.writeHead(200, {
         'content-type': 'text/event-stream',
@@ -92,6 +98,14 @@ export function startKiosk({
       return;
     }
     res.writeHead(404).end();
+  }
+
+  const server = createServer((req, res) => {
+    // Node's HTTP listener does not forward rejected async handlers.
+    handleRequest(req, res).catch(() => {
+      if (res.headersSent) res.destroy();
+      else res.writeHead(500).end();
+    });
   });
 
   return new Promise((resolve) => {

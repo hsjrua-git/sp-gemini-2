@@ -162,3 +162,15 @@ accounting smokes pass. `COVERAGE.md` records 499 full reads and explicit limits
   returns **403**, no exception. Full server suite **145 pass / six skips**.
 - Evidence: `fix-a04/`. Shared lint/build/client/core/PGlite checkpoint remains
   valid for the unchanged packages; this narrow change is middleware-only.
+
+### A08 — contain kiosk request failures
+
+- Malformed URL/Host input returns 400; rejected asynchronous dialogue handlers
+  return a detail-free 500 instead of escaping Node's HTTP listener. The kiosk
+  continues serving subsequent requests and retains its origin check.
+- Four retained real-HTTP child-process regressions: malformed Host, malformed
+  absolute URL, rejected confirm and rejected cancel. Baseline **four socket-reset
+  failures**; patched **4/4 pass**, including subsequent page/origin controls and
+  successful confirm retry. Original malformed-Host reproduction returns **400**.
+- Full agent suite **32/32 pass**. Evidence: `fix-a08/`. Synthetic dialogue
+  handlers only; no provider or financial I/O. Shared build/lint checks stand.

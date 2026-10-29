@@ -1,0 +1,12 @@
+{
+  "command": [
+    "node",
+    "--test",
+    "test/kiosk.test.js"
+  ],
+  "directory": "agent",
+  "started": "2026-10-29T21:14:58.677Z",
+  "ended": "2026-10-29T21:15:00.142Z",
+  "code": 1,
+  "signal": null
+}
