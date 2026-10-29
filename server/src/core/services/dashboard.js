@@ -63,8 +63,20 @@ export async function getTrends(input = {}) {
      FROM evaluations e
      JOIN sessions s ON s.id = e.session_id
      JOIN periods p ON p.id = s.period_id AND p.archived_at IS NULL
-     JOIN assignments a ON a.id = s.assignment_id
-     WHERE e.archived_at IS NULL
+      JOIN assignments a ON a.id = s.assignment_id
+      JOIN student_group_members ms
+        ON (ms.group_id = a.group_id OR ms.id = a.membership_id)
+       AND ms.added_at::date <= s.session_date
+       AND (ms.left_on IS NULL OR ms.left_on >= s.session_date)
+      WHERE e.archived_at IS NULL
+        AND (e.membership_id = ms.id OR (
+          e.membership_id IS NULL AND a.group_id IS NOT NULL
+          AND NOT EXISTS (
+            SELECT 1 FROM evaluations own
+            WHERE own.session_id = e.session_id AND own.parameter_id = e.parameter_id
+              AND own.membership_id = ms.id AND own.archived_at IS NULL
+          )
+        ))
        AND s.canceled_at IS NULL
        AND s.archived_at IS NULL
        AND ${valueColumn} IS NOT NULL

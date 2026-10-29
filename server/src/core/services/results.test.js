@@ -332,6 +332,43 @@ test('getTrends: per (parameter, assignment, period) averages with a dimension c
   }
 });
 
+test('getTrends: effective members, inclusive dates and empty shadows precede averaging', async () => {
+  const pool = await freshDb();
+  try {
+    const { assignmentId, group, memberships, sessionIds, focus, save } = await seedFixture(pool);
+    for (const [code, name, added, left] of [
+      ['CDEFGHJK', 'Charlie', '2024-01-06', '2024-01-06'],
+      ['DEFGHJKL', 'Dan', '2024-01-13', null],
+    ]) {
+      const student = await addStudent(pool, code, name);
+      await pool.query('INSERT INTO student_group_members (student_id, group_id, added_at, left_on) VALUES ($1, $2, $3, $4)', [student, group, added, left]);
+    }
+    const cell = (membershipId, qualityValue, quantityValue) => ({ membershipId, parameterId: focus, selected: true, qualityValue, quantityValue });
+    await save(sessionIds[0], [cell(null, 2, 6), cell(memberships.ada, 8, 4)]);
+    let point = (await getTrends({ groupId: group })).trends[0];
+    assert.equal(point.average, 4);
+    assert.equal(point.count, 3);
+    await save(sessionIds[1], [cell(null, 4, 8), cell(memberships.bob, null, null)]);
+    point = (await getTrends({ groupId: group })).trends[0];
+    assert.equal(point.average, 4, 'Jan 6: 8,2,2; Jan 13: 4,blank,4');
+    assert.equal(point.count, 5);
+    assert.equal(point.lastSessionDate, '2024-01-13');
+    const quantity = (await getTrends({ groupId: group, dimension: 'quantity' })).trends[0];
+    assert.equal(quantity.average, 6.4);
+    assert.equal(quantity.count, 5);
+    // Individual assignments still contribute exactly their own member.
+    const individual = (await pool.query(`INSERT INTO assignments (code, teacher_id, interval_id, membership_id, anchor_date)
+      SELECT 'IND', teacher_id, interval_id, $2, anchor_date FROM assignments WHERE id = $1 RETURNING id`, [assignmentId, memberships.ada])).rows[0].id;
+    const session = (await pool.query("INSERT INTO sessions (assignment_id, planned_date) VALUES ($1, '2024-01-06') RETURNING id", [individual])).rows[0].id;
+    await save(session, [cell(memberships.ada, 0, 3)]);
+    const own = (await getTrends({ groupId: group })).trends.find(p => p.assignmentId === individual);
+    assert.equal(own.average, 0);
+    assert.equal(own.count, 1);
+  } finally {
+    await pool.end();
+  }
+});
+
 test('getSummary: expected = selected cells; group rows expand per member and member rows shadow', async () => {
   const pool = await freshDb();
   try {

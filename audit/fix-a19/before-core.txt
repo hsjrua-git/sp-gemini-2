@@ -1,0 +1,28 @@
+✖ getTrends: effective members, inclusive dates and empty shadows precede averaging (12433.582527ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 12975.012886
+
+✖ failing tests:
+
+test at src/core/services/results.test.js:335:1
+✖ getTrends: effective members, inclusive dates and empty shadows precede averaging (12433.582527ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  5 !== 4
+  
+      at TestContext.<anonymous> (file:///home/hsjrua/Documents/sp-gemini-1/server/src/core/services/results.test.js:349:12)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 5,
+    expected: 4,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,13 @@
+{
+  "command": [
+    "node",
+    "--test",
+    "--test-name-pattern=getTrends: effective",
+    "src/core/services/results.test.js"
+  ],
+  "directory": "server",
+  "started": "2026-10-29T21:31:04.137Z",
+  "ended": "2026-10-29T21:31:17.278Z",
+  "code": 1,
+  "signal": null
+}

@@ -232,3 +232,16 @@ accounting smokes pass. `COVERAGE.md` records 499 full reads and explicit limits
   input delivery; all original outputs remain in `fix-a16/`.
 - Full agent suite **32/32** passes. Local fake API, isolated transcript files;
   physical microphone, providers and replay audio remain unexecuted.
+
+### A19 — effective student trend aggregation
+
+- HTTP and core queries expand session-date-eligible memberships and resolve
+  own-cell shadows (including empty cells) before the existing average/count.
+  Inspected isolated schema/indexes/constraints in `fix-a19/schema.*`.
+- New core regression fails baseline **5 ≠ 4**; both trend tests now pass,
+  covering inclusive membership dates, both dimensions, empty shadows and an
+  individual zero score. Real HTTP/export comparison now reports **4 / 3** for
+  [8,2,2], with A18 also passing. The same run still fails A20, explicitly retained
+  at `after-http-before-a20.*`; synthetic fixture cleanup completed.
+- Shared full verification follows A20's response-shape correction. Alternate
+  weighting and completion-denominator policies remain ASK.
