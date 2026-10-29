@@ -353,3 +353,17 @@ accounting smokes pass. `COVERAGE.md` records 499 full reads and explicit limits
   is retained; `cleanup-restored` and independent `cleanup-verified` pass:
   viewer restored, blind role absent, zero remaining evaluations, all entities
   inactive. Shared client **233/233**, lint/build checks pass.
+
+### A27 — invalidate actual accounting query families
+
+- Shared `invalidateAccounting` targets journal, trial balance, income, balance
+  sheet and ledger key prefixes, including inactive date/account variants.
+  Cafe sale/void, balance, purchase/inventory, journal post/void and period/opening
+  writers use it; related stock/report caches refresh with financial changes.
+- Real producer/consumer component regressions change **4 failures → 4/4 pass**:
+  sale/void updates report totals and journal rows/status on return inside the
+  30-second freshness window. Backend I/O is mocked (`fix-a27/after-component.*`).
+- Balance/purchase/inventory/period extensions are source-verified wiring, not
+  additional executed cache cases. A26's real journal return confirms voided
+  status but exceeds the timing window. Shared client lint/build/**233 tests**
+  and final isolated integration/ledger checks pass.

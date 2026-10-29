@@ -13,6 +13,7 @@ import EmptyState from '../components/EmptyState.jsx';
 import { errorMessage } from '../i18n/errors.js';
 import { formatDateTime, toIsoDate } from '../lib/format.js';
 import { useDebouncedValue } from '../lib/useDebouncedValue.js';
+import { invalidateAccounting } from '../lib/accountingCache.js';
 import { formatAmount, formatWhole, parseQuantity, parseWholeNumber, saleQuote } from '../lib/money.js';
 // The cafe POS: tap products into a cart, pick walk-in or a student (charged
 // to their prepaid balance — overdraft allowed, so balances may go negative by
@@ -179,8 +180,8 @@ function CafeSalesPage() {
     queryClient.invalidateQueries({ queryKey: ['cafe-balance-students'] });
     queryClient.invalidateQueries({ queryKey: ['cafe-balance'] });
     queryClient.invalidateQueries({ queryKey: ['cafe-reports'] });
-    queryClient.invalidateQueries({ queryKey: ['accounting-entries'] });
-    queryClient.invalidateQueries({ queryKey: ['accounting-reports'] });
+    queryClient.invalidateQueries({ queryKey: ['cafe-inventory'] });
+    invalidateAccounting(queryClient);
   };
 
   const save = useMutation({

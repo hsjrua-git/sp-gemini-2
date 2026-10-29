@@ -13,6 +13,7 @@ import EmptyState from '../components/EmptyState.jsx';
 import { errorMessage } from '../i18n/errors.js';
 import { formatDateTime } from '../lib/format.js';
 import { formatAmount, formatWhole, parseQuantity } from '../lib/money.js';
+import { invalidateAccounting } from '../lib/accountingCache.js';
 
 // The cafe stockroom: current stock per product (with its movement ledger a
 // click away), a form to record waste or count corrections, and the latest
@@ -164,6 +165,8 @@ function CorrectionForm({ products, loading }) {
       // cost the products list carries).
       queryClient.invalidateQueries({ queryKey: ['cafe-inventory'] });
       queryClient.invalidateQueries({ queryKey: ['cafe-products'] });
+      queryClient.invalidateQueries({ queryKey: ['cafe-reports'] });
+      invalidateAccounting(queryClient);
       setLines([emptyLine()]);
       setNote('');
     },

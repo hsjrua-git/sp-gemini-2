@@ -6,6 +6,7 @@ import { useAuth } from '../auth/AuthContext.jsx';
 import { errorMessage } from '../i18n/errors.js';
 import { formatDateTime } from '../lib/format.js';
 import { formatWhole, parseWholeNumber } from '../lib/money.js';
+import { invalidateAccounting } from '../lib/accountingCache.js';
 
 const KINDS = ['topup', 'refund', 'adjustment'];
 
@@ -32,8 +33,7 @@ function StudentBalanceSection({ student }) {
     queryClient.invalidateQueries({ queryKey: ['cafe-balance', student.id] });
     queryClient.invalidateQueries({ queryKey: ['cafe-balance-students'] });
     queryClient.invalidateQueries({ queryKey: ['cafe-reports'] });
-    queryClient.invalidateQueries({ queryKey: ['accounting-entries'] });
-    queryClient.invalidateQueries({ queryKey: ['accounting-reports'] });
+    invalidateAccounting(queryClient);
   };
 
   const submit = useMutation({

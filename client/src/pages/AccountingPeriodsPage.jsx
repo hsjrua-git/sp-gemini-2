@@ -16,6 +16,7 @@ import JalaliDatePicker from '../components/JalaliDatePicker.jsx';
 import { errorMessage } from '../i18n/errors.js';
 import { formatIsoDate, toIsoDate } from '../lib/format.js';
 import { formatWhole } from '../lib/money.js';
+import { invalidateAccounting } from '../lib/accountingCache.js';
 
 // Fiscal periods: the close books an automatic closing entry (income and
 // expenses zeroed into retained earnings) and locks the range; reopening is
@@ -35,8 +36,10 @@ function OpeningCard({ canCreate }) {
 
   const create = useMutation({
     mutationFn: () => createOpening({ date }),
-    onSuccess: () =>
+    onSuccess: () => Promise.all([
       queryClient.invalidateQueries({ queryKey: ['accounting-opening'] }),
+      invalidateAccounting(queryClient),
+    ]),
   });
 
   return (
@@ -185,8 +188,10 @@ function AccountingPeriodsPage() {
   });
   const periods = periodsQuery.data ?? [];
 
-  const invalidate = () =>
-    queryClient.invalidateQueries({ queryKey: ['accounting-periods'] });
+  const invalidate = () => Promise.all([
+    queryClient.invalidateQueries({ queryKey: ['accounting-periods'] }),
+    invalidateAccounting(queryClient),
+  ]);
   const close = useMutation({
     mutationFn: closePeriod,
     onSuccess: invalidate,

@@ -9,6 +9,7 @@ import JalaliDatePicker from '../components/JalaliDatePicker.jsx';
 import { errorMessage } from '../i18n/errors.js';
 import { formatIsoDate, toIsoDate } from '../lib/format.js';
 import { formatAmount, parseQuantity, parseWholeNumber } from '../lib/money.js';
+import { invalidateAccounting } from '../lib/accountingCache.js';
 
 // Money is whole-number Toman (bigint on the server arrives as a string over
 // JSON), but a live line total is qty × unit cost and qty carries up to three
@@ -82,6 +83,9 @@ function PurchaseForm({ products, suppliers, loading }) {
       // A purchase moves stock and the product's moving-average cost.
       queryClient.invalidateQueries({ queryKey: ['cafe-purchases'] });
       queryClient.invalidateQueries({ queryKey: ['cafe-products'] });
+      queryClient.invalidateQueries({ queryKey: ['cafe-inventory'] });
+      queryClient.invalidateQueries({ queryKey: ['cafe-reports'] });
+      invalidateAccounting(queryClient);
       setSupplierId('');
       setNote('');
       setPurchasedAt('');

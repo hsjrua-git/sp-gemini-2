@@ -15,6 +15,7 @@ import { formatIsoDate, toIsoDate } from '../lib/format.js';
 import { startOfJalaliMonth, toLatinDigits } from '../lib/locale.js';
 import { formatWhole as formatAmount } from '../lib/money.js';
 import { useAuth } from '../auth/AuthContext.jsx';
+import { invalidateAccounting } from '../lib/accountingCache.js';
 
 // The institution runs on the Jalali calendar, so the list opens on the
 // first day of the current Jalali month; the wire range stays ISO.
@@ -261,7 +262,7 @@ function JournalList({ accounts, canPost }) {
   });
 
   const invalidate = () =>
-    queryClient.invalidateQueries({ queryKey: ['accounting-journal'] });
+    invalidateAccounting(queryClient);
   const post = useMutation({
     mutationFn: postEntry,
     onSuccess: invalidate,
