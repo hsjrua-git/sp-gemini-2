@@ -309,3 +309,14 @@ accounting smokes pass. `COVERAGE.md` records 499 full reads and explicit limits
   full agent suite **37/37** passes (`fix-a05/tests-agent.*`).
 - Real adapter/isolated HTTP retry returns balance null, not NaN; sale is voided
   in cleanup (`fix-a05/after-http.*`). No provider/audio execution is claimed.
+
+### A06 — correct the local Android instrumentation assertion
+
+- Expected package now matches configured `app.studentpanel.mobile`. Source
+  verification proves reversing only that replacement matches the original
+  inventory SHA256 exactly (`fix-a06/source-verification.*`).
+- `client/android/` is deliberately ignored/generated. The local file is fixed;
+  `fix-a06/instrumentation.patch` retains the exact correction in this commit
+  without changing native-platform tracking policy. Regeneration may recreate
+  the template assertion. Android build/device execution remains unverified;
+  arithmetic-only test deletion remains ASK.

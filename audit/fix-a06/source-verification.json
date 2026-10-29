@@ -1,0 +1,12 @@
+{
+  "command": [
+    "python3",
+    "-c",
+    "from pathlib import Path\nimport hashlib,json,re\np='client/android/app/src/androidTest/java/com/getcapacitor/myapp/ExampleInstrumentedTest.java'\nsource=Path(p).read_bytes()\napplication_id=re.search(r'applicationId \"([^\"]+)\"',Path('client/android/app/build.gradle').read_text()).group(1)\nassert application_id=='app.studentpanel.mobile'\nassert f'assertEquals(\"{application_id}\", appContext.getPackageName());'.encode() in source\noriginal=source.replace(b'app.studentpanel.mobile',b'com.getcapacitor.app')\nrecord=next(f for f in json.loads(Path('audit/inventory.json').read_text())['files'] if f['path']==p)\nassert hashlib.sha256(original).hexdigest()==record['sha256']\nprint(json.dumps({'path':p,'applicationId':application_id,'matchesConfiguredId':True,'onlyOriginalAssertionChanged':True,'originalSha256':record['sha256'],'patchedSha256':hashlib.sha256(source).hexdigest(),'verification':'source only; Android not executed'}))\n"
+  ],
+  "directory": ".",
+  "started": "2026-10-29T23:44:22.384Z",
+  "ended": "2026-10-29T23:44:22.550Z",
+  "code": 0,
+  "signal": null
+}

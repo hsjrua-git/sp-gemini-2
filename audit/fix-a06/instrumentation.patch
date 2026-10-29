@@ -1,0 +1,5 @@
+--- a/client/android/app/src/androidTest/java/com/getcapacitor/myapp/ExampleInstrumentedTest.java
++++ b/client/android/app/src/androidTest/java/com/getcapacitor/myapp/ExampleInstrumentedTest.java
+@@ -24,1 +24,1 @@
+-        assertEquals("com.getcapacitor.app", appContext.getPackageName());
++        assertEquals("app.studentpanel.mobile", appContext.getPackageName());
