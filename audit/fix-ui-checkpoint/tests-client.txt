@@ -1,0 +1,11 @@
+npm notice run client@0.0.0 test
+npm notice run vitest run --maxWorkers=1
+
+ RUN  v5.0.3 /home/hsjrua/Documents/sp-gemini-1/client
+
+
+ Test Files  28 passed (28)
+      Tests  233 passed (233)
+   Start at  01:39:33
+   Duration  14.90s (tests 36%, setup 20%, environment 18%, worker 14%, import 9%, transform 3%)
+

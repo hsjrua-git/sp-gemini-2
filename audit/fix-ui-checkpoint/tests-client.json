@@ -1,0 +1,13 @@
+{
+  "command": [
+    "npm",
+    "test",
+    "--",
+    "--maxWorkers=1"
+  ],
+  "directory": "client",
+  "started": "2026-10-29T22:09:31.783Z",
+  "ended": "2026-10-29T22:09:48.448Z",
+  "code": 0,
+  "signal": null
+}

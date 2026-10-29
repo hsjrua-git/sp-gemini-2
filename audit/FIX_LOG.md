@@ -5,6 +5,18 @@ Started 2026-10-30 local time after the Stage 1 gate passed. Baseline findings
 and failing evidence are retained unchanged; completed fixes are recorded here.
 All work and commits are local.
 
+## Outcome — 2026-10-30
+
+All **32 AUTO findings** are addressed: **31 repository fixes** plus A06's
+ignored/generated local Android assertion correction with a committed patch.
+The four unresolved findings remain **ASK: A09, A12, A23, A24**. No unresolved
+ASK change was implemented. Implementation checkpoint: `6ae57ae`.
+
+Required lint, client/server/agent/core suites, production build, PGlite checks,
+and final serial isolated integration/ledger checks pass. Detailed coverage and
+limits are recorded below; pass counts are not a claim of universal correctness.
+All evidence and commits remain local on `audit-fixes`.
+
 ## Baseline verification
 
 `stage1-final/`: lint/build pass; client 214, server 135 (six integration skips),
@@ -430,3 +442,86 @@ accounting smokes pass. `COVERAGE.md` records 499 full reads and explicit limits
 - Shared client lint/build/**233 tests** and final isolated integration/ledger
   checks pass. Adjacent teacher/interval/template/alert actions remain source-only
   observations outside this established finding.
+
+## Closing verification
+
+Latest applicable package checkpoints are reused because their production
+source has not changed since those runs. The closing integration/smoke batch ran
+serially after all browser mutations and fixture cleanup, against only
+`127.0.0.1:55439/student_panel_audit`, API `127.0.0.1:3300`.
+
+| Check | Result | Retained evidence |
+|---|---|---|
+| Client `npm run lint` | Clean, no warnings | `fix-ui-checkpoint/lint-clean.*` |
+| Client `npm test -- --maxWorkers=1` | **233/233** | `fix-ui-checkpoint/tests-client.*` |
+| Client production build | Pass; separate audit output, original dist preserved | `fix-ui-checkpoint/build.*` |
+| Server `npm test` | **149 pass / six integration skips** | `fix-reporting-checkpoint/tests-server-corrected.*` |
+| Agent `npm test` | **37/37** | `fix-a05/tests-agent.*` |
+| Server `npm run test:core` | **57/57** | `fix-reporting-checkpoint/tests-core.*` |
+| Server `npm run verify-pglite` | **35 migrations + sanity checks pass** | `fix-reporting-checkpoint/pglite.*` |
+| Separate HTTP permission integration | **6/6** | `stage2-final-serial/tests-permissions.*` |
+| Stock / sale / report smokes | **6 / 8 / 5** | `stage2-final-serial/smoke-cafe-*` |
+| Alerts / invariant races / accounting | **6 / 5 / 9** | `stage2-final-serial/smoke-{alerts,invariants,accounting}.*` |
+| Actual CSV/SVG/PNG bytes | Selected/all rows, known values, plotted marks and dimensions pass | `fix-a31-a35/downloaded-bytes.*` |
+| Fixture cleanup | Scores removed, viewer restored; finance settled/replayable, entities inactive | `fix-a25/cleanup-verified.*`, `fix-a26/cleanup-verified.*` |
+| Evidence preservation | **629** non-secret inventory files checked; **295** original evidence files byte-identical | `stage2-final-local/preservation.*` |
+
+The separate build command is `npm run build -- --config
+../audit/checks/live-client.vite.config.mjs` from `client/`. It changes only the
+build output/cache location and local preview/proxy/CSP configuration.
+Regressions retained outside default package discovery have their commands and
+results under each finding; they are not added to the 233/149/37/57 suite counts.
+
+Initial failed runs and harness mistakes remain retained: client parallel-run
+timeouts, incorrect A20 test shape, initial A15 lint warning, archived-fixture
+cleanup refusal, and browser waits using the wrong literal text. Their corrected
+checks are linked in the finding entries. Native pointer actions now succeed in
+the A25/A26/export retries; earlier pointer-tool failures remain historical.
+
+### Local commit map
+
+| Findings | Commit |
+|---|---|
+| A01 / A02 / A03 | `0b598b7` / `863dff7` / `5ad4ef3` |
+| A04 / A05 / A06 | `a729d20` / `59fd902` / `c5b78c1` |
+| A07 / A08 | `46a68c9` / `2a32932` |
+| A10 / A11 / A13 | `519a286` / `f02e1d2` / `bbf10ca` |
+| A14 / A15 / A16 | `e9092e5` / `a29d3d6` / `2a85ae5` |
+| A17 / A18 / A19 / A20 | `9042982` / `fe672de` / `d0f7801` / `11bead9` |
+| A21 / A22 / A25 | `e9ce531` / `bad74c0` / `6185091` |
+| A26 | `eef3d87`; live supplement `0ef2934` |
+| A27 / A28 / A29 / A30 | `7054976` / `ca60630` / `fcf5b65` / `2cfa34c` |
+| A31–A35 / A36 | `f4e04a4` / `6ae57ae` |
+
+### Remaining decisions and assurance limits
+
+- **A09:** kiosk void-confirmation protocol, including negated/model-driven undo.
+- **A12:** manual-refund direction and balance/journal semantics.
+- **A23:** partial score-import preservation contract.
+- **A24:** runtime versus maintenance deployment grants.
+- Broader aggregation/weighting/completion denominators, provider deadlines and
+  unknown-outcome handling, cross-process idempotency, migrations, and uncertain
+  deletions retain their ASK boundaries. The two A17 necessary non-patch
+  transitive upgrades were explicitly delegated and are documented above.
+- Native locked-score override remains blocked by this host's unsupported prompt;
+  API override coverage is separate. Android/device/emulator, real microphone/
+  audio/model providers, real Linux bootstrap authentication, Windows execution,
+  spreadsheet interoperability and sustained-load/storage-exhaustion behavior
+  remain unexecuted. No A37 route-heading defect was established.
+- Existing permissive integration assertions and PGlite-mirror limitations remain
+  as rated in `TEST_QUALITY.md`. A27 adjacent writers and A36 adjacent quick-action
+  paths retain their stated source-only boundaries.
+- Stage 1 inventory bytes/hashes are unchanged. **570/629** non-secret files still
+  match; **59** differ only in committed fix paths or A06's exact local patch.
+  No inventory file is missing and no unexplained mismatch exists. All three
+  `partly-schema/` files match their original hashes. Supplied handoffs remain
+  unmodified/untracked; current hashes are retained, not asserted to have a
+  pre-audit provenance absent an earlier hash record.
+- Original generated Android bundles, binaries, runtime logs and dependency-source
+  review limits remain explicit in `COVERAGE.md`. Lock metadata/advisory verification
+  is not a full third-party-source audit. No secret configuration was opened.
+
+API and preview are intentional local long-running processes (last checked PIDs
+234129 and 243601; isolated PostgreSQL PID 86049). No test or mutation probe is
+pending. Future restarts should use `audit/start-server.mjs` and the retained
+preview config, preserving the isolated database and original evidence.

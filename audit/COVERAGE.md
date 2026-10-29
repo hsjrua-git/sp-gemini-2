@@ -65,3 +65,39 @@ values; fixture cleanup is independently verified. See `fix-a21/browser.md` and
 this supersedes “desktop unavailable” for these workflows only, not a desktop
 route sweep. Native locked override and pointer hit-testing retain their
 documented harness limits. Baseline source hashes remain historical after fixes.
+
+## Stage 2 closeout — 2026-10-30
+
+`FIX_LOG.md` records all 32 AUTO dispositions, their local commits, exact executed
+checks and four deferred ASK findings. This section supersedes only the earlier
+workflow limitations explicitly retried below; Stage 1 counts/ratings remain
+historical. No additional source was relabeled fully read by test success.
+
+| Retried workflow | Executed result |
+|---|---|
+| Individual/blind score entry and CSV confirmation | A21/A22 successful browser saves, independent readbacks and cleanup |
+| Persian numeric score entry | **۷/۶ → 7/6**, HTTP 200/changed 1; actual checkbox/Save clicks succeed |
+| POS quote, student debit and void | **15 quoted/charged**, balance −15 then 0, stock restored to 1; independent ledger/journal/cleanup checks |
+| Scheduling quick refusals | Actual 409/400 now display translated explanations; bilingual component retry clearing passes |
+| Export period scope | Actual selected-period CSV **15 rows**; all-calendar CSV **30 rows**, independently compared |
+| Chart images and period controls | Actual plotted SVG/PNG downloads under unchanged production CSP; default/explicit distributions nonempty; heatmap **64→44→64** matches selected period |
+| Mobile menu | **528×887** Persian/RTL native keys pass opening, both Tab wraps, containment, panel changes, Escape and inertness |
+
+Latest client lint/build/**233 tests**, server **149/six skips**, agent **37**,
+core **57**, PGlite **35 migrations**, and separate serial HTTP integration **6**
+plus real ledger/invariant smokes pass. Component-only findings and adjacent
+source-only extensions are identified individually in `FIX_LOG.md`; they are not
+described as live browser tests. Actual download-byte validation is retained.
+
+The completed desktop-width retries (1233×887) and narrow-menu/export checks
+(528×887) do not constitute a new all-route responsive sweep. Pointer activation
+is now established for the exercised scoring/POS/export controls. Native locked
+override, real providers/devices, real installer authentication, spreadsheet
+interoperability and sustained-load assurance remain unverified. A06's ignored
+native template correction is retained as a patch; native regeneration may undo it.
+
+Read-only `stage2-final-local/preservation.*` checks **629 non-secret files**:
+**570 unchanged**, **59 expected fix differences**, no missing/unexplained files;
+inventory bytes and **295 original baseline/continuation/Stage 1 evidence files**
+match the Stage 1 commit. All supplied schema hashes remain unchanged. Existing
+generated/binary/log/lockfile source-review boundaries above still apply.

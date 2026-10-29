@@ -1,0 +1,104 @@
+{
+  "baseline": "a4d81f07d2e016341310dc8df79b9c878cf32ada",
+  "reviewedFixHead": "6ae57ae530567e2fb5249690e264667ab3615c10",
+  "branch": "audit-fixes",
+  "inventoryByteIdenticalToStage1": true,
+  "checkedNonSecret": 629,
+  "unchanged": 570,
+  "changedByCommittedFixOrA06": [
+    "agent/src/dialogue.js",
+    "agent/src/index.js",
+    "agent/src/kiosk.js",
+    "agent/src/panel.js",
+    "agent/src/phrases.js",
+    "agent/src/tools.js",
+    "client/android/app/src/androidTest/java/com/getcapacitor/myapp/ExampleInstrumentedTest.java",
+    "client/package-lock.json",
+    "client/package.json",
+    "client/src/api/export.js",
+    "client/src/components/ComparisonChart.jsx",
+    "client/src/components/DistributionChart.jsx",
+    "client/src/components/EvaluationGrid.jsx",
+    "client/src/components/ExportPreview.jsx",
+    "client/src/components/ExportRunButton.jsx",
+    "client/src/components/HeatmapMatrix.jsx",
+    "client/src/components/Layout.jsx",
+    "client/src/components/StudentBalanceSection.jsx",
+    "client/src/components/TrendChart.jsx",
+    "client/src/lib/cells.js",
+    "client/src/lib/chartImage.js",
+    "client/src/lib/dashboard.js",
+    "client/src/lib/exportConfig.js",
+    "client/src/lib/exportConfig.test.js",
+    "client/src/lib/heatmap.js",
+    "client/src/lib/money.js",
+    "client/src/pages/AccountingJournalPage.jsx",
+    "client/src/pages/AccountingPeriodsPage.jsx",
+    "client/src/pages/CafeInventoryPage.jsx",
+    "client/src/pages/CafePurchasesPage.jsx",
+    "client/src/pages/CafeSalesPage.jsx",
+    "client/src/pages/EvaluatePage.jsx",
+    "client/src/pages/ImportScoresPage.jsx",
+    "client/src/pages/RolesPage.jsx",
+    "client/src/pages/SchedulePage.jsx",
+    "client/src/pages/SessionsPage.jsx",
+    "deploy/backup.sh",
+    "scripts/setup.mjs",
+    "server/src/core/services/dashboard.js",
+    "server/src/core/services/results.js",
+    "server/src/core/services/results.test.js",
+    "server/src/lib/cafeSale.js",
+    "server/src/lib/fields.js",
+    "server/src/lib/locks.js",
+    "server/src/lib/results.js",
+    "server/src/middleware/csrf.js",
+    "server/src/routes/cafeInventory.js",
+    "server/src/routes/dashboard.js",
+    "server/src/routes/evaluations.js",
+    "server/src/routes/results.js",
+    "server/src/routes/roles.js",
+    "server/src/routes/students.js",
+    "server/src/routes/users.js",
+    "server/src/validation/cafe.js",
+    "server/src/validation/cafeInventory.js",
+    "server/test/csrf.test.js",
+    "server/test/locks.test.js",
+    "server/test/results.test.js",
+    "server/test/scorePreview.test.js"
+  ],
+  "missing": [],
+  "unexpected": [],
+  "protectedOriginalEvidenceFiles": 295,
+  "changedEvidence": [],
+  "suppliedCurrentHashes": [
+    {
+      "path": "audit/HANDOFF.md",
+      "sha256": "31c941f36443e219b16c3fb75f53e9c36edf4d89d7a565ad14232969eb9481a7"
+    },
+    {
+      "path": "audit/HANDOFF_COMPARISON.md",
+      "sha256": "e68ac7ca9ce5c4ef65a98a3aaf642e6314f1965c26ecdef0bb054309115e8eb3"
+    },
+    {
+      "path": "audit/HANDOFF_CONSOLIDATED.md",
+      "sha256": "b9d8e87d9e9177244b3a0e536fda2a6e188722ffc704112a40bc85c94c46d56b"
+    },
+    {
+      "path": "partly-schema/schema-4-security.sql",
+      "sha256": "65ec8102f962b52521df3c4ee91c4f78ca83cea1e393f4fb26434f0537ec7666"
+    },
+    {
+      "path": "partly-schema/schema-4.dbml",
+      "sha256": "fa56b47cf0f0a182fcd7c38c9897de52648dc1c075b11b8c1cf23f13238bee60"
+    },
+    {
+      "path": "partly-schema/schema-4.sql",
+      "sha256": "3d8921d69c8dbb31a90af007b665f57cfdeb6d125725819c693545cd9969f73a"
+    }
+  ],
+  "suppliedTracked": "",
+  "secretFilesNotOpened": [
+    "agent/.env",
+    "server/.env"
+  ]
+}
