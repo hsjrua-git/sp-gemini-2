@@ -4,6 +4,7 @@
 // movements; nothing is ever rewritten.
 
 import { isUuid } from '../lib/ids.js';
+import { hasQuantityPrecision } from '../lib/quantity.js';
 
 const MAX_MONEY = 1_000_000_000_000;
 const MAX_QTY = 100_000;
@@ -18,7 +19,7 @@ function parseQty(value) {
       params: { max: MAX_QTY },
     };
   }
-  if (Math.round(qty * 1000) !== qty * 1000) {
+  if (!hasQuantityPrecision(qty)) {
     return { error: 'Quantity accepts at most three decimals.', code: 'VALIDATION_INVALID_FORMAT' };
   }
   return { value: qty };

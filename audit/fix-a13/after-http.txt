@@ -1,0 +1,37 @@
+{
+  "binaryProduct": 1004.9999999999999,
+  "observations": [
+    {
+      "path": "/api/cafe/purchases",
+      "quantity": 1.005,
+      "parserAccepted": true,
+      "status": 201
+    },
+    {
+      "path": "/api/cafe/sales",
+      "quantity": 1.005,
+      "parserAccepted": true,
+      "status": 201
+    },
+    {
+      "path": "/api/cafe/inventory",
+      "kind": "waste",
+      "quantity": 1.005,
+      "parserAccepted": true,
+      "status": 201
+    },
+    {
+      "path": "/api/cafe/inventory",
+      "kind": "adjustment",
+      "quantity": -1.005,
+      "parserAccepted": true,
+      "status": 201
+    }
+  ],
+  "fourDecimalRejectionCodes": [
+    "VALIDATION_INVALID_FORMAT",
+    "VALIDATION_INVALID_FORMAT",
+    "VALIDATION_INVALID_FORMAT",
+    "VALIDATION_INVALID_FORMAT"
+  ]
+}

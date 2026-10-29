@@ -1,0 +1,12 @@
+{
+  "command": [
+    "node",
+    "--test",
+    "test/cafeQuantity.test.js"
+  ],
+  "directory": "server",
+  "started": "2026-10-29T21:25:19.098Z",
+  "ended": "2026-10-29T21:25:19.548Z",
+  "code": 1,
+  "signal": null
+}

@@ -206,3 +206,16 @@ accounting smokes pass. `COVERAGE.md` records 499 full reads and explicit limits
   alerts **6**, races **5**, accounting **9** pass (`fix-a11-serial/`).
 - Full server suite includes the next A13 regressions: **149 pass / six skips**.
   Shared client lint/build/core checkpoint remains applicable. No schema change.
+
+### A13 — decimal-aware cafe quantity validation
+
+- Shared decimal round-trip precision check accepts exact thousandths without
+  multiplication error; existing sign/range/duplicate constraints still apply.
+- Four retained parser regressions change from **4 failures** to **4 passes**,
+  each sweeping 2,000 thousandths plus string/exponent, bounds, finer-precision
+  and sign controls. Original HTTP probe now passes purchase/sale/waste **1.005**
+  and adjustment **−1.005**; four-decimal controls still reject.
+- Corrected the original probe's previously unreachable cleanup expectation to
+  the documented 201 void response. Baseline failing output remains unchanged.
+- Evidence: `fix-a13/`; full server **149/six skips** at `fix-a11/tests-server.*`.
+  Synthetic sale voided and product/supplier deactivated. No database-code change.

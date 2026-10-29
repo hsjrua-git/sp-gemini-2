@@ -40,7 +40,7 @@ try {
       parserAccepted: !parsed.error, parserError: parsed.error,
       status: response.status, code: response.data?.code, error: response.data?.error });
     if (item.path === '/api/cafe/sales' && response.status === 201) {
-      await ok(`/api/cafe/sales/${response.data.sale.id}/void`, { method: 'POST' });
+      await ok(`/api/cafe/sales/${response.data.sale.id}/void`, { method: 'POST' }, 201);
     }
   }
   // Negative controls: genuinely excessive precision must remain invalid.

@@ -4,6 +4,7 @@
 
 import { isUuid } from '../lib/ids.js';
 import { isValidIsoDate } from '../lib/periods.js';
+import { hasQuantityPrecision } from '../lib/quantity.js';
 
 const MAX_MONEY = 1_000_000_000_000; // 10^12 Toman — far past any real price
 const MAX_QTY = 100_000;
@@ -183,7 +184,7 @@ export function parsePurchaseBody(rawBody) {
         params: { max: MAX_QTY },
       };
     }
-    if (Math.round(qty * 1000) !== qty * 1000) {
+    if (!hasQuantityPrecision(qty)) {
       return {
         error: 'Quantity accepts at most three decimals.',
         code: 'VALIDATION_INVALID_FORMAT',
@@ -218,7 +219,7 @@ function parseQty(qty) {
       params: { max: MAX_QTY },
     };
   }
-  if (Math.round(value * 1000) !== value * 1000) {
+  if (!hasQuantityPrecision(value)) {
     return { error: 'Quantity accepts at most three decimals.', code: 'VALIDATION_INVALID_FORMAT' };
   }
   return { value };
