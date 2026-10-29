@@ -1,0 +1,30 @@
+{
+  "code": 0,
+  "signal": null,
+  "mode": "missing",
+  "inputSent": true,
+  "indexSha256": "48bef9084ce14d11d74515066f5783a2bfc95b8a914d373bc4442b78c725cffe",
+  "fallbackAnnounced": true,
+  "replStarted": true,
+  "productRequests": 2,
+  "output": "voice agent — stage 2, session 10uooldbmvu21dd1\nbrain=rules (no model) · stt=openai:whisper-1 · tts=off · mic=off\nlogged in as audit-kiosk (Kiosk)\nSTT is configured but arecord is unavailable — falling back to text.\ntext mode — type a line, Ctrl-D to exit\n"
+}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: text input must reach the dialogue
+
+2 !== 1
+
+    at file:///home/hsjrua/Documents/sp-gemini-1/audit/checks/agent-missing-mic-fallback.mjs:76:10
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 2,
+  expected: 1,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.15.0

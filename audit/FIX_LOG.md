@@ -219,3 +219,16 @@ accounting smokes pass. `COVERAGE.md` records 499 full reads and explicit limits
   the documented 201 void response. Baseline failing output remains unchanged.
 - Evidence: `fix-a13/`; full server **149/six skips** at `fix-a11/tests-server.*`.
   Synthetic sale voided and product/supplier deactivated. No database-code change.
+
+### A16 — activate the missing-microphone text fallback
+
+- The input-loop condition now includes unavailable microphone tooling.
+- Strengthened retained entrypoint probe sends `menu`, waits for product API I/O,
+  then EOF. Baseline announces fallback but processes no input and needs SIGTERM;
+  patched fallback, explicit `--text`, and no-STT controls all start the REPL,
+  reach the dialogue and exit **0** on EOF. Source copies are byte-identical.
+- Intermediate probes wrongly required one product fetch; the real dialogue
+  fetches its initial catalog and menu separately. Corrected assertion tests
+  input delivery; all original outputs remain in `fix-a16/`.
+- Full agent suite **32/32** passes. Local fake API, isolated transcript files;
+  physical microphone, providers and replay audio remain unexecuted.

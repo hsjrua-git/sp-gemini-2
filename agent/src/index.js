@@ -149,7 +149,7 @@ async function main() {
   } else if (!textMode && stt) {
     console.error('STT is configured but arecord is unavailable — falling back to text.');
   }
-  if (!stt || textMode || replayFile) {
+  if (!stt || textMode || replayFile || !micOk) {
     startRepl(dialogue);
   }
 }

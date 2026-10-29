@@ -17,6 +17,8 @@ await fs.mkdir(path.join(fixture, 'empty-path'));
 const original = await fs.readFile(path.join(root, 'agent/src/index.js'));
 assert.deepEqual(await fs.readFile(path.join(fixture, 'agent/src/index.js')), original);
 const requests = [];
+const mode = process.argv[2] ?? 'missing';
+assert.ok(['missing', 'text', 'no-stt'].includes(mode));
 const server = createServer((req, res) => {
   requests.push({ method: req.method, path: req.url });
   const user = { username: 'audit-kiosk', role: 'Kiosk', permissions: ['cafe.view'] };
@@ -25,19 +27,20 @@ const server = createServer((req, res) => {
     res.end(JSON.stringify({ user }));
   } else if (req.url === '/api/cafe/products') {
     res.end(JSON.stringify({ products: [] }));
+    child.stdin.end();
   } else {
     res.writeHead(404).end('{}');
   }
 });
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
-const child = spawn(process.execPath, [path.join(fixture, 'agent/src/index.js')], {
+const child = spawn(process.execPath, [path.join(fixture, 'agent/src/index.js'), ...(mode === 'text' ? ['--text'] : [])], {
   cwd: fixture,
   env: {
     PATH: path.join(fixture, 'empty-path'), TMPDIR: path.join(root, 'audit/.tmp'),
     PANEL_BASE_URL: `http://127.0.0.1:${server.address().port}`,
     KIOSK_USERNAME: 'audit-kiosk', KIOSK_PASSWORD: 'disposable-local-fixture',
     KIOSK_HOST: '127.0.0.1', KIOSK_PORT: '0', VOICE_STAGE: '2',
-    LLM_PROVIDER: 'none', STT_PROVIDER: 'openai',
+    LLM_PROVIDER: 'none', STT_PROVIDER: mode === 'no-stt' ? 'none' : 'openai',
     STT_BASE_URL: `http://127.0.0.1:${server.address().port}`, TTS_PROVIDER: 'none',
     AGENT_DATABASE_URL: '', AGENT_LANGUAGE: 'en',
   },
@@ -48,11 +51,11 @@ let inputSent = false;
 let watchdog;
 function inspect(chunk) {
   output += chunk;
-  if (inputSent || !output.includes('falling back to text.')) return;
+  if (inputSent || !output.includes(mode === 'missing' ? 'falling back to text.' : 'text mode — type a line')) return;
   inputSent = true;
-  child.stdin.end('menu\n');
-  // Working fallback installs readline synchronously after the log and exits
-  // on EOF. The watchdog bounds a broken child which keeps only its HTTP server.
+  child.stdin.write('menu\n');
+  // Send EOF after the dialogue reaches the fake product API. The watchdog
+  // bounds a broken child which keeps only its HTTP server.
   watchdog = setTimeout(() => child.kill('SIGTERM'), 1000);
 }
 child.stdout.on('data', inspect);
@@ -63,13 +66,14 @@ try {
     child.on('error', reject);
     child.on('close', (code, signal) => resolve({ code, signal }));
   });
-  console.log(JSON.stringify({ ...result, inputSent,
+  console.log(JSON.stringify({ ...result, mode, inputSent,
     indexSha256: createHash('sha256').update(original).digest('hex'),
     fallbackAnnounced: output.includes('falling back to text.'),
     replStarted: output.includes('text mode — type a line'),
     productRequests: requests.filter(r => r.path === '/api/cafe/products').length,
     output }, null, 2));
-  assert.equal(inputSent, true, 'must reach missing microphone branch');
+  assert.equal(inputSent, true, 'must reach selected input mode');
+  assert.ok(requests.some(r => r.path === '/api/cafe/products'), 'text input must reach the dialogue');
   assert.equal(output.includes('text mode — type a line'), true, 'announced fallback must actually start text input');
   assert.equal(result.code, 0, 'text REPL must consume EOF and exit normally');
 } finally {

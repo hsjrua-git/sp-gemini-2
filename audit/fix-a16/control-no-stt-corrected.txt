@@ -1,0 +1,11 @@
+{
+  "code": 0,
+  "signal": null,
+  "mode": "no-stt",
+  "inputSent": true,
+  "indexSha256": "48bef9084ce14d11d74515066f5783a2bfc95b8a914d373bc4442b78c725cffe",
+  "fallbackAnnounced": false,
+  "replStarted": true,
+  "productRequests": 2,
+  "output": "voice agent — stage 2, session z7n0t877mvu235wj\nbrain=rules (no model) · stt=off · tts=off · mic=off\nlogged in as audit-kiosk (Kiosk)\ntext mode — type a line, Ctrl-D to exit\n"
+}
