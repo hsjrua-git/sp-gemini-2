@@ -1,0 +1,60 @@
+                                                 Table "public.student_field_definitions"
+    Column     |           Type           | Collation | Nullable |      Default      | Storage  | Compression | Stats target | Description 
+---------------+--------------------------+-----------+----------+-------------------+----------+-------------+--------------+-------------
+ id            | uuid                     |           | not null | gen_random_uuid() | plain    |             |              | 
+ label         | text                     |           | not null |                   | extended |             |              | 
+ field_type    | text                     |           | not null |                   | extended |             |              | 
+ choices       | jsonb                    |           | not null | '[]'::jsonb       | extended |             |              | 
+ is_restricted | boolean                  |           | not null | false             | plain    |             |              | 
+ sort_order    | integer                  |           | not null | 0                 | plain    |             |              | 
+ archived_at   | timestamp with time zone |           |          |                   | plain    |             |              | 
+ created_by    | uuid                     |           |          |                   | plain    |             |              | 
+ created_at    | timestamp with time zone |           | not null | now()             | plain    |             |              | 
+ updated_at    | timestamp with time zone |           | not null | now()             | plain    |             |              | 
+Indexes:
+    "student_field_definitions_pkey" PRIMARY KEY, btree (id)
+    "student_field_definitions_created_by_idx" btree (created_by)
+    "student_field_definitions_label_unique" UNIQUE, btree (lower(label)) WHERE archived_at IS NULL
+Check constraints:
+    "field_label_length" CHECK (char_length(btrim(label)) >= 1 AND char_length(btrim(label)) <= 60)
+    "field_type_valid" CHECK (field_type = ANY (ARRAY['text'::text, 'long_text'::text, 'number'::text, 'date'::text, 'yes_no'::text, 'choice'::text]))
+Foreign-key constraints:
+    "student_field_definitions_created_by_fkey" FOREIGN KEY (created_by) REFERENCES users(id)
+Triggers:
+    student_field_definitions_updated_at BEFORE UPDATE ON student_field_definitions FOR EACH ROW EXECUTE FUNCTION set_updated_at()
+Access method: heap
+
+                                                         Table "public.students"
+    Column    |           Type           | Collation | Nullable |      Default      | Storage  | Compression | Stats target | Description 
+--------------+--------------------------+-----------+----------+-------------------+----------+-------------+--------------+-------------
+ id           | uuid                     |           | not null | gen_random_uuid() | plain    |             |              | 
+ student_code | text                     |           | not null |                   | extended |             |              | 
+ full_name    | text                     |           | not null |                   | extended |             |              | 
+ created_at   | timestamp with time zone |           | not null | now()             | plain    |             |              | 
+ deleted_at   | timestamp with time zone |           |          |                   | plain    |             |              | 
+ extra        | jsonb                    |           | not null | '{}'::jsonb       | extended |             |              | 
+ gender       | gender_type              |           |          |                   | plain    |             |              | 
+ birth_date   | date                     |           |          |                   | plain    |             |              | 
+ father_name  | text                     |           |          |                   | extended |             |              | 
+ national_id  | text                     |           |          |                   | extended |             |              | 
+ updated_at   | timestamp with time zone |           | not null | now()             | plain    |             |              | 
+Indexes:
+    "students_pkey" PRIMARY KEY, btree (id)
+    "students_national_id_unique" UNIQUE, btree (national_id)
+    "students_student_code_key" UNIQUE CONSTRAINT, btree (student_code)
+Check constraints:
+    "full_name_length" CHECK (char_length(btrim(full_name)) >= 2 AND char_length(btrim(full_name)) <= 100)
+    "student_code_format" CHECK (student_code ~ '^[2-9A-HJ-NP-Z]{8}$'::text)
+    "students_birth_date_sane" CHECK (birth_date IS NULL OR birth_date <= CURRENT_DATE)
+    "students_father_name_length" CHECK (father_name IS NULL OR char_length(btrim(father_name)) >= 1 AND char_length(btrim(father_name)) <= 100)
+    "students_national_id_format" CHECK (national_id IS NULL OR national_id ~ '^[0-9]{10}$'::text)
+Referenced by:
+    TABLE "cafe_sales" CONSTRAINT "cafe_sales_student_id_fkey" FOREIGN KEY (student_id) REFERENCES students(id)
+    TABLE "student_balance_transactions" CONSTRAINT "student_balance_transactions_student_id_fkey" FOREIGN KEY (student_id) REFERENCES students(id)
+    TABLE "student_balances" CONSTRAINT "student_balances_student_id_fkey" FOREIGN KEY (student_id) REFERENCES students(id)
+    TABLE "student_group_members" CONSTRAINT "student_group_members_student_id_fkey" FOREIGN KEY (student_id) REFERENCES students(id)
+Triggers:
+    students_balance_settled_before_delete_trg BEFORE UPDATE OF deleted_at ON students FOR EACH ROW EXECUTE FUNCTION students_balance_settled_before_delete()
+    students_updated_at BEFORE UPDATE ON students FOR EACH ROW EXECUTE FUNCTION set_updated_at()
+Access method: heap
+

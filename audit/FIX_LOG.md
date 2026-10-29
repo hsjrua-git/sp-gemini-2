@@ -71,3 +71,16 @@ accounting smokes pass. `COVERAGE.md` records 499 full reads and explicit limits
 - Full agent suite **28/28 pass**. Evidence: `fix-a03/*.{txt,json}`. These tests
   exercise real dialogue/tool handlers with a delayed adapter, not real charges.
   Cross-process idempotency and A09's void protocol remain ASK.
+
+### A07 — retain privacy after field archiving
+
+- Student response filtering loads active and archived field definitions. Create
+  and update validation still accepts only active, permitted definitions.
+- Real schema inspection retained in `fix-a07/schema.txt`. The expanded privacy/
+  auth matrix fails **three** archived detail/list/PATCH checks before restart
+  (**29 pass**) and passes **32/32** after restart. Privileged reads, public
+  values, archived-write refusal, audit redaction and session controls pass.
+- Original viewer-only reproduction also passes; fixtures are archived/settled
+  with independent cleanup checks. Full server suite: **139 pass / six skips**.
+- Evidence: `fix-a07/*.{txt,json}`; retained regression is
+  `checks/privacy-auth-matrix.mjs` plus the original archived-field probe.

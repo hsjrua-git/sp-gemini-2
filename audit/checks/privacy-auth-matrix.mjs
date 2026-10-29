@@ -114,6 +114,16 @@ try {
   for (const phase of ['active', 'archived', 'restored']) {
     if (phase === 'archived') await request(admin, `/api/field-definitions/${privateId}`, 204, { method: 'DELETE' });
     if (phase === 'restored') await request(admin, `/api/field-definitions/${privateId}`, 200, { method: 'PATCH', body: { archived: false } });
+    const privileged = await request(admin, `/api/students/${student.id}`);
+    check(`${phase}: privileged read preserves restricted value`, () => assert.equal(privileged.extra[privateId], privateValue));
+    if (phase === 'archived') {
+      const deniedPatch = await request(admin, `/api/students/${student.id}`, 400, { method: 'PATCH', body: { extra: { [privateId]: 'archived-write' } } });
+      const deniedPost = await request(admin, '/api/students', 400, { method: 'POST', body: { fullName: `${prefix} archived-write`, extra: { [privateId]: privateValue } } });
+      check('archived definitions remain unwritable even for privileged users', () => {
+        assert.equal(deniedPatch.code, 'NOT_FOUND');
+        assert.equal(deniedPost.code, 'NOT_FOUND');
+      });
+    }
     const detail = await request(editor, `/api/students/${student.id}`);
     const list = await request(editor, `/api/students?search=${encodeURIComponent(prefix)}`);
     const listed = list.students.find(row => row.id === student.id);

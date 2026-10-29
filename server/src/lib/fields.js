@@ -140,7 +140,7 @@ export function validateExtra(definitions, incoming) {
 }
 
 // Strip restricted field values from an extra object for users who may not see
-// them. `definitions` must include is_restricted flags.
+// them. `definitions` must include restriction flags for archived fields too.
 export function stripRestricted(definitions, extra, canSeeRestricted) {
   if (canSeeRestricted) return extra ?? {};
   const restricted = new Set(

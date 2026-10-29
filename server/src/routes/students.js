@@ -22,14 +22,13 @@ import {
 
 const router = Router();
 
-// The live custom-field definitions, used to validate incoming values and to
-// strip restricted values from responses.
+// Privacy applies to archived definitions too: stored values outlive archiving.
+// Incoming writes are validated against the active subset below.
 async function loadDefinitions(db) {
   const result = await db.query(
     `SELECT id, label, field_type AS "fieldType", choices,
-            is_restricted AS "isRestricted"
-     FROM student_field_definitions
-     WHERE archived_at IS NULL`
+            is_restricted AS "isRestricted", archived_at AS "archivedAt"
+     FROM student_field_definitions`
   );
   return result.rows;
 }
@@ -123,9 +122,9 @@ router.post('/', async (req, res) => {
 
   const definitions = await loadDefinitions(pool);
   const canSeeRestricted = userCan(req, 'fields.view_restricted');
-  const writableDefs = canSeeRestricted
-    ? definitions
-    : definitions.filter((def) => !def.isRestricted);
+  const writableDefs = definitions.filter(
+    (def) => !def.archivedAt && (canSeeRestricted || !def.isRestricted)
+  );
   const extra = validateExtra(writableDefs, req.body?.extra ?? {});
   if (extra.error) {
     return res
@@ -325,9 +324,9 @@ router.patch('/:id', async (req, res) => {
 
   const definitions = await loadDefinitions(pool);
   const canSeeRestricted = userCan(req, 'fields.view_restricted');
-  const writableDefs = canSeeRestricted
-    ? definitions
-    : definitions.filter((def) => !def.isRestricted);
+  const writableDefs = definitions.filter(
+    (def) => !def.archivedAt && (canSeeRestricted || !def.isRestricted)
+  );
   if (hasExtra) {
     const extra = validateExtra(writableDefs, body.extra);
     if (extra.error) {

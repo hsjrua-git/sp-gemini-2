@@ -1,0 +1,11 @@
+{
+  "command": [
+    "node",
+    "audit/checks/archived-field-privacy.mjs"
+  ],
+  "directory": ".",
+  "started": "2026-10-29T20:46:54.843Z",
+  "ended": "2026-10-29T20:46:56.125Z",
+  "code": 0,
+  "signal": null
+}
