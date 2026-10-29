@@ -266,7 +266,7 @@ test('getResults: group fallback uses each session date and selected-empty shado
       if (i === 0) {
         const first = await getResults({ assignmentId, seq: 1 });
         assert.equal(first.rows.length, 2, 'Ada has not joined at the only answered session');
-        assert.deepEqual(first.rows[1].cells[focus], { quality: null, quantity: null, answered: false });
+        assert.deepEqual(first.rows[1].cells[focus], { quality: null, quantity: null, qualityComment: null, quantityComment: null, answered: false });
       }
     }
     const grid = await getResults({ assignmentId, seq: 2 });
@@ -274,7 +274,7 @@ test('getResults: group fallback uses each session date and selected-empty shado
     const bob = grid.rows.find(row => row.membershipId === memberships.bob);
     assert.deepEqual(ada.cells, {}, 'Ada left before the current period');
     assert.deepEqual(ada.previous[focus], { quality: 3, quantity: 6 });
-    assert.deepEqual(bob.cells[focus], { quality: 5, quantity: null, answered: true });
+    assert.deepEqual(bob.cells[focus], { quality: 5, quantity: null, qualityComment: null, quantityComment: null, answered: true });
     assert.deepEqual(bob.previous[focus], { quality: 4, quantity: 6 });
   } finally {
     await pool.end();

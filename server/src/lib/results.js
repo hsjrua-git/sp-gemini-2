@@ -15,6 +15,8 @@ function mergeCell(existing, incoming) {
   return {
     quality: incoming.quality ?? existing.quality,
     quantity: incoming.quantity ?? existing.quantity,
+    qualityComment: incoming.qualityComment ?? existing.qualityComment,
+    quantityComment: incoming.quantityComment ?? existing.quantityComment,
     answered: existing.answered || incoming.answered,
   };
 }
@@ -39,13 +41,15 @@ export function buildResults({
       : item.periodSeq === seq - 1 ? previousMap : null;
     if (!map) continue;
     const cell = {
-      quality: item.qualityValue,
-      quantity: item.quantityValue,
+      quality: item.qualityValue ?? null,
+      quantity: item.quantityValue ?? null,
+      qualityComment: item.qualityComment ?? null,
+      quantityComment: item.quantityComment ?? null,
       answered:
-        item.qualityValue !== null ||
-        item.quantityValue !== null ||
-        item.qualityComment !== null ||
-        item.quantityComment !== null,
+        item.qualityValue != null ||
+        item.quantityValue != null ||
+        item.qualityComment != null ||
+        item.quantityComment != null,
     };
     const add = (membershipId) => {
       const key = `${membershipId ?? 'group'}:${item.parameterId}`;

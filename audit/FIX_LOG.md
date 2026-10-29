@@ -266,3 +266,19 @@ accounting smokes pass. `COVERAGE.md` records 499 full reads and explicit limits
   run exposed an incorrect A20 shape expectation, corrected in that fix.
 - These lint/build outputs precede A25–A35 UI edits; fresh UI verification follows.
   Lockfile review is metadata/scope verification, not a full dependency-source audit.
+
+### A20 — preserve dimension-specific answers in results
+
+- Results preserve/merge quality and quantity comments using the existing
+  effective-cell/latest-non-null rules. Missing value/comment properties count
+  as unanswered. Three retained builder-to-dashboard regressions previously fail;
+  now pass in the **233/233** client run, including zero, both comment dimensions,
+  missing properties, shadowing and merge behavior.
+- Real HTTP-to-helper check `fix-a20/after-http.*` passes A18/A19/A20 together:
+  [8,2,2] average **4**, count **3**; blank/quantity-only cells leave quality
+  completion at **33%** on both bases. Synthetic fixture cleanup completed.
+- Server/core shape assertions now include comments. Initial server expectation
+  incorrectly discarded the fixture's `"absent"` comment; corrected expectation
+  retains it. Original failed run is preserved. Full server **149/six skips**,
+  core **57/57**, PGlite, lint/build and client checks pass at the A17 checkpoint.
+  Completion-denominator and broader aggregation policies remain ASK.

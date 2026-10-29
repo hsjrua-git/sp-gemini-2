@@ -58,7 +58,7 @@ test('a group assignment leads with the whole-group row, then its members', () =
   );
   // The group row's cells come from the membership-less (group) evaluations.
   assert.deepEqual(result.rows[0].cells, {
-    speed: { quality: 7, quantity: 3, answered: true },
+    speed: { quality: 7, quantity: 3, qualityComment: null, quantityComment: null, answered: true },
   });
   assert.deepEqual(result.rows[0].previous, {});
 });
@@ -80,9 +80,9 @@ test('current and previous scores are separated; other periods are ignored', () 
   const [group, ana, ben] = result.rows;
   assert.deepEqual(group.cells, {});
   assert.deepEqual(group.previous, { speed: { quality: 5, quantity: null } });
-  assert.deepEqual(ana.cells, { speed: { quality: 7, quantity: null, answered: true } });
+  assert.deepEqual(ana.cells, { speed: { quality: 7, quantity: null, qualityComment: null, quantityComment: null, answered: true } });
   assert.deepEqual(ana.previous, { speed: { quality: 6, quantity: null } });
-  assert.deepEqual(ben.cells, { balance: { quality: 2, quantity: null, answered: true } });
+  assert.deepEqual(ben.cells, { balance: { quality: 2, quantity: null, qualityComment: null, quantityComment: null, answered: true } });
   assert.deepEqual(ben.previous, { speed: { quality: 3, quantity: null } });
 });
 
@@ -100,7 +100,7 @@ test('a cell is answered when any value or comment is set; both-null is selected
   assert.equal(ana.cells.speed.answered, true);
   assert.equal(ana.cells.balance.answered, true);
   // Explicitly applicable but unanswered: the cell exists, nothing is set.
-  assert.deepEqual(ana.cells.stamina, { quality: null, quantity: null, answered: false });
+  assert.deepEqual(ana.cells.stamina, { quality: null, quantity: null, qualityComment: null, quantityComment: null, answered: false });
   const ben = result.rows[2];
   assert.deepEqual(ben.previous, { speed: { quality: 5, quantity: null } });
 });
@@ -119,7 +119,7 @@ test('an individual assignment has exactly its member and no group row', () => {
   assert.equal(result.rows.length, 1);
   assert.equal(result.rows[0].isGroup, false);
   assert.deepEqual(result.rows[0].cells, {
-    speed: { quality: 7, quantity: null, answered: true },
+    speed: { quality: 7, quantity: null, qualityComment: null, quantityComment: null, answered: true },
   });
 });
 
@@ -147,7 +147,7 @@ test('members inherit both dimensions and previous values from eligible group ce
     evaluation({ qualityValue: 0, quantityValue: 6 }),
   ] });
   for (const row of result.rows) {
-    assert.deepEqual(row.cells.speed, { quality: 0, quantity: 6, answered: true });
+    assert.deepEqual(row.cells.speed, { quality: 0, quantity: 6, qualityComment: null, quantityComment: null, answered: true });
     assert.deepEqual(row.previous.speed, { quality: 2, quantity: 3 });
   }
 });
@@ -157,8 +157,8 @@ test('own selected-empty and partial cells shadow the entire group cell within a
   const own = [evaluation({ membershipId: 'm1' }), evaluation({ membershipId: 'm2', quantityValue: 2 })];
   for (const evaluations of [[group, ...own], [...own, group]]) {
     const { rows } = build({ evaluations });
-    assert.deepEqual(rows[1].cells.speed, { quality: null, quantity: null, answered: false });
-    assert.deepEqual(rows[2].cells.speed, { quality: null, quantity: 2, answered: true });
+    assert.deepEqual(rows[1].cells.speed, { quality: null, quantity: null, qualityComment: null, quantityComment: null, answered: false });
+    assert.deepEqual(rows[2].cells.speed, { quality: null, quantity: 2, qualityComment: null, quantityComment: null, answered: true });
   }
 });
 
@@ -171,8 +171,8 @@ test('fallback is resolved per session before the existing latest-non-null perio
     evaluation({ sessionId: 'three', quantityValue: 0 }),
     evaluation({ sessionId: 'three', membershipId: 'm2', qualityComment: 'absent' }),
   ] });
-  assert.deepEqual(rows[1].cells.speed, { quality: 7, quantity: 0, answered: true });
-  assert.deepEqual(rows[2].cells.speed, { quality: 9, quantity: 8, answered: true });
+  assert.deepEqual(rows[1].cells.speed, { quality: 7, quantity: 0, qualityComment: null, quantityComment: null, answered: true });
+  assert.deepEqual(rows[2].cells.speed, { quality: 9, quantity: 8, qualityComment: 'absent', quantityComment: null, answered: true });
 });
 
 test('fallback checks inclusive join/leave dates for each current and previous session', () => {
@@ -185,8 +185,8 @@ test('fallback checks inclusive join/leave dates for each current and previous s
     evaluation({ sessionId: 'leave', sessionDate: '2026-01-03', qualityValue: 3 }),
     evaluation({ sessionId: 'after', sessionDate: '2026-01-04', qualityValue: 4 }),
   ] });
-  assert.deepEqual(rows[1].cells.speed, { quality: 3, quantity: 2, answered: true });
-  assert.deepEqual(rows[2].cells.speed, { quality: 4, quantity: null, answered: true });
+  assert.deepEqual(rows[1].cells.speed, { quality: 3, quantity: 2, qualityComment: null, quantityComment: null, answered: true });
+  assert.deepEqual(rows[2].cells.speed, { quality: 4, quantity: null, qualityComment: null, quantityComment: null, answered: true });
   assert.deepEqual(rows[1].previous, {});
   assert.deepEqual(rows[2].previous, {});
 });

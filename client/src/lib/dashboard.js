@@ -25,9 +25,9 @@ function answered(cell, basis, dimension) {
   if (!cell) return false;
   const value = cell[dimension];
   if (basis === 'valueOrComment') {
-    return value !== null || cell[`${dimension}Comment`] !== null;
+    return value != null || cell[`${dimension}Comment`] != null;
   }
-  return value !== null;
+  return value != null;
 }
 
 // The parameters "in use" this period: those with at least one selected cell
