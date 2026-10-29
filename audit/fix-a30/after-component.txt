@@ -1,0 +1,11 @@
+npm notice run client@0.0.0 test
+npm notice run vitest run --config ../audit/checks/schedule-calendar.vitest.config.mjs --maxWorkers=1
+
+ RUN  v5.0.3 /home/hsjrua/Documents/sp-gemini-1/client
+
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  01:31:53
+   Duration  3.44s (environment 54%, tests 15%, setup 14%, import 10%, worker 6%, transform 1%)
+

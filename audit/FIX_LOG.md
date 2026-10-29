@@ -292,3 +292,12 @@ accounting smokes pass. `COVERAGE.md` records 499 full reads and explicit limits
   whole-quantity control, 0.145×100 → **15**, two 0.005×100 lines → **1**.
   Evidence: `fix-a26/after-component.*`. Browser retry and shared final checks
   follow; component backend I/O is mocked.
+
+### A30 — anchor-based monthly schedule preview
+
+- Each monthly occurrence starts from the original anchor and clamps its day to
+  the destination month's last day, matching the existing PostgreSQL generator.
+- Retained real-page/fixed-clock suite changes **3 pass / 2 fail → 5/5 pass**:
+  January 31 → February 28/29 plus weekly, mid-month and future-anchor controls.
+  `fix-a30/after-component.*`; independent SQL expectations remain in
+  `continuation-08/schedule-calendar-sql.*`. No sessions created by these probes.

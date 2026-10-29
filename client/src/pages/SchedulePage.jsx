@@ -57,11 +57,17 @@ function nextOccurrence(anchorDate, every) {
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   if (anchor >= today) return anchor;
   if (norm.months) {
-    const next = new Date(anchor);
-    let guard = 0;
-    while (next < today && guard++ < 1200) {
-      next.setMonth(next.getMonth() + norm.months);
-    }
+    const monthsSince = (today.getFullYear() - anchor.getFullYear()) * 12 +
+      today.getMonth() - anchor.getMonth();
+    const occurrence = (index) => {
+      const next = new Date(anchor.getFullYear(), anchor.getMonth() + index * norm.months, 1);
+      const lastDay = new Date(next.getFullYear(), next.getMonth() + 1, 0).getDate();
+      next.setDate(Math.min(anchor.getDate(), lastDay));
+      return next;
+    };
+    const index = Math.floor(monthsSince / norm.months);
+    const next = occurrence(index);
+    if (next < today) return occurrence(index + 1);
     return next;
   }
   if (norm.days) {
