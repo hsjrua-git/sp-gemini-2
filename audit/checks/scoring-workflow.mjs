@@ -5,9 +5,11 @@ import { api, login, openDatabase } from './isolated.mjs';
 
 // Run serially against the isolated sample fixture. All business writes go
 // through HTTP; only the disposable blind-role assignment uses direct SQL.
-// `oracle` adds an expected-to-fail privacy check after the workflow controls.
+// `oracle` adds the blind locked-cell privacy regression after workflow controls.
 const mode = process.argv[2] ?? 'workflow';
 assert.ok(['workflow', 'oracle'].includes(mode));
+const evidencePhase = process.argv[3] ?? 'runtime';
+assert.match(evidencePhase, /^[\w-]+$/);
 const admin = api();
 const blind = api();
 const db = openDatabase();
@@ -128,7 +130,7 @@ try {
   assert.equal(firstCells.find(c => c.studentId === students[1].id).viaGroup, true);
   const getQuery = new URLSearchParams({ assignmentId, studentIds: filter.studentIds.join(','), parameterIds: parameterId });
   assert.deepEqual(await a(`/api/export/cube?${getQuery}`), cube);
-  await fs.writeFile(new URL(`../continuation-01/scoring-cube-${mode}.json`, import.meta.url), JSON.stringify(cube, null, 2));
+  await fs.writeFile(new URL(`../${evidencePhase}/scoring-cube-${mode}.json`, import.meta.url), JSON.stringify(cube, null, 2), { flag: 'wx' });
   passed('import-tagged score save; five answered sessions become 4+1; GET/POST cube agrees and own scores shadow group');
 
   blindRoleId = (await a('/api/roles', { method: 'POST', body: {
@@ -178,8 +180,17 @@ try {
   if (mode === 'oracle') {
     const before = await readCells(lockedSession);
     const audits = await auditRows(lockedSession);
+    const sightedNoop = await bulk(admin, lockedSession, [cell({ qualityValue: replacement })]);
+    assert.equal(sightedNoop.status, 200);
+    assert.equal(sightedNoop.data.changed, 0);
     const guesses = [];
     for (let guess = 0; guess <= 9; guess++) {
+      const preview = await bulk(blind, lockedSession, [cell({ qualityValue: guess })], { dryRun: true });
+      assert.equal(preview.status, 200);
+      assert.equal(preview.data.redacted, true);
+      assert.equal(preview.data.cells[0].from, null);
+      assert.equal(preview.data.cells[0].status, 'locked');
+      assert.equal(Object.hasOwn(preview.data.cells[0], 'lockedAt'), false);
       const result = await bulk(blind, lockedSession, [cell({ qualityValue: guess })]);
       guesses.push({ guess, status: result.status, code: result.data.code, changed: result.data.changed });
     }
@@ -190,6 +201,7 @@ try {
       recoveredExactly: recovered.length === 1 && recovered[0].guess === replacement,
       scoresAndAuditUnchanged: true }, null, 2));
     assert.equal(recovered.length, 0, 'a blind writer must not recover locked scores by distinguishing a correct guess');
+    assert.ok(guesses.every(guess => guess.status === 409 && guess.code === 'LOCKED'), 'every guess has the same lock response');
   }
   console.log(JSON.stringify({ mode, passedChecks: checks.length, checks }));
 } finally {

@@ -1,0 +1,13 @@
+{
+  "command": [
+    "node",
+    "audit/checks/scoring-workflow.mjs",
+    "oracle",
+    "fix-a14-before"
+  ],
+  "directory": ".",
+  "started": "2026-10-29T20:48:21.174Z",
+  "ended": "2026-10-29T20:48:25.519Z",
+  "code": 1,
+  "signal": null
+}

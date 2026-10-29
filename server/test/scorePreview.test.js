@@ -186,6 +186,7 @@ test('a blind-entry preview redacts the existing cell and never hints at it', ()
       entry(M1, SPEED, { qualityValue: 7 }), // equals the existing value
       entry(M1, OPEN, { qualityValue: 4 }), // would be new
       entry(M2, SPEED, { qualityValue: 6 }), // locked
+      entry(M2, SPEED, { qualityValue: 5, quantityValue: 2, qualityComment: 'steady' }), // locked, identical
     ],
     existing,
     problemIndexes: new Set(),
@@ -194,7 +195,7 @@ test('a blind-entry preview redacts the existing cell and never hints at it', ()
   // Every non-locked cell collapses to the neutral 'save'; locked stays locked.
   assert.deepEqual(
     cells.map((c) => c.status),
-    ['save', 'save', 'save', 'locked']
+    ['save', 'save', 'save', 'locked', 'locked']
   );
   // The existing values are never sent back, for any cell.
   assert.ok(cells.every((c) => c.from === null));
@@ -203,7 +204,7 @@ test('a blind-entry preview redacts the existing cell and never hints at it', ()
   // The typed value the user is about to write is still echoed for confirmation.
   assert.deepEqual(
     cells.map((c) => c.to.qualityValue),
-    [8, 7, 4, 6]
+    [8, 7, 4, 6, 5]
   );
 });
 

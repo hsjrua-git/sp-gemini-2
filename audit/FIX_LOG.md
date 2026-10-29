@@ -84,3 +84,19 @@ accounting smokes pass. `COVERAGE.md` records 499 full reads and explicit limits
   with independent cleanup checks. Full server suite: **139 pass / six skips**.
 - Evidence: `fix-a07/*.{txt,json}`; retained regression is
   `checks/privacy-auth-matrix.mjs` plus the original archived-field probe.
+
+### A14 — close the blind locked-score equality oracle
+
+- Locked writes by users without `scores.view` now receive the lock refusal
+  regardless of whether their submitted values match. Sighted unchanged writes
+  still succeed without changing timestamps or audit history.
+- Permanent lock/preview controls cover matching guesses, changed values,
+  deselection, blank group cells, unlocked/missing cells and redacted previews.
+  Baseline **20 pass / one fail**; patched **21/21 pass**.
+- Retained real HTTP oracle previously recovered the exact score; after restart,
+  all **ten guesses return 409 / LOCKED**, every preview is redacted, and scores,
+  timestamps and audits are unchanged. Sighted locked no-op and other scoring/
+  override/export controls pass. Evidence: `fix-a14-before/` and `fix-a14/`.
+- Full server suite: **140 pass / six integration skips**, exit 0. The probe's
+  cube outputs now use a caller-selected phase and exclusive creation so reruns
+  cannot overwrite existing evidence.

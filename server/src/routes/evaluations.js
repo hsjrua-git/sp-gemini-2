@@ -353,7 +353,9 @@ router.put('/evaluations/bulk', async (req, res) => {
       ])
     );
 
-    const lockedChanges = findLockedChanges({ entries, existing });
+    const lockedChanges = findLockedChanges({
+      entries, existing, canViewScores: userCan(req, 'scores.view'),
+    });
     const overriddenKeys = new Set(
       lockedChanges.map((item) =>
         cellKey(item.membershipId, item.parameterId)

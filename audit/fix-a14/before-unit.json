@@ -1,0 +1,13 @@
+{
+  "command": [
+    "node",
+    "--test",
+    "test/locks.test.js",
+    "test/scorePreview.test.js"
+  ],
+  "directory": "server",
+  "started": "2026-10-29T20:48:21.072Z",
+  "ended": "2026-10-29T20:48:21.896Z",
+  "code": 1,
+  "signal": null
+}

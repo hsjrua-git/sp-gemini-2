@@ -1,0 +1,82 @@
+                                                          Table "public.evaluations"
+      Column      |           Type           | Collation | Nullable |      Default      | Storage  | Compression | Stats target | Description 
+------------------+--------------------------+-----------+----------+-------------------+----------+-------------+--------------+-------------
+ id               | uuid                     |           | not null | gen_random_uuid() | plain    |             |              | 
+ session_id       | uuid                     |           | not null |                   | plain    |             |              | 
+ parameter_id     | uuid                     |           | not null |                   | plain    |             |              | 
+ membership_id    | uuid                     |           |          |                   | plain    |             |              | 
+ quality_value    | integer                  |           |          |                   | plain    |             |              | 
+ quantity_value   | integer                  |           |          |                   | plain    |             |              | 
+ quality_comment  | text                     |           |          |                   | extended |             |              | 
+ quantity_comment | text                     |           |          |                   | extended |             |              | 
+ locks_at         | timestamp with time zone |           | not null |                   | plain    |             |              | 
+ created_at       | timestamp with time zone |           | not null | now()             | plain    |             |              | 
+ updated_at       | timestamp with time zone |           | not null | now()             | plain    |             |              | 
+ archived_at      | timestamp with time zone |           |          |                   | plain    |             |              | 
+Indexes:
+    "evaluations_pkey" PRIMARY KEY, btree (id)
+    "evaluations_cell_unique" UNIQUE, btree (session_id, parameter_id, membership_id) NULLS NOT DISTINCT
+    "evaluations_membership_idx" btree (membership_id)
+    "evaluations_parameter_idx" btree (parameter_id)
+    "evaluations_session_idx" btree (session_id)
+Check constraints:
+    "evaluation_quality_comment_ck" CHECK (quality_comment IS NULL OR char_length(quality_comment) <= 500)
+    "evaluation_quantity_comment_ck" CHECK (quantity_comment IS NULL OR char_length(quantity_comment) <= 500)
+Foreign-key constraints:
+    "evaluations_membership_id_fkey" FOREIGN KEY (membership_id) REFERENCES student_group_members(id)
+    "evaluations_parameter_id_fkey" FOREIGN KEY (parameter_id) REFERENCES parameters(id)
+    "evaluations_session_id_fkey" FOREIGN KEY (session_id) REFERENCES sessions(id)
+Triggers:
+    evaluations_alert_period_trg AFTER INSERT OR DELETE OR UPDATE ON evaluations FOR EACH ROW EXECUTE FUNCTION evaluations_after_change()
+    evaluations_archived_edit_guard_trg BEFORE UPDATE ON evaluations FOR EACH ROW EXECUTE FUNCTION evaluations_archived_edit_guard()
+    evaluations_lock_guard_trg BEFORE DELETE OR UPDATE ON evaluations FOR EACH ROW EXECUTE FUNCTION evaluations_lock_guard()
+    evaluations_range_ck BEFORE INSERT OR UPDATE OF parameter_id, quality_value, quantity_value ON evaluations FOR EACH ROW EXECUTE FUNCTION check_evaluation_range()
+    evaluations_schema4_guard_trg BEFORE INSERT OR UPDATE ON evaluations FOR EACH ROW EXECUTE FUNCTION evaluations_schema4_guard()
+    evaluations_set_updated_at BEFORE UPDATE ON evaluations FOR EACH ROW EXECUTE FUNCTION set_updated_at()
+Access method: heap
+
+                                                                                Table "public.sessions"
+    Column     |           Type           | Collation | Nullable |                            Default                            | Storage  | Compression | Stats target | Description 
+---------------+--------------------------+-----------+----------+---------------------------------------------------------------+----------+-------------+--------------+-------------
+ id            | uuid                     |           | not null | gen_random_uuid()                                             | plain    |             |              | 
+ assignment_id | uuid                     |           | not null |                                                               | plain    |             |              | 
+ seq           | integer                  |           | not null |                                                               | plain    |             |              | 
+ code          | text                     |           | not null |                                                               | extended |             |              | 
+ planned_date  | date                     |           | not null |                                                               | plain    |             |              | 
+ moved_to      | date                     |           |          |                                                               | plain    |             |              | 
+ session_date  | date                     |           |          | generated always as (COALESCE(moved_to, planned_date)) stored | plain    |             |              | 
+ canceled_at   | timestamp with time zone |           |          |                                                               | plain    |             |              | 
+ note          | text                     |           |          |                                                               | extended |             |              | 
+ created_at    | timestamp with time zone |           | not null | now()                                                         | plain    |             |              | 
+ updated_at    | timestamp with time zone |           | not null | now()                                                         | plain    |             |              | 
+ archived_at   | timestamp with time zone |           |          |                                                               | plain    |             |              | 
+ period_id     | uuid                     |           |          |                                                               | plain    |             |              | 
+Indexes:
+    "sessions_pkey" PRIMARY KEY, btree (id)
+    "sessions_assignment_planned_unique" UNIQUE, btree (assignment_id, planned_date)
+    "sessions_assignment_seq_unique" UNIQUE, btree (assignment_id, seq)
+    "sessions_code_unique" UNIQUE, btree (code)
+    "sessions_period_idx" btree (period_id)
+    "sessions_session_date_idx" btree (session_date)
+Check constraints:
+    "sessions_code_ck" CHECK (char_length(btrim(code)) >= 1 AND char_length(btrim(code)) <= 80)
+    "sessions_note_ck" CHECK (note IS NULL OR char_length(note) <= 500)
+    "sessions_seq_positive" CHECK (seq >= 1)
+Foreign-key constraints:
+    "sessions_assignment_id_fkey" FOREIGN KEY (assignment_id) REFERENCES assignments(id)
+    "sessions_period_id_fkey" FOREIGN KEY (period_id) REFERENCES periods(id)
+Referenced by:
+    TABLE "alerts" CONSTRAINT "alerts_session_id_fkey" FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE
+    TABLE "evaluations" CONSTRAINT "evaluations_session_id_fkey" FOREIGN KEY (session_id) REFERENCES sessions(id)
+    TABLE "tasks" CONSTRAINT "tasks_session_id_fkey" FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE
+Triggers:
+    sessions_alert_activity_sync_trg AFTER UPDATE OF archived_at, canceled_at ON sessions FOR EACH ROW EXECUTE FUNCTION sessions_alert_activity_sync()
+    sessions_cancel_guard_trg BEFORE UPDATE OF canceled_at ON sessions FOR EACH ROW EXECUTE FUNCTION sessions_cancel_guard()
+    sessions_identity_guard_trg BEFORE UPDATE ON sessions FOR EACH ROW EXECUTE FUNCTION sessions_identity_guard()
+    sessions_period_activity_guard_trg BEFORE UPDATE OF archived_at, canceled_at ON sessions FOR EACH ROW EXECUTE FUNCTION sessions_period_activity_guard()
+    sessions_period_assignment_guard_trg BEFORE INSERT OR UPDATE OF assignment_id, period_id ON sessions FOR EACH ROW EXECUTE FUNCTION sessions_period_assignment_guard()
+    sessions_period_reactivate_trg AFTER UPDATE OF archived_at, canceled_at ON sessions FOR EACH ROW EXECUTE FUNCTION sessions_period_reactivate()
+    sessions_set_identity_trg BEFORE INSERT ON sessions FOR EACH ROW EXECUTE FUNCTION sessions_set_identity()
+    sessions_updated_at BEFORE UPDATE ON sessions FOR EACH ROW EXECUTE FUNCTION set_updated_at()
+Access method: heap
+

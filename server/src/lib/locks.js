@@ -36,18 +36,22 @@ export function cellKey(membershipId, parameterId) {
   return `${membershipId ?? 'group'}:${parameterId}`;
 }
 
-export function findLockedChanges({ entries, existing }) {
+export function findLockedChanges({ entries, existing, canViewScores = true }) {
   const locked = [];
   entries.forEach((entry, index) => {
     const row = existing.get(cellKey(entry.membershipId, entry.parameterId));
     if (!row || !row.isLocked) return;
-    const changed =
-      (entry.selected ?? true) !== (row.selected ?? true) ||
-      entry.qualityValue !== row.qualityValue ||
-      entry.quantityValue !== row.quantityValue ||
-      (entry.qualityComment ?? null) !== (row.qualityComment ?? null) ||
-      (entry.quantityComment ?? null) !== (row.quantityComment ?? null);
-    if (!changed) return;
+    // A blind writer must get the same lock response for correct and incorrect
+    // guesses. Equality is a no-op exemption only for readers of the scores.
+    if (canViewScores) {
+      const changed =
+        (entry.selected ?? true) !== (row.selected ?? true) ||
+        entry.qualityValue !== row.qualityValue ||
+        entry.quantityValue !== row.quantityValue ||
+        (entry.qualityComment ?? null) !== (row.qualityComment ?? null) ||
+        (entry.quantityComment ?? null) !== (row.quantityComment ?? null);
+      if (!changed) return;
+    }
     locked.push({
       index,
       membershipId: entry.membershipId,

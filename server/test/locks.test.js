@@ -135,6 +135,20 @@ test('identical entries and non-locked rows are not flagged', () => {
   );
 });
 
+test('blind writes to locked cells are value-independent, including blank group cells', () => {
+  const entries = [
+    entry(M1, { qualityValue: 7 }),
+    entry(M1, { qualityValue: 8 }),
+    entry(M1, { selected: false }),
+    entry(null),
+    entry(M2, { qualityValue: 5 }),
+    entry('missing'),
+  ];
+  const flagged = findLockedChanges({ entries, existing, canViewScores: false });
+  assert.deepEqual(flagged.map(({ index }) => index), [0, 1, 2, 3]);
+  assert.deepEqual(findLockedChanges({ entries, existing }).map(({ index }) => index), [1, 2]);
+});
+
 test('the whole-group row uses the group cell key', () => {
   assert.deepEqual(
     findLockedChanges({ entries: [entry(null, { quantityValue: 3 })], existing }),
