@@ -135,7 +135,7 @@ export class Panel {
       ...data.sale,
       total: Number(data.sale.total),
       costTotal: Number(data.sale.costTotal),
-      balanceAfter: data.sale.balanceAfter === null ? null : Number(data.sale.balanceAfter),
+      balanceAfter: data.sale.balanceAfter == null ? null : Number(data.sale.balanceAfter),
     };
   }
 
@@ -146,7 +146,7 @@ export class Panel {
     );
     return {
       ...data,
-      balanceAfter: data.balanceAfter === null ? null : Number(data.balanceAfter),
+      balanceAfter: data.balanceAfter == null ? null : Number(data.balanceAfter),
     };
   }
 }

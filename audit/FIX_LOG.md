@@ -301,3 +301,11 @@ accounting smokes pass. `COVERAGE.md` records 499 full reads and explicit limits
   January 31 → February 28/29 plus weekly, mid-month and future-anchor controls.
   `fix-a30/after-component.*`; independent SQL expectations remain in
   `continuation-08/schedule-calendar-sql.*`. No sessions created by these probes.
+
+### A05 — absent walk-in balances remain null
+
+- Sale and void adapters normalize absent/null balances before numeric conversion.
+  Five retained response cases cover absent/null/zero/negative/positive values;
+  full agent suite **37/37** passes (`fix-a05/tests-agent.*`).
+- Real adapter/isolated HTTP retry returns balance null, not NaN; sale is voided
+  in cleanup (`fix-a05/after-http.*`). No provider/audio execution is claimed.
