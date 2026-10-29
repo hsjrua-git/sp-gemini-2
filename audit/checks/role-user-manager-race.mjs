@@ -40,10 +40,30 @@ try {
   blocker = await db.connect();
   await blocker.query('BEGIN');
   await blocker.query('LOCK TABLE audit_log IN SHARE MODE');
-  requests = [
-    call(`/api/roles/${roles[0]}`, { method: 'PATCH', body: { permissions: [] } }),
-    call(`/api/users/${originals[1].id}`, { method: 'PATCH', body: { isActive: false } }),
-  ];
+  const userFirst = process.argv.includes('--user-first');
+  const demote = process.argv.includes('--demote');
+  const startRole = () => call(`/api/roles/${roles[0]}`, { method: 'PATCH', body: { permissions: [] } });
+  const startUser = () => call(`/api/users/${originals[1].id}`, { method: 'PATCH',
+    body: demote ? { roleId: originals[1].role_id } : { isActive: false } });
+  if (userFirst) {
+    // Hold the first user mutation after its guard, then send the role edit.
+    // This forces the opposite lock acquisition order without a timing sleep.
+    requests[1] = startUser();
+    requests[1].catch(() => {});
+    const deadline = Date.now() + 5000;
+    let arrived = false;
+    do {
+      arrived = (await db.query(`SELECT EXISTS (SELECT 1 FROM pg_stat_activity
+        WHERE datname = current_database() AND pid <> pg_backend_pid()
+          AND wait_event_type = 'Lock' AND query ILIKE '%INSERT INTO audit_log%') AS arrived`)).rows[0].arrived;
+      if (arrived) break;
+      await pause(20);
+    } while (Date.now() < deadline);
+    assert.ok(arrived, 'first user mutation must reach the barrier');
+    requests[0] = startRole();
+  } else {
+    requests = [startRole(), startUser()];
+  }
   const settled = Promise.allSettled(requests);
   let waiting = 0;
   const deadline = Date.now() + 5000;
@@ -61,14 +81,17 @@ try {
   blocker = null;
   const responses = await settled;
   const after = await countManagers();
-  console.log(JSON.stringify({ before, requestsAtAuditBarrier: waiting,
+  console.log(JSON.stringify({ before, userFirst, demote, requestsAtAuditBarrier: waiting,
     responses: responses.map((response, i) => ({ route: i === 0 ? 'roles' : 'users',
       ...(response.status === 'fulfilled' ? { status: response.value.status, code: response.value.data?.code }
         : { error: response.reason.message }) })), after }, null, 2));
   assert.ok(responses.every(response => response.status === 'fulfilled'), 'transport must complete');
-  assert.ok(responses.every(response => [200, 409].includes(response.value.status)), '500 is not a passing guard');
+  assert.ok(waiting >= 1, 'at least one guarded mutation must reach the audit barrier');
+  assert.deepEqual(responses.map(response => response.value.status).sort(), [200, 409]);
+  const refused = responses.findIndex(response => response.value.status === 409);
+  assert.equal(responses[refused].value.data.code, refused === 0 ? 'ROLES_LAST_MANAGER' : 'USERS_LAST_MANAGER');
   assert.equal(after.length, 2, 'both manager capabilities must retain an active holder');
-  assert.ok(after.every(row => row.count >= 1));
+  assert.deepEqual(after.map(row => row.count), [1, 1]);
 } finally {
   if (blocker) {
     await blocker.query('ROLLBACK');

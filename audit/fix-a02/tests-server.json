@@ -1,0 +1,11 @@
+{
+  "command": [
+    "npm",
+    "test"
+  ],
+  "directory": "server",
+  "started": "2026-10-29T20:41:16.561Z",
+  "ended": "2026-10-29T20:41:22.890Z",
+  "code": 0,
+  "signal": null
+}

@@ -77,8 +77,12 @@ try {
     after,
   }, null, 2));
   // A fixed implementation may serialize before the barrier (waiting === 1).
+  assert.ok(waiting >= 1, 'at least one guarded mutation must reach the audit barrier');
+  assert.ok(responses.every(response => response.status === 'fulfilled'), 'transport must complete');
+  assert.deepEqual(responses.map(response => response.value.status).sort(), [200, 409]);
+  assert.equal(responses.find(response => response.value.status === 409).value.data.code, 'ROLES_LAST_MANAGER');
   assert.equal(after.length, 2, 'both manager capabilities must retain an active holder');
-  assert.ok(after.every(row => row.count >= 1));
+  assert.deepEqual(after.map(row => row.count), [1, 1]);
 } finally {
   if (blocker) {
     await blocker.query('ROLLBACK');

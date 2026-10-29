@@ -1,0 +1,32 @@
+{
+  "before": [
+    {
+      "permission_key": "roles.manage",
+      "count": 2
+    },
+    {
+      "permission_key": "users.manage",
+      "count": 2
+    }
+  ],
+  "requestsAtAuditBarrier": 1,
+  "responses": [
+    {
+      "status": 200
+    },
+    {
+      "status": 409,
+      "code": "ROLES_LAST_MANAGER"
+    }
+  ],
+  "after": [
+    {
+      "permission_key": "roles.manage",
+      "count": 1
+    },
+    {
+      "permission_key": "users.manage",
+      "count": 1
+    }
+  ]
+}

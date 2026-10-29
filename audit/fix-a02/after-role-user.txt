@@ -1,0 +1,35 @@
+{
+  "before": [
+    {
+      "permission_key": "roles.manage",
+      "count": 2
+    },
+    {
+      "permission_key": "users.manage",
+      "count": 2
+    }
+  ],
+  "requestsAtAuditBarrier": 1,
+  "responses": [
+    {
+      "route": "roles",
+      "status": 200
+    },
+    {
+      "route": "users",
+      "status": 409,
+      "code": "USERS_LAST_MANAGER"
+    }
+  ],
+  "after": [
+    {
+      "permission_key": "roles.manage",
+      "count": 1
+    },
+    {
+      "permission_key": "users.manage",
+      "count": 1
+    }
+  ]
+}
+{"restoredManagers":[{"permission_key":"roles.manage","count":1},{"permission_key":"users.manage","count":1}]}

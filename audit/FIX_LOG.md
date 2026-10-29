@@ -37,3 +37,21 @@ accounting smokes pass. `COVERAGE.md` records 499 full reads and explicit limits
 - Full server suite: **139 pass / six integration skips**, exit 0. Other full
   suite results remain the Stage 1 baseline pending the Stage 2 checkpoint run.
 - Evidence: `fix-a01/*.{txt,json}`. Original failing evidence is preserved.
+
+### A02 — serialize the active-manager invariant
+
+- Added `server/src/lib/managerInvariant.js`; role create/edit/delete and user
+  create/edit acquire one transaction-scoped advisory lock before any row locks
+  or capability reads. User edits now lock their target after the shared lock.
+- Rechecked MCP identity (still the unrelated port-5432 database); inspected the
+  pinned isolated database's roles, permissions, users, indexes and constraints.
+  Schema evidence is in `fix-a02/schema.txt`; no migration was needed.
+- Strengthened both retained HTTP races to require exactly **200 + 409**, the
+  matching `*_LAST_MANAGER` code, and exactly one active holder for each key.
+  Both fail before the fix with **200 + 200 / zero managers**.
+- After the controlled API restart, role/role and role/user pass. Forced
+  user-first deactivation and user-first demotion also pass; the role change is
+  refused in those orderings. All fixture roles/active states are restored.
+- Full server suite: **139 pass / six skips**. Separate HTTP integration **6/6**
+  and serial stock **6**, sale/report **8+5**, alerts **6**, invariant **5**, and
+  accounting **9** smokes pass. Evidence: `fix-a02/*.{txt,json}`.

@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/home/hsjrua/.nvm/versions/node/v24.15.0/bin/node",
+    "src/scripts/accountingSmoke.mjs"
+  ],
+  "directory": "server",
+  "started": "2026-10-29T20:41:29.575Z",
+  "ended": "2026-10-29T20:41:29.971Z",
+  "code": 0,
+  "signal": null
+}

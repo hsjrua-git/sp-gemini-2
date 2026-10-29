@@ -4,6 +4,7 @@ import { recordAudit } from '../lib/audit.js';
 import { isUuid } from '../lib/ids.js';
 import { generatePassword, hashPassword } from '../lib/passwords.js';
 import { checkUserChange } from '../lib/userRules.js';
+import { lockManagerInvariant } from '../lib/managerInvariant.js';
 import { USER_COLUMNS, createUser } from '../lib/users.js';
 import { parseNewUser, parseUserUpdate } from '../validation/user.js';
 
@@ -71,6 +72,7 @@ router.post('/', async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    await lockManagerInvariant(client);
     if (!(await roleExists(client, parsed.values.roleId))) {
       await client.query('ROLLBACK');
       return res.status(400).json({
@@ -124,10 +126,7 @@ router.patch('/:id', async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    // Lock every active account so the guard counts below are consistent.
-    await client.query(
-      `SELECT id FROM users WHERE is_active ORDER BY id FOR UPDATE`
-    );
+    await lockManagerInvariant(client);
 
     const targetResult = await client.query(
       `SELECT ${USER_COLUMNS} FROM users WHERE id = $1 FOR UPDATE`,

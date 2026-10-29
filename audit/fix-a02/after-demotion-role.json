@@ -1,0 +1,13 @@
+{
+  "command": [
+    "node",
+    "audit/checks/role-user-manager-race.mjs",
+    "--user-first",
+    "--demote"
+  ],
+  "directory": ".",
+  "started": "2026-10-29T20:41:03.215Z",
+  "ended": "2026-10-29T20:41:08.737Z",
+  "code": 0,
+  "signal": null
+}

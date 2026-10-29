@@ -2,6 +2,7 @@ import { Router } from 'express';
 import pool from '../db/pool.js';
 import { recordAudit } from '../lib/audit.js';
 import { isUuid } from '../lib/ids.js';
+import { lockManagerInvariant } from '../lib/managerInvariant.js';
 import {
   PERMISSIONS,
   PREREQUISITES,
@@ -101,6 +102,7 @@ router.post('/', async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    await lockManagerInvariant(client);
     const roleResult = await client.query(
       `INSERT INTO roles (name, description, is_system)
        VALUES ($1, $2, false)
@@ -144,7 +146,8 @@ router.patch('/:id', async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    // Lock the role row first. We deliberately do NOT aggregate its
+    await lockManagerInvariant(client);
+    // Lock the role row next. We deliberately do NOT aggregate its
     // permissions in the same statement: PostgreSQL forbids FOR UPDATE
     // together with GROUP BY. Lock the single row, then read its permissions
     // in a follow-up query (same transaction, so the view is consistent).
@@ -278,6 +281,7 @@ router.delete('/:id', async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    await lockManagerInvariant(client);
     const existing = await client.query(
       `SELECT id, name, is_system AS "isSystem",
               (SELECT count(*)::int FROM users u WHERE u.role_id = roles.id)
