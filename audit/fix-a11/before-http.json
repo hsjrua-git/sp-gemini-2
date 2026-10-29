@@ -1,0 +1,11 @@
+{
+  "command": [
+    "node",
+    "audit/checks/zero-total-sales.mjs"
+  ],
+  "directory": ".",
+  "started": "2026-10-29T21:22:46.713Z",
+  "ended": "2026-10-29T21:22:48.436Z",
+  "code": 1,
+  "signal": null
+}

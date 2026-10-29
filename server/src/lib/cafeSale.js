@@ -7,6 +7,14 @@ import { findEntryBySource, postMappedEvent, voidEntry } from './accountingJourn
 import { recordAudit } from './audit.js';
 import { moneyNumber } from './money.js';
 
+async function unchangedBalance(db, studentId) {
+  const result = await db.query(
+    'SELECT balance FROM student_balances WHERE student_id = $1',
+    [studentId]
+  );
+  return moneyNumber(result.rows[0]?.balance ?? 0, 'Student balance');
+}
+
 // `user` is the acting request user ({ id, username }). Returns the created
 // sale id and totals (the caller re-reads the full row for the response).
 export async function createSale(db, { user, customer, studentId, items, note }) {
@@ -98,7 +106,8 @@ export async function createSale(db, { user, customer, studentId, items, note })
 
   let balanceAfter = null;
   if (customer === 'student') {
-    balanceAfter = await applyBalanceChange(db, {
+    // A free sale has stock/COGS effects but no balance movement.
+    balanceAfter = total === 0 ? await unchangedBalance(db, studentId) : await applyBalanceChange(db, {
       studentId,
       delta: -total,
       kind: 'charge',
@@ -179,7 +188,7 @@ export async function voidSale(db, { user, saleId }) {
 
   let balanceAfter = null;
   if (customer === 'student') {
-    balanceAfter = await applyBalanceChange(db, {
+    balanceAfter = total === 0 ? await unchangedBalance(db, studentId) : await applyBalanceChange(db, {
       studentId,
       delta: total,
       kind: 'refund',

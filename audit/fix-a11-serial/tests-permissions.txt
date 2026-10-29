@@ -1,0 +1,14 @@
+✔ every route in the list refuses an unauthenticated request (1052.78714ms)
+✔ a signed-in viewer never gets a 401, and privileged routes stay closed to staff (1657.564896ms)
+✔ staff can assign group members (groups.assign), even though they cannot manage groups (11.96672ms)
+✔ schema-4 score roles can read assignment/session context (82.614576ms)
+✔ accounting.close works without unrelated accounting.manage (12.19201ms)
+✔ admin can reach every route without a permission error (1280.763399ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5279.324765

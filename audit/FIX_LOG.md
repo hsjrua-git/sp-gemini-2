@@ -189,3 +189,20 @@ accounting smokes pass. `COVERAGE.md` records 499 full reads and explicit limits
   posts **15**, stock **0.855**. Accounting smoke **9/9**; server **145/six skips**.
 - Evidence: `fix-a10/`; synthetic products/suppliers deactivated; append-only
   purchase/waste/journal evidence retained in the isolated database.
+
+### A11 — zero-total student sale and void
+
+- Zero-total student transactions read the existing balance (zero when absent)
+  instead of writing a forbidden zero charge/refund. Stock, COGS and sale/void
+  audits retain their normal lifecycle. Live schema inspection: `fix-a11/schema.*`.
+- Retained four-case HTTP regression covers free and positive-price tiny sales,
+  each with absent and existing negative balances. Baseline all four return
+  500/23514; patched all four pass, including COGS post/void, stock restoration,
+  unchanged balance rows/timestamps/history, two audits and repeated-void refusal.
+- Original reproduction passes. One intermediate harness run used a top-level
+  balance property and expected 200 for the actual 201 void response; corrected
+  run passes. Its already-voided fixture and failure evidence are preserved.
+- Separate HTTP integration **6/6** and serial stock **6**, sales/reports **8+5**,
+  alerts **6**, races **5**, accounting **9** pass (`fix-a11-serial/`).
+- Full server suite includes the next A13 regressions: **149 pass / six skips**.
+  Shared client lint/build/core checkpoint remains applicable. No schema change.

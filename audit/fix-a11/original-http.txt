@@ -1,0 +1,5 @@
+{
+  "saleStatus": 201,
+  "errorCode": null,
+  "total": "0"
+}

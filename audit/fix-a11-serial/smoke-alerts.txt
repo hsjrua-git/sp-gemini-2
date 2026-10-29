@@ -1,0 +1,1 @@
+alerts smoke: all 6 checks passed
