@@ -1,0 +1,14 @@
+{
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "--config",
+    "../audit/checks/export-ui.vitest.config.mjs"
+  ],
+  "directory": "client",
+  "started": "2026-10-29T19:54:44.782Z",
+  "ended": "2026-10-29T19:54:51.774Z",
+  "code": 1,
+  "signal": null
+}

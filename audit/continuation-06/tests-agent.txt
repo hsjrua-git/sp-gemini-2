@@ -1,0 +1,31 @@
+npm notice run student-panel-voice-agent@0.1.0 test
+npm notice run node --test test/*.test.js
+✔ menu and balance flows work with no model at all (90.108897ms)
+✔ stage 2: a spoken yes NEVER records — the screen must confirm (15.005697ms)
+✔ stage 3: spoken yes AND screen confirm are both required (3.753206ms)
+✔ stage 3: the screen alone is refused without the spoken yes (1.201012ms)
+✔ stage 4: the spoken yes alone records (3.764926ms)
+✔ a student charge flows to the API as a student sale with the balance read back (5.666079ms)
+✔ cart changes after confirmation restart the protocol (1.855906ms)
+✔ voiding returns the money and only touches the session’s last sale (2.260743ms)
+✔ two missed turns hand over to a human (1.363585ms)
+✔ English dialogue works end to end (3.274363ms)
+✔ an LLM brain gets tools but cannot bypass the confirmation gate (0.889277ms)
+✔ basic numbers compose with و (2.98661ms)
+✔ thousands, millions and billions use their scale names (2.903945ms)
+✔ the whole money range the server allows is representable (9.251276ms)
+✔ quantities: Persian digits, Latin digits, words, halves (14.981287ms)
+✔ menu, report and language switch in both languages (16.705479ms)
+✔ confirmation yes/no are matched literally while confirming (7.641583ms)
+✔ adding a product: Persian and English with quantities (22.989795ms)
+✔ balance and attach extract the student name (7.94977ms)
+✔ product matching prefers the longest name (8.630349ms)
+✔ unrecognized utterances return null for the handover counter (0.71556ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 642.184417

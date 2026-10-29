@@ -1,0 +1,2 @@
+npm notice run client@0.0.0 lint
+npm notice run eslint .

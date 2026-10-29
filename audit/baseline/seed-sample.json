@@ -1,0 +1,11 @@
+{
+  "command": [
+    "node",
+    "src/scripts/seedSample.js"
+  ],
+  "directory": "server",
+  "started": "2026-10-29T06:59:27.524Z",
+  "ended": "2026-10-29T06:59:28.766Z",
+  "code": 0,
+  "signal": null
+}

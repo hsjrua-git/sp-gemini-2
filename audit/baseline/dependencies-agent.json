@@ -1,0 +1,12 @@
+{
+  "command": [
+    "npm",
+    "audit",
+    "--json"
+  ],
+  "directory": "agent",
+  "started": "2026-10-29T06:46:43.710Z",
+  "ended": "2026-10-29T06:46:45.382Z",
+  "code": 0,
+  "signal": null
+}

@@ -1,0 +1,26 @@
+{
+  "fixture": {
+    "name": "Audit Rejoin fd0ccbfb1e",
+    "cleaned": false,
+    "studentId": "98415dfa-8a1f-44fd-a709-b6f85cb86c5d",
+    "groupId": "ca702897-c64f-4d37-a81b-f8fc8d71002a"
+  },
+  "members": [
+    {
+      "id": "98415dfa-8a1f-44fd-a709-b6f85cb86c5d",
+      "fullName": "Audit Rejoin fd0ccbfb1e",
+      "studentCode": "3QT7P7B5",
+      "membershipId": "020059b3-1c21-4dfd-af7a-aae6f4a93667",
+      "joinedOn": "2026-10-29",
+      "leftOn": null
+    },
+    {
+      "id": "98415dfa-8a1f-44fd-a709-b6f85cb86c5d",
+      "fullName": "Audit Rejoin fd0ccbfb1e",
+      "studentCode": "3QT7P7B5",
+      "membershipId": "cacd6638-2ae5-4f56-9248-852637c6369c",
+      "joinedOn": "2026-10-29",
+      "leftOn": "2026-10-29"
+    }
+  ]
+}

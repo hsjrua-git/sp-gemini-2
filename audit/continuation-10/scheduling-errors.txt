@@ -1,0 +1,1901 @@
+
+ RUN  v5.0.1 /home/hsjrua/Documents/sp-gemini-1/client
+
+stdout | ../audit/checks/scheduling-errors.test.jsx > quick cancel displays the refusal in en
+{"language":"en","action":"quick cancel","settled":"409","errors":[]}
+
+stdout | ../audit/checks/scheduling-errors.test.jsx > quick cancel displays the refusal in fa
+{"language":"fa","action":"quick cancel","settled":"409","errors":[]}
+
+stdout | ../audit/checks/scheduling-errors.test.jsx > assignment restore displays its inactive-group refusal in en
+{"language":"en","action":"restore assignment","settled":"400","errors":[]}
+
+stdout | ../audit/checks/scheduling-errors.test.jsx > assignment restore displays its inactive-group refusal in fa
+{"language":"fa","action":"restore assignment","settled":"400","errors":[]}
+
+ ❯ ../audit/checks/scheduling-errors.test.jsx (6 tests | 6 failed) 1233ms
+   × quick cancel displays the refusal in en 463ms
+   × quick cancel displays the refusal in fa 145ms
+   × Edit cancellation control displays the same refusal in en 167ms
+   × Edit cancellation control displays the same refusal in fa 236ms
+   × assignment restore displays its inactive-group refusal in en 105ms
+   × assignment restore displays its inactive-group refusal in fa 110ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  ../audit/checks/scheduling-errors.test.jsx > quick cancel displays the refusal in en
+TestingLibraryElementError: Unable to find an element with the text: Remove or archive the session's active evaluation cells before canceling it.. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"wide"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"page-head"[39m
+      [36m>[39m
+        [36m<div>[39m
+          [36m<h1>[39m
+            [0mSessions[0m
+          [36m</h1>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"hint"[39m
+          [36m>[39m
+            [0mThe generated occurrences of the schedule: move, cancel or annotate them as reality shifts.[0m
+          [36m</p>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"section-card"[39m
+      [36m>[39m
+        [36m<h2>[39m
+          [0mGenerate sessions[0m
+        [36m</h2>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"row"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mfor[39m=[32m"generate-until"[39m
+          [36m>[39m
+            [0mCreate planned sessions until[0m
+          [36m</label>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"jalali-date-picker"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Gregorian"[39m
+              [33mid[39m=[32m"generate-until"[39m
+              [33mtype[39m=[32m"date"[39m
+              [33mvalue[39m=[32m"2026-12-28"[39m
+            [36m/>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Jalali"[39m
+              [33mdir[39m=[32m"ltr"[39m
+              [33minputmode[39m=[32m"numeric"[39m
+              [33mplaceholder[39m=[32m"e.g. 1405/08/03"[39m
+              [33mtype[39m=[32m"text"[39m
+              [33mvalue[39m=[32m"۱۴۰۵/۱۰/۰۷"[39m
+            [36m/>[39m
+          [36m</span>[39m
+          [36m<button[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mGenerate[0m
+          [36m</button>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"row"[39m
+        [36m>[39m
+          [36m<button[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mScan for unconfirmed sessions[0m
+          [36m</button>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"hint"[39m
+          [36m>[39m
+            [0mFlag overdue active sessions whose required evaluation cells are not all answered.[0m
+          [36m</span>[39m
+        [36m</div>[39m
+      [36m</section>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"section-card"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"toolbar"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mfor[39m=[32m"sessions-from"[39m
+          [36m>[39m
+            [0mFrom[0m
+          [36m</label>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"jalali-date-picker"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Gregorian"[39m
+              [33mid[39m=[32m"sessions-from"[39m
+              [33mtype[39m=[32m"date"[39m
+              [33mvalue[39m=[32m"2026-10-22"[39m
+            [36m/>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Jalali"[39m
+              [33mdir[39m=[32m"ltr"[39m
+              [33minputmode[39m=[32m"numeric"[39m
+              [33mplaceholder[39m=[32m"e.g. 1405/08/03"[39m
+              [33mtype[39m=[32m"text"[39m
+              [33mvalue[39m=[32m"۱۴۰۵/۰۷/۳۰"[39m
+            [36m/>[39m
+          [36m</span>[39m
+          [36m<label[39m
+            [33mfor[39m=[32m"sessions-to"[39m
+          [36m>[39m
+            [0mTo[0m
+          [36m</label>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"jalali-date-picker"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Gregorian"[39m
+              [33mid[39m=[32m"sessions-to"[39m
+              [33mtype[39m=[32m"date"[39m
+              [33mvalue[39m=[32m"2026-11-28"[39m
+            [36m/>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Jalali"[39m
+              [33mdir[39m=[32m"ltr"[39m
+              [33minputmode[39m=[32m"numeric"[39m
+              [33mplaceholder[39m=[32m"e.g. 1405/08/03"[39m
+              [33mtype[39m=[32m"text"[39m
+              [33mvalue[39m=[32m"۱۴۰۵/۰۹/۰۷"[39m
+            [36m/>[39m
+          [36m</span>[39m
+          [36m<select[39m
+            [33maria-label[39m=[32m"Filter by teacher"[39m
+          [36m>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m""[39m
+            [36m>[39m
+              [0mAll teachers[0m
+            [36m</option>[39m
+          [36m</select>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"hint"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33mtype[39m=[32m"checkbox"[39m
+            [36m/>[39m
+            [0mCanceled[0m
+          [36m</label>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"hint"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33mtype[39m=[32m"checkbox"[39m
+            [36m/>[39m
+            [0mArchived[0m
+          [36m</label>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"table-wrap"[39m
+        [36m>[39m
+          [36m<table>[39m
+            [36m<thead>[39m
+              [36m<tr>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mDate[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mCode[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mTeacher[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mTarget[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mPeriod[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mNote[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mActions[0m
+                [36m</th>[39m
+              [36m</tr>[39m
+            [36m</thead>[39m
+            [36m<tbody>[39m
+              [36m<tr>[39m
+                [36m<td>[39m
+                  [0mOct 22, 2026 (۳۰ مهر ۱۴۰۵)[0m
+                [36m</td>[39m
+                [36m<td>[39m
+                  [36m<code>[39m
+                    [0mAUDIT-SESSION[0m
+                  [36m</code>[39m
+                [36m</td>[39m
+                [36m<td>[39m
+                  [0mAudit teacher[0m
+                [36m</td>[39m
+                [36m<td>[39m
+                  [0mGroup Audit group[0m
+                [36m</td>[39m
+                [36m<td>[39m
+                  [0m№ 2[0m
+                [36m</td>[39m
+                [36m<td>[39m
+                  [0m—[0m
+                [36m</td>[39m
+                [36m<td>[39m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"quiet"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [0mTasks (0)[0m
+                  [36m</button>[39m
+                  [0m [0m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"quiet"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [0mEdit[0m
+                  [36m</button>[39m
+                  [0m [0m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"quiet"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [0mCancel[0m
+                  [36m</button>[39m
+                  [0m [0m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"quiet"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [0mArchive[0m
+                  [36m</button>[39m
+                  [0m [0m
+                [36m</td>[39m
+              [36m</tr>[39m
+            [36m</tbody>[39m
+          [36m</table>[39m
+        [36m</div>[39m
+      [36m</section>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"section-card"[39m
+      [36m>[39m
+        [36m<h2>[39m
+          [0mTask templates[0m
+        [36m</h2>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"hint"[39m
+        [36m>[39m
+          [0mNo templates yet — add one below, then attach it to any session.[0m
+        [36m</p>[39m
+        [36m<form[39m
+          [33mclass[39m=[32m"edit-form"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mfor[39m=[32m"template-title"[39m
+          [36m>[39m
+            [0mNew template[0m
+          [36m</label>[39m
+          [36m<input[39m
+            [33mautocomplete[39m=[32m"off"[39m
+            [33mid[39m=[32m"template-title"[39m
+            [33mmaxlength[39m=[32m"120"[39m
+            [33mplaceholder[39m=[32m"e.g. Weekly quiz"[39m
+            [33mvalue[39m=[32m""[39m
+          [36m/>[39m
+          [36m<label[39m
+            [33mfor[39m=[32m"template-desc"[39m
+          [36m>[39m
+            [0mDescription (optional)[0m
+          [36m</label>[39m
+          [36m<textarea[39m
+            [33mid[39m=[32m"template-desc"[39m
+            [33mmaxlength[39m=[32m"2000"[39m
+            [33mrows[39m=[32m"2"[39m
+          [36m/>[39m
+          [36m<button[39m
+            [33mdisabled[39m=[32m""[39m
+            [33mtype[39m=[32m"submit"[39m
+          [36m>[39m
+            [0mAdd template[0m
+          [36m</button>[39m
+        [36m</form>[39m
+      [36m</section>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ ../audit/checks/scheduling-errors.test.jsx:73:17
+     71|   await settledRefusal(client, 'SESSIONS_HAS_EVALUATIONS', button);
+     72|   console.log(JSON.stringify({ language, action: 'quick cancel', settl…
+     73|   expect(screen.getByText(i18n.t('errors:SESSIONS_HAS_EVALUATIONS'))).…
+       |                 ^
+     74| });
+     75|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  ../audit/checks/scheduling-errors.test.jsx > quick cancel displays the refusal in fa
+TestingLibraryElementError: Unable to find an element with the text: پیش از لغو جلسه، سلول‌های ارزشیابی فعال آن را حذف یا بایگانی کنید.. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"wide"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"page-head"[39m
+      [36m>[39m
+        [36m<div>[39m
+          [36m<h1>[39m
+            [0mجلسات[0m
+          [36m</h1>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"hint"[39m
+          [36m>[39m
+            [0mرویدادهای تولیدشده از برنامه هفتگی: با تغییر واقعیت، آن‌ها را جابه‌جا، لغو یا یادداشت‌گذاری کنید.[0m
+          [36m</p>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"section-card"[39m
+      [36m>[39m
+        [36m<h2>[39m
+          [0mتولید جلسات[0m
+        [36m</h2>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"row"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mfor[39m=[32m"generate-until"[39m
+          [36m>[39m
+            [0mایجاد جلسات برنامه‌ریزی‌شده تا[0m
+          [36m</label>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"jalali-date-picker"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"میلادی"[39m
+              [33mid[39m=[32m"generate-until"[39m
+              [33mtype[39m=[32m"date"[39m
+              [33mvalue[39m=[32m"2026-12-28"[39m
+            [36m/>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"شمسی"[39m
+              [33mdir[39m=[32m"ltr"[39m
+              [33minputmode[39m=[32m"numeric"[39m
+              [33mplaceholder[39m=[32m"مثلاً ۱۴۰۵/۰۸/۰۳"[39m
+              [33mtype[39m=[32m"text"[39m
+              [33mvalue[39m=[32m"۱۴۰۵/۱۰/۰۷"[39m
+            [36m/>[39m
+          [36m</span>[39m
+          [36m<button[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mتولید[0m
+          [36m</button>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"row"[39m
+        [36m>[39m
+          [36m<button[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mپویش جلسات تأییدنشده[0m
+          [36m</button>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"hint"[39m
+          [36m>[39m
+            [0mجلسات فعالِ گذشته را که همهٔ خانه‌های ارزشیابی لازم آن‌ها پاسخ نگرفته‌اند، نشانه‌گذاری می‌کند.[0m
+          [36m</span>[39m
+        [36m</div>[39m
+      [36m</section>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"section-card"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"toolbar"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mfor[39m=[32m"sessions-from"[39m
+          [36m>[39m
+            [0mاز[0m
+          [36m</label>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"jalali-date-picker"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"میلادی"[39m
+              [33mid[39m=[32m"sessions-from"[39m
+              [33mtype[39m=[32m"date"[39m
+              [33mvalue[39m=[32m"2026-10-22"[39m
+            [36m/>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"شمسی"[39m
+              [33mdir[39m=[32m"ltr"[39m
+              [33minputmode[39m=[32m"numeric"[39m
+              [33mplaceholder[39m=[32m"مثلاً ۱۴۰۵/۰۸/۰۳"[39m
+              [33mtype[39m=[32m"text"[39m
+              [33mvalue[39m=[32m"۱۴۰۵/۰۷/۳۰"[39m
+            [36m/>[39m
+          [36m</span>[39m
+          [36m<label[39m
+            [33mfor[39m=[32m"sessions-to"[39m
+          [36m>[39m
+            [0mتا[0m
+          [36m</label>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"jalali-date-picker"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"میلادی"[39m
+              [33mid[39m=[32m"sessions-to"[39m
+              [33mtype[39m=[32m"date"[39m
+              [33mvalue[39m=[32m"2026-11-28"[39m
+            [36m/>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"شمسی"[39m
+              [33mdir[39m=[32m"ltr"[39m
+              [33minputmode[39m=[32m"numeric"[39m
+              [33mplaceholder[39m=[32m"مثلاً ۱۴۰۵/۰۸/۰۳"[39m
+              [33mtype[39m=[32m"text"[39m
+              [33mvalue[39m=[32m"۱۴۰۵/۰۹/۰۷"[39m
+            [36m/>[39m
+          [36m</span>[39m
+          [36m<select[39m
+            [33maria-label[39m=[32m"فیلتر بر اساس معلم"[39m
+          [36m>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m""[39m
+            [36m>[39m
+              [0mهمهٔ معلمان[0m
+            [36m</option>[39m
+          [36m</select>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"hint"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33mtype[39m=[32m"checkbox"[39m
+            [36m/>[39m
+            [0mلغوشده[0m
+          [36m</label>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"hint"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33mtype[39m=[32m"checkbox"[39m
+            [36m/>[39m
+            [0mبایگانی‌شده[0m
+          [36m</label>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"table-wrap"[39m
+        [36m>[39m
+          [36m<table>[39m
+            [36m<thead>[39m
+              [36m<tr>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mتاریخ[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mکد[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mمعلم[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mمقصد[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mدوره[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mیادداشت[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mعملیات[0m
+                [36m</th>[39m
+              [36m</tr>[39m
+            [36m</thead>[39m
+            [36m<tbody>[39m
+              [36m<tr>[39m
+                [36m<td>[39m
+                  [0m۳۰ مهر ۱۴۰۵ (Oct 22, 2026)[0m
+                [36m</td>[39m
+                [36m<td>[39m
+                  [36m<code>[39m
+                    [0mAUDIT-SESSION[0m
+                  [36m</code>[39m
+                [36m</td>[39m
+                [36m<td>[39m
+                  [0mAudit teacher[0m
+                [36m</td>[39m
+                [36m<td>[39m
+                  [0mگروه Audit group[0m
+                [36m</td>[39m
+                [36m<td>[39m
+                  [0mدورهٔ 2[0m
+                [36m</td>[39m
+                [36m<td>[39m
+                  [0m—[0m
+                [36m</td>[39m
+                [36m<td>[39m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"quiet"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [0mکارها (0)[0m
+                  [36m</button>[39m
+                  [0m [0m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"quiet"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [0mویرایش[0m
+                  [36m</button>[39m
+                  [0m [0m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"quiet"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [0mانصراف[0m
+                  [36m</button>[39m
+                  [0m [0m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"quiet"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [0mبایگانی[0m
+                  [36m</button>[39m
+                  [0m [0m
+                [36m</td>[39m
+              [36m</tr>[39m
+            [36m</tbody>[39m
+          [36m</table>[39m
+        [36m</div>[39m
+      [36m</section>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"section-card"[39m
+      [36m>[39m
+        [36m<h2>[39m
+          [0mالگوهای کار[0m
+        [36m</h2>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"hint"[39m
+        [36m>[39m
+          [0mهنوز الگویی نیست — یکی را در پایین اضافه کنید و بعد به هر جلسه‌ای بچسبانید.[0m
+        [36m</p>[39m
+        [36m<form[39m
+          [33mclass[39m=[32m"edit-form"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mfor[39m=[32m"template-title"[39m
+          [36m>[39m
+            [0mالگوی جدید[0m
+          [36m</label>[39m
+          [36m<input[39m
+            [33mautocomplete[39m=[32m"off"[39m
+            [33mid[39m=[32m"template-title"[39m
+            [33mmaxlength[39m=[32m"120"[39m
+            [33mplaceholder[39m=[32m"مثلاً آزمونک هفتگی"[39m
+            [33mvalue[39m=[32m""[39m
+          [36m/>[39m
+          [36m<label[39m
+            [33mfor[39m=[32m"template-desc"[39m
+          [36m>[39m
+            [0mتوضیح (اختیاری)[0m
+          [36m</label>[39m
+          [36m<textarea[39m
+            [33mid[39m=[32m"template-desc"[39m
+            [33mmaxlength[39m=[32m"2000"[39m
+            [33mrows[39m=[32m"2"[39m
+          [36m/>[39m
+          [36m<button[39m
+            [33mdisabled[39m=[32m""[39m
+            [33mtype[39m=[32m"submit"[39m
+          [36m>[39m
+            [0mافزودن الگو[0m
+          [36m</button>[39m
+        [36m</form>[39m
+      [36m</section>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ ../audit/checks/scheduling-errors.test.jsx:73:17
+     71|   await settledRefusal(client, 'SESSIONS_HAS_EVALUATIONS', button);
+     72|   console.log(JSON.stringify({ language, action: 'quick cancel', settl…
+     73|   expect(screen.getByText(i18n.t('errors:SESSIONS_HAS_EVALUATIONS'))).…
+       |                 ^
+     74| });
+     75|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  ../audit/checks/scheduling-errors.test.jsx > Edit cancellation control displays the same refusal in en
+TestingLibraryElementError: Found multiple elements with the role "checkbox" and name "Canceled"
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<input[39m
+  [33mtype[39m=[32m"checkbox"[39m
+[36m/>[39m
+
+Ignored nodes: comments, script, style
+[36m<input[39m
+  [33mtype[39m=[32m"checkbox"[39m
+[36m/>[39m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"wide"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"page-head"[39m
+      [36m>[39m
+        [36m<div>[39m
+          [36m<h1>[39m
+            [0mSessions[0m
+          [36m</h1>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"hint"[39m
+          [36m>[39m
+            [0mThe generated occurrences of the schedule: move, cancel or annotate them as reality shifts.[0m
+          [36m</p>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"section-card"[39m
+      [36m>[39m
+        [36m<h2>[39m
+          [0mGenerate sessions[0m
+        [36m</h2>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"row"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mfor[39m=[32m"generate-until"[39m
+          [36m>[39m
+            [0mCreate planned sessions until[0m
+          [36m</label>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"jalali-date-picker"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Gregorian"[39m
+              [33mid[39m=[32m"generate-until"[39m
+              [33mtype[39m=[32m"date"[39m
+              [33mvalue[39m=[32m"2026-12-28"[39m
+            [36m/>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Jalali"[39m
+              [33mdir[39m=[32m"ltr"[39m
+              [33minputmode[39m=[32m"numeric"[39m
+              [33mplaceholder[39m=[32m"e.g. 1405/08/03"[39m
+              [33mtype[39m=[32m"text"[39m
+              [33mvalue[39m=[32m"۱۴۰۵/۱۰/۰۷"[39m
+            [36m/>[39m
+          [36m</span>[39m
+          [36m<button[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mGenerate[0m
+          [36m</button>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"row"[39m
+        [36m>[39m
+          [36m<button[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mScan for unconfirmed sessions[0m
+          [36m</button>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"hint"[39m
+          [36m>[39m
+            [0mFlag overdue active sessions whose required evaluation cells are not all answered.[0m
+          [36m</span>[39m
+        [36m</div>[39m
+      [36m</section>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"section-card"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"toolbar"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mfor[39m=[32m"sessions-from"[39m
+          [36m>[39m
+            [0mFrom[0m
+          [36m</label>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"jalali-date-picker"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Gregorian"[39m
+              [33mid[39m=[32m"sessions-from"[39m
+              [33mtype[39m=[32m"date"[39m
+              [33mvalue[39m=[32m"2026-10-22"[39m
+            [36m/>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Jalali"[39m
+              [33mdir[39m=[32m"ltr"[39m
+              [33minputmode[39m=[32m"numeric"[39m
+              [33mplaceholder[39m=[32m"e.g. 1405/08/03"[39m
+              [33mtype[39m=[32m"text"[39m
+              [33mvalue[39m=[32m"۱۴۰۵/۰۷/۳۰"[39m
+            [36m/>[39m
+          [36m</span>[39m
+          [36m<label[39m
+            [33mfor[39m=[32m"sessions-to"[39m
+          [36m>[39m
+            [0mTo[0m
+          [36m</label>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"jalali-date-picker"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Gregorian"[39m
+              [33mid[39m=[32m"sessions-to"[39m
+              [33mtype[39m=[32m"date"[39m
+              [33mvalue[39m=[32m"2026-11-28"[39m
+            [36m/>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Jalali"[39m
+              [33mdir[39m=[32m"ltr"[39m
+              [33minputmode[39m=[32m"numeric"[39m
+              [33mplaceholder[39m=[32m"e.g. 1405/08/03"[39m
+              [33mtype[39m=[32m"text"[39m
+              [33mvalue[39m=[32m"۱۴۰۵/۰۹/۰۷"[39m
+            [36m/>[39m
+          [36m</span>[39m
+          [36m<select[39m
+            [33maria-label[39m=[32m"Filter by teacher"[39m
+          [36m>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m""[39m
+            [36m>[39m
+              [0mAll teachers[0m
+            [36m</option>[39m
+          [36m</select>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"hint"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33mtype[39m=[32m"checkbox"[39m
+            [36m/>[39m
+            [0mCanceled[0m
+          [36m</label>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"hint"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33mtype[39m=[32m"checkbox"[39m
+            [36m/>[39m
+            [0mArchived[0m
+          [36m</label>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"table-wrap"[39m
+        [36m>[39m
+          [36m<table>[39m
+            [36m<thead>[39m
+              [36m<tr>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mDate[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mCode[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mTeacher[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mTarget[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mPeriod[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mNote[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mActions[0m
+                [36m</th>[39m
+              [36m</tr>[39m
+            [36m</thead>[39m
+            [36m<tbody>[39m
+              [36m<tr>[39m
+                [36m<td[39m
+                  [33mcolspan[39m=[32m"7"[39m
+                [36m>[39m
+                  [36m<form[39m
+                    [33mclass[39m=[32m"edit-form"[39m
+                  [36m>[39m
+                    [36m<label[39m
+                      [33mfor[39m=[32m"moved-session-1"[39m
+                    [36m>[39m
+                      [0mTakes place on[0m
+                    [36m</label>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"jalali-date-picker"[39m
+                    [36m>[39m
+                      [36m<input[39m
+                        [33maria-label[39m=[32m"Gregorian"[39m
+                        [33mid[39m=[32m"moved-session-1"[39m
+                        [33mtype[39m=[32m"date"[39m
+                        [33mvalue[39m=[32m""[39m
+                      [36m/>[39m
+                      [36m<input[39m
+                        [33maria-label[39m=[32m"Jalali"[39m
+                        [33mdir[39m=[32m"ltr"[39m
+                        [33minputmode[39m=[32m"numeric"[39m
+                        [33mplaceholder[39m=[32m"e.g. 1405/08/03"[39m
+                        [33mtype[39m=[32m"text"[39m
+                        [33mvalue[39m=[32m""[39m
+                      [36m/>[39m
+                    [36m</span>[39m
+                    [36m<p[39m
+                      [33mclass[39m=[32m"hint"[39m
+                    [36m>[39m
+                      [0mLeave empty to keep the planned date (Oct 22, 2026 (۳۰ مهر ۱۴۰۵)).[0m
+                    [36m</p>[39m
+                    [36m<label[39m
+                      [33mclass[39m=[32m"hint"[39m
+                    [36m>[39m
+                      [36m<input[39m
+                        [33mtype[39m=[32m"checkbox"[39m
+                      [36m/>[39m
+                      [0m [0m
+                      [0mCanceled[0m
+                    [36m</label>[39m
+                    [36m<label[39m
+                      [33mfor[39m=[32m"note-session-1"[39m
+                    [36m>[39m
+                      [0mNote[0m
+                    [36m</label>[39m
+                    [36m<textarea[39m
+                      [33mid[39m=[32m"note-session-1"[39m
+                      [33mmaxlength[39m=[32m"500"[39m
+                      [33mrows[39m=[32m"2"[39m
+                    [36m/>[39m
+                    [36m<div[39m
+                      [33mclass[39m=[32m"row"[39m
+                    [36m>[39m
+                      [36m<button[39m
+                        [33mtype[39m=[32m"submit"[39m
+                      [36m>[39m
+                        [0mSave session[0m
+                      [36m</button>[39m
+                      [36m<button[39m
+                        [33mtype[39m=[32m"button"[39m
+                      [36m>[39m
+                        [0mCancel[0m
+                      [36m</button>[39m
+                    [36m</div>[39m
+                  [36m</form>[39m
+                [36m</td>[39m
+              [36m</tr>[39m
+            [36m</tbody>[39m
+          [36m</table>[39m
+        [36m</div>[39m
+      [36m</section>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"section-card"[39m
+      [36m>[39m
+        [36m<h2>[39m
+          [0mTask templates[0m
+        [36m</h2>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"hint"[39m
+        [36m>[39m
+          [0mNo templates yet — add one below, then attach it to any session.[0m
+        [36m</p>[39m
+        [36m<form[39m
+          [33mclass[39m=[32m"edit-form"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mfor[39m=[32m"template-title"[39m
+          [36m>[39m
+            [0mNew template[0m
+          [36m</label>[39m
+          [36m<input[39m
+            [33mautocomplete[39m=[32m"off"[39m
+            [33mid[39m=[32m"template-title"[39m
+            [33mmaxlength[39m=[32m"120"[39m
+            [33mplaceholder[39m=[32m"e.g. Weekly quiz"[39m
+            [33mvalue[39m=[32m""[39m
+          [36m/>[39m
+          [36m<label[39m
+            [33mfor[39m=[32m"template-desc"[39m
+          [36m>[39m
+            [0mDescription (optional)[0m
+          [36m</label>[39m
+          [36m<textarea[39m
+            [33mid[39m=[32m"template-desc"[39m
+            [33mmaxlength[39m=[32m"2000"[39m
+            [33mrows[39m=[32m"2"[39m
+          [36m/>[39m
+          [36m<button[39m
+            [33mdisabled[39m=[32m""[39m
+            [33mtype[39m=[32m"submit"[39m
+          [36m>[39m
+            [0mAdd template[0m
+          [36m</button>[39m
+        [36m</form>[39m
+      [36m</section>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getElementError node_modules/@testing-library/dom/dist/query-helpers.js:20:35
+ ❯ getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:23:10
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:55:13
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ ../audit/checks/scheduling-errors.test.jsx:80:26
+     78|   const row = (await screen.findByText('AUDIT-SESSION')).closest('tr');
+     79|   fireEvent.click(within(row).getByRole('button', { name: i18n.t('comm…
+     80|   fireEvent.click(screen.getByRole('checkbox', { name: i18n.t('admin:s…
+       |                          ^
+     81|   const button = screen.getByRole('button', { name: i18n.t('admin:sess…
+     82|   fireEvent.click(button);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  ../audit/checks/scheduling-errors.test.jsx > Edit cancellation control displays the same refusal in fa
+TestingLibraryElementError: Unable to find an element with the text: پیش از لغو جلسه، سلول‌های ارزشیابی فعال آن را حذف یا بایگانی کنید.. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"wide"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"page-head"[39m
+      [36m>[39m
+        [36m<div>[39m
+          [36m<h1>[39m
+            [0mجلسات[0m
+          [36m</h1>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"hint"[39m
+          [36m>[39m
+            [0mرویدادهای تولیدشده از برنامه هفتگی: با تغییر واقعیت، آن‌ها را جابه‌جا، لغو یا یادداشت‌گذاری کنید.[0m
+          [36m</p>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"section-card"[39m
+      [36m>[39m
+        [36m<h2>[39m
+          [0mتولید جلسات[0m
+        [36m</h2>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"row"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mfor[39m=[32m"generate-until"[39m
+          [36m>[39m
+            [0mایجاد جلسات برنامه‌ریزی‌شده تا[0m
+          [36m</label>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"jalali-date-picker"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"میلادی"[39m
+              [33mid[39m=[32m"generate-until"[39m
+              [33mtype[39m=[32m"date"[39m
+              [33mvalue[39m=[32m"2026-12-28"[39m
+            [36m/>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"شمسی"[39m
+              [33mdir[39m=[32m"ltr"[39m
+              [33minputmode[39m=[32m"numeric"[39m
+              [33mplaceholder[39m=[32m"مثلاً ۱۴۰۵/۰۸/۰۳"[39m
+              [33mtype[39m=[32m"text"[39m
+              [33mvalue[39m=[32m"۱۴۰۵/۱۰/۰۷"[39m
+            [36m/>[39m
+          [36m</span>[39m
+          [36m<button[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mتولید[0m
+          [36m</button>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"row"[39m
+        [36m>[39m
+          [36m<button[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mپویش جلسات تأییدنشده[0m
+          [36m</button>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"hint"[39m
+          [36m>[39m
+            [0mجلسات فعالِ گذشته را که همهٔ خانه‌های ارزشیابی لازم آن‌ها پاسخ نگرفته‌اند، نشانه‌گذاری می‌کند.[0m
+          [36m</span>[39m
+        [36m</div>[39m
+      [36m</section>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"section-card"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"toolbar"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mfor[39m=[32m"sessions-from"[39m
+          [36m>[39m
+            [0mاز[0m
+          [36m</label>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"jalali-date-picker"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"میلادی"[39m
+              [33mid[39m=[32m"sessions-from"[39m
+              [33mtype[39m=[32m"date"[39m
+              [33mvalue[39m=[32m"2026-10-22"[39m
+            [36m/>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"شمسی"[39m
+              [33mdir[39m=[32m"ltr"[39m
+              [33minputmode[39m=[32m"numeric"[39m
+              [33mplaceholder[39m=[32m"مثلاً ۱۴۰۵/۰۸/۰۳"[39m
+              [33mtype[39m=[32m"text"[39m
+              [33mvalue[39m=[32m"۱۴۰۵/۰۷/۳۰"[39m
+            [36m/>[39m
+          [36m</span>[39m
+          [36m<label[39m
+            [33mfor[39m=[32m"sessions-to"[39m
+          [36m>[39m
+            [0mتا[0m
+          [36m</label>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"jalali-date-picker"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"میلادی"[39m
+              [33mid[39m=[32m"sessions-to"[39m
+              [33mtype[39m=[32m"date"[39m
+              [33mvalue[39m=[32m"2026-11-28"[39m
+            [36m/>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"شمسی"[39m
+              [33mdir[39m=[32m"ltr"[39m
+              [33minputmode[39m=[32m"numeric"[39m
+              [33mplaceholder[39m=[32m"مثلاً ۱۴۰۵/۰۸/۰۳"[39m
+              [33mtype[39m=[32m"text"[39m
+              [33mvalue[39m=[32m"۱۴۰۵/۰۹/۰۷"[39m
+            [36m/>[39m
+          [36m</span>[39m
+          [36m<select[39m
+            [33maria-label[39m=[32m"فیلتر بر اساس معلم"[39m
+          [36m>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m""[39m
+            [36m>[39m
+              [0mهمهٔ معلمان[0m
+            [36m</option>[39m
+          [36m</select>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"hint"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33mtype[39m=[32m"checkbox"[39m
+            [36m/>[39m
+            [0mلغوشده[0m
+          [36m</label>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"hint"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33mtype[39m=[32m"checkbox"[39m
+            [36m/>[39m
+            [0mبایگانی‌شده[0m
+          [36m</label>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"table-wrap"[39m
+        [36m>[39m
+          [36m<table>[39m
+            [36m<thead>[39m
+              [36m<tr>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mتاریخ[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mکد[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mمعلم[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mمقصد[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mدوره[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mیادداشت[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mعملیات[0m
+                [36m</th>[39m
+              [36m</tr>[39m
+            [36m</thead>[39m
+            [36m<tbody>[39m
+              [36m<tr>[39m
+                [36m<td[39m
+                  [33mcolspan[39m=[32m"7"[39m
+                [36m>[39m
+                  [36m<form[39m
+                    [33mclass[39m=[32m"edit-form"[39m
+                  [36m>[39m
+                    [36m<label[39m
+                      [33mfor[39m=[32m"moved-session-1"[39m
+                    [36m>[39m
+                      [0mبرگزار می‌شود در[0m
+                    [36m</label>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"jalali-date-picker"[39m
+                    [36m>[39m
+                      [36m<input[39m
+                        [33maria-label[39m=[32m"میلادی"[39m
+                        [33mid[39m=[32m"moved-session-1"[39m
+                        [33mtype[39m=[32m"date"[39m
+                        [33mvalue[39m=[32m""[39m
+                      [36m/>[39m
+                      [36m<input[39m
+                        [33maria-label[39m=[32m"شمسی"[39m
+                        [33mdir[39m=[32m"ltr"[39m
+                        [33minputmode[39m=[32m"numeric"[39m
+                        [33mplaceholder[39m=[32m"مثلاً ۱۴۰۵/۰۸/۰۳"[39m
+                        [33mtype[39m=[32m"text"[39m
+                        [33mvalue[39m=[32m""[39m
+                      [36m/>[39m
+                    [36m</span>[39m
+                    [36m<p[39m
+                      [33mclass[39m=[32m"hint"[39m
+                    [36m>[39m
+                      [0mبرای حفظ تاریخ برنامه‌ریزی‌شده (۳۰ مهر ۱۴۰۵ (Oct 22, 2026)) خالی بگذارید.[0m
+                    [36m</p>[39m
+                    [36m<label[39m
+                      [33mclass[39m=[32m"hint"[39m
+                    [36m>[39m
+                      [36m<input[39m
+                        [33mtype[39m=[32m"checkbox"[39m
+                      [36m/>[39m
+                      [0m [0m
+                      [0mلغو شد[0m
+                    [36m</label>[39m
+                    [36m<label[39m
+                      [33mfor[39m=[32m"note-session-1"[39m
+                    [36m>[39m
+                      [0mیادداشت[0m
+                    [36m</label>[39m
+                    [36m<textarea[39m
+                      [33mid[39m=[32m"note-session-1"[39m
+                      [33mmaxlength[39m=[32m"500"[39m
+                      [33mrows[39m=[32m"2"[39m
+                    [36m/>[39m
+                    [36m<div[39m
+                      [33mclass[39m=[32m"row"[39m
+                    [36m>[39m
+                      [36m<button[39m
+                        [33mtype[39m=[32m"submit"[39m
+                      [36m>[39m
+                        [0mذخیرهٔ جلسه[0m
+                      [36m</button>[39m
+                      [36m<button[39m
+                        [33mtype[39m=[32m"button"[39m
+                      [36m>[39m
+                        [0mانصراف[0m
+                      [36m</button>[39m
+                    [36m</div>[39m
+                    [36m<p[39m
+                      [33mclass[39m=[32m"error"[39m
+                    [36m>[39m
+                      [0mArchive or remove the active evaluation cells before canceling this session.[0m
+                    [36m</p>[39m
+                  [36m</form>[39m
+                [36m</td>[39m
+              [36m</tr>[39m
+            [36m</tbody>[39m
+          [36m</table>[39m
+        [36m</div>[39m
+      [36m</section>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"section-card"[39m
+      [36m>[39m
+        [36m<h2>[39m
+          [0mالگوهای کار[0m
+        [36m</h2>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"hint"[39m
+        [36m>[39m
+          [0mهنوز الگویی نیست — یکی را در پایین اضافه کنید و بعد به هر جلسه‌ای بچسبانید.[0m
+        [36m</p>[39m
+        [36m<form[39m
+          [33mclass[39m=[32m"edit-form"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mfor[39m=[32m"template-title"[39m
+          [36m>[39m
+            [0mالگوی جدید[0m
+          [36m</label>[39m
+          [36m<input[39m
+            [33mautocomplete[39m=[32m"off"[39m
+            [33mid[39m=[32m"template-title"[39m
+            [33mmaxlength[39m=[32m"120"[39m
+            [33mplaceholder[39m=[32m"مثلاً آزمونک هفتگی"[39m
+            [33mvalue[39m=[32m""[39m
+          [36m/>[39m
+          [36m<label[39m
+            [33mfor[39m=[32m"template-desc"[39m
+          [36m>[39m
+            [0mتوضیح (اختیاری)[0m
+          [36m</label>[39m
+          [36m<textarea[39m
+            [33mid[39m=[32m"template-desc"[39m
+            [33mmaxlength[39m=[32m"2000"[39m
+            [33mrows[39m=[32m"2"[39m
+          [36m/>[39m
+          [36m<button[39m
+            [33mdisabled[39m=[32m""[39m
+            [33mtype[39m=[32m"submit"[39m
+          [36m>[39m
+            [0mافزودن الگو[0m
+          [36m</button>[39m
+        [36m</form>[39m
+      [36m</section>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ ../audit/checks/scheduling-errors.test.jsx:84:17
+     82|   fireEvent.click(button);
+     83|   await settledRefusal(client, 'SESSIONS_HAS_EVALUATIONS', button);
+     84|   expect(screen.getByText(i18n.t('errors:SESSIONS_HAS_EVALUATIONS'))).…
+       |                 ^
+     85| });
+     86|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  ../audit/checks/scheduling-errors.test.jsx > assignment restore displays its inactive-group refusal in en
+TestingLibraryElementError: Unable to find an element with the text: Choose an active group.. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"wide"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"page-head"[39m
+      [36m>[39m
+        [36m<div>[39m
+          [36m<h1>[39m
+            [0mSchedule[0m
+          [36m</h1>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"hint"[39m
+          [36m>[39m
+            [0mRecurring assignments: a teacher meets a group or one student, on a rhythm, from a start date.[0m
+          [36m</p>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"section-card"[39m
+      [36m>[39m
+        [36m<h2>[39m
+          [0mAdd an assignment[0m
+        [36m</h2>[39m
+        [36m<form[39m
+          [33mclass[39m=[32m"edit-form"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mfor[39m=[32m"assignment-teacher"[39m
+          [36m>[39m
+            [0mTeacher[0m
+          [36m</label>[39m
+          [36m<select[39m
+            [33mid[39m=[32m"assignment-teacher"[39m
+          [36m>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m""[39m
+            [36m>[39m
+              [0mChoose a teacher…[0m
+            [36m</option>[39m
+          [36m</select>[39m
+          [36m<label[39m
+            [33mfor[39m=[32m"assignment-interval"[39m
+          [36m>[39m
+            [0mEvery[0m
+          [36m</label>[39m
+          [36m<select[39m
+            [33mid[39m=[32m"assignment-interval"[39m
+          [36m>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m""[39m
+            [36m>[39m
+              [0mChoose an interval…[0m
+            [36m</option>[39m
+          [36m</select>[39m
+          [36m<label[39m
+            [33mfor[39m=[32m"assignment-anchor"[39m
+          [36m>[39m
+            [0mStarting from (anchor date)[0m
+          [36m</label>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"jalali-date-picker"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Gregorian"[39m
+              [33mid[39m=[32m"assignment-anchor"[39m
+              [33mtype[39m=[32m"date"[39m
+              [33mvalue[39m=[32m"2026-10-29"[39m
+            [36m/>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"Jalali"[39m
+              [33mdir[39m=[32m"ltr"[39m
+              [33minputmode[39m=[32m"numeric"[39m
+              [33mplaceholder[39m=[32m"e.g. 1405/08/03"[39m
+              [33mtype[39m=[32m"text"[39m
+              [33mvalue[39m=[32m"۱۴۰۵/۰۸/۰۷"[39m
+            [36m/>[39m
+          [36m</span>[39m
+          [36m<label[39m
+            [33mfor[39m=[32m"assignment-name"[39m
+          [36m>[39m
+            [0mName (optional)[0m
+          [36m</label>[39m
+          [36m<input[39m
+            [33mautocomplete[39m=[32m"off"[39m
+            [33mid[39m=[32m"assignment-name"[39m
+            [33mmaxlength[39m=[32m"100"[39m
+            [33mplaceholder[39m=[32m"e.g. Monday maths"[39m
+            [33mvalue[39m=[32m""[39m
+          [36m/>[39m
+          [36m<label>[39m
+            [0mTarget[0m
+          [36m</label>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"row"[39m
+          [36m>[39m
+            [36m<label[39m
+              [33mclass[39m=[32m"hint"[39m
+            [36m>[39m
+              [36m<input[39m
+                [33mchecked[39m=[32m""[39m
+                [33mname[39m=[32m"target-kind"[39m
+                [33mtype[39m=[32m"radio"[39m
+              [36m/>[39m
+              [0m [0m
+              [0mWhole group[0m
+            [36m</label>[39m
+            [36m<label[39m
+              [33mclass[39m=[32m"hint"[39m
+            [36m>[39m
+              [36m<input[39m
+                [33mname[39m=[32m"target-kind"[39m
+                [33mtype[39m=[32m"radio"[39m
+              [36m/>[39m
+              [0m [0m
+              [0mOne student[0m
+            [36m</label>[39m
+          [36m</div>[39m
+          [36m<label[39m
+            [33mfor[39m=[32m"assignment-group"[39m
+          [36m>[39m
+            [0mGroup[0m
+          [36m</label>[39m
+          [36m<select[39m
+            [33mid[39m=[32m"assignment-group"[39m
+          [36m>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m""[39m
+            [36m>[39m
+              [0mChoose a group…[0m
+            [36m</option>[39m
+          [36m</select>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"row"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33mtype[39m=[32m"submit"[39m
+            [36m>[39m
+              [0mAdd assignment[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</form>[39m
+      [36m</section>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"section-card"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"toolbar"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"hint"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33mtype[39m=[32m"checkbox"[39m
+            [36m/>[39m
+            [0mInclude archived[0m
+          [36m</label>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"table-wrap"[39m
+        [36m>[39m
+          [36m<table>[39m
+            [36m<thead>[39m
+              [36m<tr>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mCode[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mName[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mTeacher[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mTarget[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mEvery[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mAnchor[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mNext[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mActions[0m
+                [36m</th>[39m
+              [36m</tr>[39m
+            [36m</thead>[39m
+            [36m<tbody>[39m
+              [36m<tr[39m
+                [33mclass[39m=[32m"stale"[39m
+              [36m>[39m
+                [36m<td>[39m
+                  [36m<code>[39m
+                    [0mAUDIT-ASSIGNMENT[0m
+                  [36m</code>[39m
+                [36m</td>[39m
+                [36m<td>[39m
+                  [0mArchived assignment[0m
+                [36m</td>[39m
+                [36m<td>[39m
+                  [0mAudit teacher[0m
+                [36m</td>[39m
+                [36m<td>[39m
+                  [0mGroup Archived group[0m
+                [36m</td>[39m
+                [36m<td>[39m
+                  [0mWeekly[0m
+                  [0m [0m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"hint"[39m
+                  [36m>[39m
+                    [0m([0m
+                    [0m7 days[0m
+                    [0m)[0m
+                  [36m</span>[39m
+                [36m</td>[39m
+                [36m<td>[39m
+                  [0mOct 1, 2026 (۹ مهر ۱۴۰۵)[0m
+                [36m</td>[39m
+                [36m<td>[39m
+                  [0m—[0m
+                [36m</td>[39m
+                [36m<td>[39m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"quiet"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [0mRestore[0m
+                  [36m</button>[39m
+                [36m</td>[39m
+              [36m</tr>[39m
+            [36m</tbody>[39m
+          [36m</table>[39m
+        [36m</div>[39m
+      [36m</section>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ ../audit/checks/scheduling-errors.test.jsx:94:17
+     92|   await settledRefusal(client, 'ASSIGNMENTS_GROUP_INACTIVE', button);
+     93|   console.log(JSON.stringify({ language, action: 'restore assignment',…
+     94|   expect(screen.getByText(i18n.t('errors:ASSIGNMENTS_GROUP_INACTIVE'))…
+       |                 ^
+     95| });
+     96|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  ../audit/checks/scheduling-errors.test.jsx > assignment restore displays its inactive-group refusal in fa
+TestingLibraryElementError: Unable to find an element with the text: یک گروه فعال انتخاب کنید.. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"wide"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"page-head"[39m
+      [36m>[39m
+        [36m<div>[39m
+          [36m<h1>[39m
+            [0mبرنامه هفتگی[0m
+          [36m</h1>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"hint"[39m
+          [36m>[39m
+            [0mتخصیص‌های تکرارشونده: معلمی از تاریخ مشخصی، با ریتمی معین، با یک گروه یا یک دانش‌آموز جلسه دارد.[0m
+          [36m</p>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"section-card"[39m
+      [36m>[39m
+        [36m<h2>[39m
+          [0mافزودن تخصیص[0m
+        [36m</h2>[39m
+        [36m<form[39m
+          [33mclass[39m=[32m"edit-form"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mfor[39m=[32m"assignment-teacher"[39m
+          [36m>[39m
+            [0mمعلم[0m
+          [36m</label>[39m
+          [36m<select[39m
+            [33mid[39m=[32m"assignment-teacher"[39m
+          [36m>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m""[39m
+            [36m>[39m
+              [0mیک معلم را انتخاب کنید…[0m
+            [36m</option>[39m
+          [36m</select>[39m
+          [36m<label[39m
+            [33mfor[39m=[32m"assignment-interval"[39m
+          [36m>[39m
+            [0mتناوب[0m
+          [36m</label>[39m
+          [36m<select[39m
+            [33mid[39m=[32m"assignment-interval"[39m
+          [36m>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m""[39m
+            [36m>[39m
+              [0mیک بازه را انتخاب کنید…[0m
+            [36m</option>[39m
+          [36m</select>[39m
+          [36m<label[39m
+            [33mfor[39m=[32m"assignment-anchor"[39m
+          [36m>[39m
+            [0mآغاز از (تاریخ مبنا)[0m
+          [36m</label>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"jalali-date-picker"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"میلادی"[39m
+              [33mid[39m=[32m"assignment-anchor"[39m
+              [33mtype[39m=[32m"date"[39m
+              [33mvalue[39m=[32m"2026-10-29"[39m
+            [36m/>[39m
+            [36m<input[39m
+              [33maria-label[39m=[32m"شمسی"[39m
+              [33mdir[39m=[32m"ltr"[39m
+              [33minputmode[39m=[32m"numeric"[39m
+              [33mplaceholder[39m=[32m"مثلاً ۱۴۰۵/۰۸/۰۳"[39m
+              [33mtype[39m=[32m"text"[39m
+              [33mvalue[39m=[32m"۱۴۰۵/۰۸/۰۷"[39m
+            [36m/>[39m
+          [36m</span>[39m
+          [36m<label[39m
+            [33mfor[39m=[32m"assignment-name"[39m
+          [36m>[39m
+            [0mنام (اختیاری)[0m
+          [36m</label>[39m
+          [36m<input[39m
+            [33mautocomplete[39m=[32m"off"[39m
+            [33mid[39m=[32m"assignment-name"[39m
+            [33mmaxlength[39m=[32m"100"[39m
+            [33mplaceholder[39m=[32m"مثلاً ریاضی شنبه‌ها"[39m
+            [33mvalue[39m=[32m""[39m
+          [36m/>[39m
+          [36m<label>[39m
+            [0mمقصد[0m
+          [36m</label>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"row"[39m
+          [36m>[39m
+            [36m<label[39m
+              [33mclass[39m=[32m"hint"[39m
+            [36m>[39m
+              [36m<input[39m
+                [33mchecked[39m=[32m""[39m
+                [33mname[39m=[32m"target-kind"[39m
+                [33mtype[39m=[32m"radio"[39m
+              [36m/>[39m
+              [0m [0m
+              [0mکل گروه[0m
+            [36m</label>[39m
+            [36m<label[39m
+              [33mclass[39m=[32m"hint"[39m
+            [36m>[39m
+              [36m<input[39m
+                [33mname[39m=[32m"target-kind"[39m
+                [33mtype[39m=[32m"radio"[39m
+              [36m/>[39m
+              [0m [0m
+              [0mیک دانش‌آموز[0m
+            [36m</label>[39m
+          [36m</div>[39m
+          [36m<label[39m
+            [33mfor[39m=[32m"assignment-group"[39m
+          [36m>[39m
+            [0mگروه[0m
+          [36m</label>[39m
+          [36m<select[39m
+            [33mid[39m=[32m"assignment-group"[39m
+          [36m>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m""[39m
+            [36m>[39m
+              [0mیک گروه را انتخاب کنید…[0m
+            [36m</option>[39m
+          [36m</select>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"row"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33mtype[39m=[32m"submit"[39m
+            [36m>[39m
+              [0mافزودن تخصیص[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</form>[39m
+      [36m</section>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"section-card"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"toolbar"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"hint"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33mtype[39m=[32m"checkbox"[39m
+            [36m/>[39m
+            [0mشامل بایگانی‌شده‌ها[0m
+          [36m</label>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"table-wrap"[39m
+        [36m>[39m
+          [36m<table>[39m
+            [36m<thead>[39m
+              [36m<tr>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mکد[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mنام[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mمعلم[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mمقصد[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mتناوب[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mتاریخ مبنا[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mبعدی[0m
+                [36m</th>[39m
+                [36m<th[39m
+                  [33mscope[39m=[32m"col"[39m
+                [36m>[39m
+                  [0mعملیات[0m
+                [36m</th>[39m
+              [36m</tr>[39m
+            [36m</thead>[39m
+            [36m<tbody>[39m
+              [36m<tr[39m
+                [33mclass[39m=[32m"stale"[39m
+              [36m>[39m
+                [36m<td>[39m
+                  [36m<code>[39m
+                    [0mAUDIT-ASSIGNMENT[0m
+                  [36m</code>[39m
+                [36m</td>[39m
+                [36m<td>[39m
+                  [0mArchived assignment[0m
+                [36m</td>[39m
+                [36m<td>[39m
+                  [0mAudit teacher[0m
+                [36m</td>[39m
+                [36m<td>[39m
+                  [0mگروه Archived group[0m
+                [36m</td>[39m
+                [36m<td>[39m
+                  [0mWeekly[0m
+                  [0m [0m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"hint"[39m
+                  [36m>[39m
+                    [0m([0m
+                    [0m7 روز[0m
+                    [0m)[0m
+                  [36m</span>[39m
+                [36m</td>[39m
+                [36m<td>[39m
+                  [0m۹ مهر ۱۴۰۵ (Oct 1, 2026)[0m
+                [36m</td>[39m
+                [36m<td>[39m
+                  [0m—[0m
+                [36m</td>[39m
+                [36m<td>[39m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"quiet"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [0mبازگردانی[0m
+                  [36m</button>[39m
+                [36m</td>[39m
+              [36m</tr>[39m
+            [36m</tbody>[39m
+          [36m</table>[39m
+        [36m</div>[39m
+      [36m</section>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ ../audit/checks/scheduling-errors.test.jsx:94:17
+     92|   await settledRefusal(client, 'ASSIGNMENTS_GROUP_INACTIVE', button);
+     93|   console.log(JSON.stringify({ language, action: 'restore assignment',…
+     94|   expect(screen.getByText(i18n.t('errors:ASSIGNMENTS_GROUP_INACTIVE'))…
+       |                 ^
+     95| });
+     96|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed (6)
+   Start at  23:41:23
+   Duration  3.90s (environment 44%, tests 34%, setup 10%, import 6%, worker 6%, transform 1%)
+

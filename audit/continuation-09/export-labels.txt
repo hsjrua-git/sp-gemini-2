@@ -1,0 +1,97 @@
+
+ RUN  v5.0.1 /home/hsjrua/Documents/sp-gemini-1/client
+
+stdout | ../audit/checks/export-ui.test.jsx > period labels distinguish the chart buckets in en
+{"language":"en","chartLabels":[["shared.periodKey"],["shared.periodKey"]],"heatmapHeaders":["P000000…","P000000…"]}
+
+stdout | ../audit/checks/export-ui.test.jsx > period labels distinguish the chart buckets in fa
+{"language":"fa","chartLabels":[["shared.periodKey"],["shared.periodKey"]],"heatmapHeaders":["P000000…","P000000…"]}
+
+ ❯ ../audit/checks/export-ui.test.jsx (11 tests | 2 failed | 9 skipped) 991ms
+   × period labels distinguish the chart buckets in en 666ms
+   × period labels distinguish the chart buckets in fa 319ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  ../audit/checks/export-ui.test.jsx > period labels distinguish the chart buckets in en
+AssertionError: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ ../audit/checks/export-ui.test.jsx:167:110
+    165|   const headers = [...captures[2].querySelectorAll('.heatmap-svg > tex…
+    166|   console.log(JSON.stringify({ language, chartLabels: labels, heatmapH…
+    167|   expect.soft(labels.every(items => items.length > 0 && items.every(la…
+       |                                                                                                              ^
+    168|   expect.soft(new Set(headers).size).toBe(2);
+    169| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  ../audit/checks/export-ui.test.jsx > period labels distinguish the chart buckets in en
+AssertionError: expected 1 to be 2 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 2[39m
+[31m+ 1[39m
+
+ ❯ ../audit/checks/export-ui.test.jsx:168:38
+    166|   console.log(JSON.stringify({ language, chartLabels: labels, heatmapH…
+    167|   expect.soft(labels.every(items => items.length > 0 && items.every(la…
+    168|   expect.soft(new Set(headers).size).toBe(2);
+       |                                      ^
+    169| });
+    170|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  ../audit/checks/export-ui.test.jsx > period labels distinguish the chart buckets in fa
+AssertionError: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ ../audit/checks/export-ui.test.jsx:167:110
+    165|   const headers = [...captures[2].querySelectorAll('.heatmap-svg > tex…
+    166|   console.log(JSON.stringify({ language, chartLabels: labels, heatmapH…
+    167|   expect.soft(labels.every(items => items.length > 0 && items.every(la…
+       |                                                                                                              ^
+    168|   expect.soft(new Set(headers).size).toBe(2);
+    169| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  ../audit/checks/export-ui.test.jsx > period labels distinguish the chart buckets in fa
+AssertionError: expected 1 to be 2 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 2[39m
+[31m+ 1[39m
+
+ ❯ ../audit/checks/export-ui.test.jsx:168:38
+    166|   console.log(JSON.stringify({ language, chartLabels: labels, heatmapH…
+    167|   expect.soft(labels.every(items => items.length > 0 && items.every(la…
+    168|   expect.soft(new Set(headers).size).toBe(2);
+       |                                      ^
+    169| });
+    170|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 9 skipped (11)
+   Start at  23:28:39
+   Duration  3.83s (environment 33%, tests 28%, import 27%, setup 8%, worker 3%, transform 2%)
+

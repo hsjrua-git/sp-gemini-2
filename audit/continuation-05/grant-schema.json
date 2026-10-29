@@ -1,0 +1,28 @@
+{
+  "command": [
+    "psql",
+    "postgresql://audit_owner@127.0.0.1:55439/student_panel_audit",
+    "-X",
+    "-v",
+    "ON_ERROR_STOP=1",
+    "-c",
+    "SELECT current_database(), inet_server_addr(), inet_server_port(), current_user",
+    "-c",
+    "SELECT tablename FROM pg_tables WHERE schemaname='public' AND tablename IN ('audit_log','cafe_stock_movements','student_balance_transactions','acct_entries','acct_lines') ORDER BY tablename",
+    "-c",
+    "\\d+ audit_log",
+    "-c",
+    "\\d+ cafe_stock_movements",
+    "-c",
+    "\\d+ student_balance_transactions",
+    "-c",
+    "\\d+ acct_entries",
+    "-c",
+    "\\d+ acct_lines"
+  ],
+  "directory": ".",
+  "started": "2026-10-29T18:23:23.143Z",
+  "ended": "2026-10-29T18:23:23.287Z",
+  "code": 1,
+  "signal": null
+}

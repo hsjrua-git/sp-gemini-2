@@ -1,0 +1,11 @@
+{
+  "command": [
+    "node",
+    "audit/checks/backup-restore-roundtrip.mjs"
+  ],
+  "directory": ".",
+  "started": "2026-10-29T17:29:31.784Z",
+  "ended": "2026-10-29T17:29:40.835Z",
+  "code": 0,
+  "signal": null
+}

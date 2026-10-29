@@ -1,0 +1,139 @@
+                               Table "public.evaluations"
+      Column      |           Type           | Collation | Nullable |      Default      
+------------------+--------------------------+-----------+----------+-------------------
+ id               | uuid                     |           | not null | gen_random_uuid()
+ session_id       | uuid                     |           | not null | 
+ parameter_id     | uuid                     |           | not null | 
+ membership_id    | uuid                     |           |          | 
+ quality_value    | integer                  |           |          | 
+ quantity_value   | integer                  |           |          | 
+ quality_comment  | text                     |           |          | 
+ quantity_comment | text                     |           |          | 
+ locks_at         | timestamp with time zone |           | not null | 
+ created_at       | timestamp with time zone |           | not null | now()
+ updated_at       | timestamp with time zone |           | not null | now()
+ archived_at      | timestamp with time zone |           |          | 
+Indexes:
+    "evaluations_pkey" PRIMARY KEY, btree (id)
+    "evaluations_cell_unique" UNIQUE, btree (session_id, parameter_id, membership_id) NULLS NOT DISTINCT
+    "evaluations_membership_idx" btree (membership_id)
+    "evaluations_parameter_idx" btree (parameter_id)
+    "evaluations_session_idx" btree (session_id)
+Check constraints:
+    "evaluation_quality_comment_ck" CHECK (quality_comment IS NULL OR char_length(quality_comment) <= 500)
+    "evaluation_quantity_comment_ck" CHECK (quantity_comment IS NULL OR char_length(quantity_comment) <= 500)
+Foreign-key constraints:
+    "evaluations_membership_id_fkey" FOREIGN KEY (membership_id) REFERENCES student_group_members(id)
+    "evaluations_parameter_id_fkey" FOREIGN KEY (parameter_id) REFERENCES parameters(id)
+    "evaluations_session_id_fkey" FOREIGN KEY (session_id) REFERENCES sessions(id)
+Triggers:
+    evaluations_alert_period_trg AFTER INSERT OR DELETE OR UPDATE ON evaluations FOR EACH ROW EXECUTE FUNCTION evaluations_after_change()
+    evaluations_archived_edit_guard_trg BEFORE UPDATE ON evaluations FOR EACH ROW EXECUTE FUNCTION evaluations_archived_edit_guard()
+    evaluations_lock_guard_trg BEFORE DELETE OR UPDATE ON evaluations FOR EACH ROW EXECUTE FUNCTION evaluations_lock_guard()
+    evaluations_range_ck BEFORE INSERT OR UPDATE OF parameter_id, quality_value, quantity_value ON evaluations FOR EACH ROW EXECUTE FUNCTION check_evaluation_range()
+    evaluations_schema4_guard_trg BEFORE INSERT OR UPDATE ON evaluations FOR EACH ROW EXECUTE FUNCTION evaluations_schema4_guard()
+    evaluations_set_updated_at BEFORE UPDATE ON evaluations FOR EACH ROW EXECUTE FUNCTION set_updated_at()
+
+                              Table "public.students"
+    Column    |           Type           | Collation | Nullable |      Default      
+--------------+--------------------------+-----------+----------+-------------------
+ id           | uuid                     |           | not null | gen_random_uuid()
+ student_code | text                     |           | not null | 
+ full_name    | text                     |           | not null | 
+ created_at   | timestamp with time zone |           | not null | now()
+ deleted_at   | timestamp with time zone |           |          | 
+ extra        | jsonb                    |           | not null | '{}'::jsonb
+ gender       | gender_type              |           |          | 
+ birth_date   | date                     |           |          | 
+ father_name  | text                     |           |          | 
+ national_id  | text                     |           |          | 
+ updated_at   | timestamp with time zone |           | not null | now()
+Indexes:
+    "students_pkey" PRIMARY KEY, btree (id)
+    "students_national_id_unique" UNIQUE, btree (national_id)
+    "students_student_code_key" UNIQUE CONSTRAINT, btree (student_code)
+Check constraints:
+    "full_name_length" CHECK (char_length(btrim(full_name)) >= 2 AND char_length(btrim(full_name)) <= 100)
+    "student_code_format" CHECK (student_code ~ '^[2-9A-HJ-NP-Z]{8}$'::text)
+    "students_birth_date_sane" CHECK (birth_date IS NULL OR birth_date <= CURRENT_DATE)
+    "students_father_name_length" CHECK (father_name IS NULL OR char_length(btrim(father_name)) >= 1 AND char_length(btrim(father_name)) <= 100)
+    "students_national_id_format" CHECK (national_id IS NULL OR national_id ~ '^[0-9]{10}$'::text)
+Referenced by:
+    TABLE "cafe_sales" CONSTRAINT "cafe_sales_student_id_fkey" FOREIGN KEY (student_id) REFERENCES students(id)
+    TABLE "student_balance_transactions" CONSTRAINT "student_balance_transactions_student_id_fkey" FOREIGN KEY (student_id) REFERENCES students(id)
+    TABLE "student_balances" CONSTRAINT "student_balances_student_id_fkey" FOREIGN KEY (student_id) REFERENCES students(id)
+    TABLE "student_group_members" CONSTRAINT "student_group_members_student_id_fkey" FOREIGN KEY (student_id) REFERENCES students(id)
+Triggers:
+    students_balance_settled_before_delete_trg BEFORE UPDATE OF deleted_at ON students FOR EACH ROW EXECUTE FUNCTION students_balance_settled_before_delete()
+    students_updated_at BEFORE UPDATE ON students FOR EACH ROW EXECUTE FUNCTION set_updated_at()
+
+                           Table "public.student_groups"
+   Column    |           Type           | Collation | Nullable |      Default      
+-------------+--------------------------+-----------+----------+-------------------
+ id          | uuid                     |           | not null | gen_random_uuid()
+ name        | text                     |           | not null | 
+ parent_id   | uuid                     |           |          | 
+ archived_at | timestamp with time zone |           |          | 
+ created_by  | uuid                     |           |          | 
+ created_at  | timestamp with time zone |           | not null | now()
+ updated_at  | timestamp with time zone |           | not null | now()
+ code        | text                     |           | not null | 
+ sort_order  | integer                  |           | not null | 0
+Indexes:
+    "student_groups_pkey" PRIMARY KEY, btree (id)
+    "student_groups_child_name_unique" UNIQUE, btree (parent_id, lower(name)) WHERE parent_id IS NOT NULL AND archived_at IS NULL
+    "student_groups_code_unique" UNIQUE, btree (code)
+    "student_groups_created_by_idx" btree (created_by)
+    "student_groups_parent_idx" btree (parent_id)
+    "student_groups_root_name_unique" UNIQUE, btree (lower(name)) WHERE parent_id IS NULL AND archived_at IS NULL
+Check constraints:
+    "group_code_ck" CHECK (char_length(btrim(code)) >= 1 AND char_length(btrim(code)) <= 40)
+    "group_name_length" CHECK (char_length(btrim(name)) >= 1 AND char_length(btrim(name)) <= 60)
+    "group_not_own_parent" CHECK (parent_id IS NULL OR parent_id <> id)
+    "group_sort_ck" CHECK (sort_order >= 0)
+Foreign-key constraints:
+    "student_groups_created_by_fkey" FOREIGN KEY (created_by) REFERENCES users(id)
+    "student_groups_parent_id_fkey" FOREIGN KEY (parent_id) REFERENCES student_groups(id)
+Referenced by:
+    TABLE "assignments" CONSTRAINT "assignments_group_id_fkey" FOREIGN KEY (group_id) REFERENCES student_groups(id)
+    TABLE "student_group_members" CONSTRAINT "student_group_members_group_id_fkey" FOREIGN KEY (group_id) REFERENCES student_groups(id) ON DELETE CASCADE
+    TABLE "student_groups" CONSTRAINT "student_groups_parent_id_fkey" FOREIGN KEY (parent_id) REFERENCES student_groups(id)
+Triggers:
+    student_groups_hierarchy_guard_trg BEFORE INSERT OR UPDATE ON student_groups FOR EACH ROW EXECUTE FUNCTION student_groups_hierarchy_guard()
+    student_groups_updated_at BEFORE UPDATE ON student_groups FOR EACH ROW EXECUTE FUNCTION set_updated_at()
+
+                             Table "public.parameters"
+   Column    |           Type           | Collation | Nullable |      Default      
+-------------+--------------------------+-----------+----------+-------------------
+ id          | uuid                     |           | not null | gen_random_uuid()
+ name        | text                     |           | not null | 
+ min_value   | integer                  |           |          | 
+ max_value   | integer                  |           |          | 
+ sort_order  | integer                  |           | not null | 0
+ created_at  | timestamp with time zone |           | not null | now()
+ parent_id   | uuid                     |           |          | 
+ updated_at  | timestamp with time zone |           | not null | now()
+ code        | text                     |           | not null | 
+ archived_at | timestamp with time zone |           |          | 
+Indexes:
+    "parameters_pkey" PRIMARY KEY, btree (id)
+    "parameters_code_unique" UNIQUE, btree (code)
+    "parameters_parent_idx" btree (parent_id)
+    "parameters_parent_name_unique" UNIQUE, btree (parent_id, name) NULLS NOT DISTINCT
+Check constraints:
+    "parameter_code_ck" CHECK (char_length(btrim(code)) >= 1 AND char_length(btrim(code)) <= 40)
+    "parameter_name_length" CHECK (char_length(btrim(name)) >= 1 AND char_length(btrim(name)) <= 60)
+    "parameter_range_order" CHECK (min_value IS NULL OR max_value IS NULL OR min_value::numeric <= max_value::numeric)
+    "parameters_not_own_parent" CHECK (parent_id IS NULL OR parent_id <> id)
+    "parameters_range_ck" CHECK (min_value::numeric <= max_value::numeric)
+Foreign-key constraints:
+    "parameters_parent_id_fkey" FOREIGN KEY (parent_id) REFERENCES parameters(id)
+Referenced by:
+    TABLE "evaluations" CONSTRAINT "evaluations_parameter_id_fkey" FOREIGN KEY (parameter_id) REFERENCES parameters(id)
+    TABLE "parameters" CONSTRAINT "parameters_parent_id_fkey" FOREIGN KEY (parent_id) REFERENCES parameters(id)
+    TABLE "task_templates" CONSTRAINT "task_templates_parameter_id_fkey" FOREIGN KEY (parameter_id) REFERENCES parameters(id)
+    TABLE "tasks" CONSTRAINT "tasks_parameter_id_fkey" FOREIGN KEY (parameter_id) REFERENCES parameters(id)
+Triggers:
+    parameters_range_narrowing_ck BEFORE UPDATE OF min_value, max_value ON parameters FOR EACH ROW EXECUTE FUNCTION check_parameter_range_narrowing()
+    parameters_updated_at BEFORE UPDATE ON parameters FOR EACH ROW EXECUTE FUNCTION set_updated_at()
+

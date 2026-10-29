@@ -1,0 +1,12 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "verify-pglite"
+  ],
+  "directory": "server",
+  "started": "2026-10-29T06:59:00.575Z",
+  "ended": "2026-10-29T06:59:11.035Z",
+  "code": 0,
+  "signal": null
+}

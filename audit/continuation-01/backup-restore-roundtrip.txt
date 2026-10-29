@@ -1,0 +1,19 @@
+{"label":"project-backup","command":["bash","deploy/backup.sh"],"started":"2026-10-29T17:29:32.181Z","ended":"2026-10-29T17:29:32.683Z","code":0,"signal":null,"stdoutBytes":138,"stderr":""}
+{"label":"create-disposable","command":["createdb","--maintenance-db","postgresql://audit_owner@127.0.0.1:55439/student_panel_audit","--template","template0","student_panel_restore_87dea36e7cf9457ea6d0f216ec0cab06"],"started":"2026-10-29T17:29:32.792Z","ended":"2026-10-29T17:29:33.175Z","code":0,"signal":null,"stdoutBytes":0,"stderr":""}
+{"label":"project-invalid-gzip","command":["bash","deploy/restore.sh","/home/hsjrua/Documents/sp-gemini-1/audit/.tmp/restore-87dea36e7cf9457ea6d0f216ec0cab06/invalid.sql.gz"],"started":"2026-10-29T17:29:33.225Z","ended":"2026-10-29T17:29:33.255Z","code":1,"signal":null,"stdoutBytes":0,"stderr":"\ngzip: /home/hsjrua/Documents/sp-gemini-1/audit/.tmp/restore-87dea36e7cf9457ea6d0f216ec0cab06/invalid.sql.gz: not in gzip format\nBackup is not a valid gzip archive: /home/hsjrua/Documents/sp-gemini-1/audit/.tmp/restore-87dea36e7cf9457ea6d0f216ec0cab06/invalid.sql.gz\n"}
+{"label":"project-valid-restore","command":["bash","deploy/restore.sh","/home/hsjrua/Documents/sp-gemini-1/audit/.tmp/restore-87dea36e7cf9457ea6d0f216ec0cab06/backups/student-panel-20261029-205932.sql.gz"],"started":"2026-10-29T17:29:33.255Z","ended":"2026-10-29T17:29:37.457Z","code":0,"signal":null,"stdoutBytes":8306,"stderr":""}
+{"projectRestoreExit":0,"projectRoundtripEqual":true,"restoredApplicationTables":40}
+{"label":"control-restore-with-file-stdin","command":["psql","-X","-v","ON_ERROR_STOP=1","--single-transaction","--file=-","postgresql://audit_owner@127.0.0.1:55439/student_panel_restore_87dea36e7cf9457ea6d0f216ec0cab06"],"started":"2026-10-29T17:29:37.575Z","ended":"2026-10-29T17:29:40.082Z","code":0,"signal":null,"stdoutBytes":8288,"stderr":""}
+{"label":"project-sql-error","command":["bash","deploy/restore.sh","/home/hsjrua/Documents/sp-gemini-1/audit/.tmp/restore-87dea36e7cf9457ea6d0f216ec0cab06/sql-error.sql.gz"],"started":"2026-10-29T17:29:40.171Z","ended":"2026-10-29T17:29:40.262Z","code":3,"signal":null,"stdoutBytes":9,"stderr":"ERROR:  division by zero\n"}
+{"label":"control-sql-error-with-file-stdin","command":["psql","-X","-v","ON_ERROR_STOP=1","--single-transaction","--file=-","postgresql://audit_owner@127.0.0.1:55439/student_panel_restore_87dea36e7cf9457ea6d0f216ec0cab06"],"started":"2026-10-29T17:29:40.262Z","ended":"2026-10-29T17:29:40.329Z","code":3,"signal":null,"stdoutBytes":9,"stderr":"psql:<stdin>:2: ERROR:  division by zero\n"}
+{
+  "backupIntegrity": "40 table fingerprints match using control restore",
+  "gzipRejection": true,
+  "projectSqlErrorExit": 3,
+  "projectReachedSqlError": true,
+  "controlSqlErrorExit": 3,
+  "controlRollbackMarker": "original",
+  "sourceUnchanged": true,
+  "disposableDatabase": "student_panel_restore_87dea36e7cf9457ea6d0f216ec0cab06"
+}
+{"label":"drop-disposable","command":["dropdb","--maintenance-db","postgresql://audit_owner@127.0.0.1:55439/student_panel_audit","student_panel_restore_87dea36e7cf9457ea6d0f216ec0cab06"],"started":"2026-10-29T17:29:40.427Z","ended":"2026-10-29T17:29:40.803Z","code":0,"signal":null,"stdoutBytes":0,"stderr":""}

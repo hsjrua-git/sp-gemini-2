@@ -1,0 +1,11 @@
+{
+  "command": [
+    "node",
+    "audit/checks/manual-refund-direction.mjs"
+  ],
+  "directory": ".",
+  "started": "2026-10-29T17:28:16.836Z",
+  "ended": "2026-10-29T17:28:17.642Z",
+  "code": 1,
+  "signal": null
+}

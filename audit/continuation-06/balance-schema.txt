@@ -1,0 +1,48 @@
+  current_database   | inet_server_port 
+---------------------+------------------
+ student_panel_audit |            55439
+(1 row)
+
+                                               Table "public.student_balances"
+   Column   |           Type           | Collation | Nullable | Default | Storage | Compression | Stats target | Description 
+------------+--------------------------+-----------+----------+---------+---------+-------------+--------------+-------------
+ student_id | uuid                     |           | not null |         | plain   |             |              | 
+ balance    | bigint                   |           | not null | 0       | plain   |             |              | 
+ updated_at | timestamp with time zone |           | not null | now()   | plain   |             |              | 
+Indexes:
+    "student_balances_pkey" PRIMARY KEY, btree (student_id)
+Foreign-key constraints:
+    "student_balances_student_id_fkey" FOREIGN KEY (student_id) REFERENCES students(id)
+Triggers:
+    student_balances_updated_at BEFORE UPDATE ON student_balances FOR EACH ROW EXECUTE FUNCTION set_updated_at()
+Access method: heap
+
+                                                Table "public.student_balance_transactions"
+     Column     |           Type           | Collation | Nullable |      Default      | Storage  | Compression | Stats target | Description 
+----------------+--------------------------+-----------+----------+-------------------+----------+-------------+--------------+-------------
+ id             | uuid                     |           | not null | gen_random_uuid() | plain    |             |              | 
+ student_id     | uuid                     |           | not null |                   | plain    |             |              | 
+ kind           | text                     |           | not null |                   | extended |             |              | 
+ amount         | bigint                   |           | not null |                   | plain    |             |              | 
+ balance_after  | bigint                   |           | not null |                   | plain    |             |              | 
+ reference_type | text                     |           |          |                   | extended |             |              | 
+ reference_id   | uuid                     |           |          |                   | plain    |             |              | 
+ note           | text                     |           |          |                   | extended |             |              | 
+ created_by     | uuid                     |           | not null |                   | plain    |             |              | 
+ created_at     | timestamp with time zone |           | not null | now()             | plain    |             |              | 
+Indexes:
+    "student_balance_transactions_pkey" PRIMARY KEY, btree (id)
+    "cafe_balance_txn_student_idx" btree (student_id, created_at DESC)
+    "student_balance_transactions_created_by_idx" btree (created_by)
+Check constraints:
+    "cafe_balance_adjustment_nonzero" CHECK (kind <> 'adjustment'::text OR amount <> 0)
+    "cafe_balance_charge_negative" CHECK (kind <> 'charge'::text OR amount < 0)
+    "cafe_balance_kinds_ck" CHECK (kind = ANY (ARRAY['topup'::text, 'charge'::text, 'refund'::text, 'adjustment'::text]))
+    "cafe_balance_note_ck" CHECK (note IS NULL OR char_length(btrim(note)) <= 500)
+    "cafe_balance_refund_positive" CHECK (kind <> 'refund'::text OR amount > 0)
+    "cafe_balance_topup_positive" CHECK (kind <> 'topup'::text OR amount > 0)
+Foreign-key constraints:
+    "student_balance_transactions_created_by_fkey" FOREIGN KEY (created_by) REFERENCES users(id)
+    "student_balance_transactions_student_id_fkey" FOREIGN KEY (student_id) REFERENCES students(id)
+Access method: heap
+

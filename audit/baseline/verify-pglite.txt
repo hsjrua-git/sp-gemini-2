@@ -1,0 +1,77 @@
+npm notice run server@1.0.0 verify-pglite
+npm notice run node src/db/verifyPglite.mjs
+Applying 35 migration(s) on PGlite:
+  ✓ applied 001_create_students.sql
+  ✓ applied 002_create_settings.sql
+  ✓ applied 003_create_parameters.sql
+  ✓ applied 004_create_evaluations.sql
+  ✓ applied 005_create_users_and_sessions.sql
+  ✓ applied 006_create_audit_log.sql
+  ✓ applied 007_add_score_locks.sql
+  ✓ applied 008_create_user_preferences.sql
+  ✓ applied 009_create_saved_views.sql
+  ✓ applied 010_create_roles.sql
+  ✓ applied 011_create_student_groups.sql
+  ✓ applied 012_add_score_notes.sql
+  ✓ applied 013_create_field_definitions.sql
+  ✓ applied 014_audit_log_filter_indexes.sql
+  ✓ applied 015_viewer_drop_export.sql
+  ✓ applied 016_student_identity_membership.sql
+  ✓ applied 017_create_teachers.sql
+  ✓ applied 018_create_scheduling.sql
+  ✓ applied 019_create_sessions.sql
+  ✓ applied 020_create_tasks.sql
+  ✓ applied 021_create_alerts.sql
+  ✓ applied 022_create_cafe_catalog.sql
+  ✓ applied 023_create_cafe_stock.sql
+  ✓ applied 024_create_cafe_sales.sql
+  ✓ applied 025_create_accounting_core.sql
+  ✓ applied 026_create_accounting_chart.sql
+  ✓ applied 027_create_kiosk_role.sql
+  ✓ applied 028_create_agent_permission.sql
+  ✓ applied 029_adopt_schema4.sql
+  ✓ applied 030_audit_fixes.sql
+  ✓ applied 031_enforce_runtime_invariants.sql
+  ✓ applied 032_harden_hierarchies_and_system_entries.sql
+  ✓ applied 033_restore_score_role_least_privilege.sql
+  ✓ applied 034_complete_schema4_runtime_guards.sql
+  ✓ applied 035_align_schema4_answered_periods.sql
+
+Runtime sanity checks:
+  ✓ gen_random_uuid() produced a uuid (b65bc7d1-1a22-4cd0-9808-c8111ccc2a69)
+  ✓ now() default populated created_at
+  ✓ student_code_format CHECK — correctly rejected
+  ✓ five system roles seeded (Administrator, Staff, Viewer, Accountant, Kiosk)
+  ✓ migration 015 removed data.export from Viewer
+  ✓ Staff retains data.export
+  ✓ score roles keep minimal schedule context
+  ✓ schema-4 retired permission rows removed
+  ✓ date parser keeps YYYY-MM-DD text
+  ✓ interval parser matches pg object shape
+  ✓ student_groups top-level name unique index — correctly rejected
+  ✓ student_groups group_not_own_parent CHECK — correctly rejected
+  ✓ student_groups multi-hop cycle trigger — correctly rejected
+  ✓ acct_fiscal_periods overlap trigger — correctly rejected
+  ✓ users username unique index — correctly rejected
+  ✓ schema-4 session identity generated in the database
+  ✓ selected empty cell is incomplete and outside every period
+  ✓ locked evaluation needs override reason — correctly rejected
+  ✓ written override unlocks the schema-4 update
+  ✓ first answer attaches the session to period 1
+  ✓ session with active cells cannot be canceled — correctly rejected
+  ✓ archiving detaches answered history
+  ✓ restoring answered history reattaches it
+  ✓ session identity is immutable — correctly rejected
+  ✓ individual assignment refuses whole-group evaluation — correctly rejected
+  ✓ task membership must belong to the assignment target — correctly rejected
+  ✓ once-ever opening entry unique index — correctly rejected
+  ✓ accounting mapping debit/credit differ CHECK — correctly rejected
+  ✓ acct_accounts multi-hop cycle trigger — correctly rejected
+  ✓ opening/closing entries cannot be voided — correctly rejected
+  ✓ duplicate timestamp triggers removed
+  ✓ resetData wiped domain/ledger/transcript rows, removed non-admin user, and re-seeded intervals
+
+Tables created (45):
+  acct_accounts, acct_fiscal_periods, acct_invariant_locks, acct_journal_entries, acct_journal_lines, acct_mappings, alerts, assignments, audit_log, cafe_products, cafe_purchase_items, cafe_purchases, cafe_sale_items, cafe_sales, cafe_stock, cafe_stock_movements, cafe_suppliers, evaluations, hierarchy_invariant_locks, intervals, parameters, period_analysis, period_summary, periods, role_permissions, roles, saved_views, schema_migrations, secrets, session_missing_parameters, session_status, sessions, student_balance_transactions, student_balances, student_field_definitions, student_group_members, student_groups, students, task_templates, tasks, teachers, user_preferences, user_sessions, users, voice_transcripts
+
+RESULT: PASS — all migrations applied and every sanity check passed on PGlite.

@@ -1,0 +1,11 @@
+{
+  "command": [
+    "node",
+    "audit/checks/workbook-generation.mjs"
+  ],
+  "directory": ".",
+  "started": "2026-10-29T17:41:26.232Z",
+  "ended": "2026-10-29T17:41:26.569Z",
+  "code": 0,
+  "signal": null
+}

@@ -1,0 +1,216 @@
+                                                               Table "public.users"
+        Column        |           Type           | Collation | Nullable |      Default      | Storage  | Compression | Stats target | Description 
+----------------------+--------------------------+-----------+----------+-------------------+----------+-------------+--------------+-------------
+ id                   | uuid                     |           | not null | gen_random_uuid() | plain    |             |              | 
+ username             | text                     |           | not null |                   | extended |             |              | 
+ full_name            | text                     |           | not null |                   | extended |             |              | 
+ password_hash        | text                     |           | not null |                   | extended |             |              | 
+ is_active            | boolean                  |           | not null | true              | plain    |             |              | 
+ must_change_password | boolean                  |           | not null | true              | plain    |             |              | 
+ last_login_at        | timestamp with time zone |           |          |                   | plain    |             |              | 
+ created_at           | timestamp with time zone |           | not null | now()             | plain    |             |              | 
+ updated_at           | timestamp with time zone |           | not null | now()             | plain    |             |              | 
+ role_id              | uuid                     |           | not null |                   | plain    |             |              | 
+Indexes:
+    "users_pkey" PRIMARY KEY, btree (id)
+    "users_role_idx" btree (role_id)
+    "users_username_unique" UNIQUE, btree (lower(username))
+Check constraints:
+    "users_full_name_length" CHECK (char_length(btrim(full_name)) >= 1 AND char_length(btrim(full_name)) <= 100)
+    "users_username_format" CHECK (username ~ '^[a-z0-9._-]{3,32}$'::text)
+Foreign-key constraints:
+    "users_role_id_fkey" FOREIGN KEY (role_id) REFERENCES roles(id)
+Referenced by:
+    TABLE "acct_fiscal_periods" CONSTRAINT "acct_fiscal_periods_closed_by_fkey" FOREIGN KEY (closed_by) REFERENCES users(id)
+    TABLE "acct_journal_entries" CONSTRAINT "acct_journal_entries_created_by_fkey" FOREIGN KEY (created_by) REFERENCES users(id)
+    TABLE "acct_journal_entries" CONSTRAINT "acct_journal_entries_posted_by_fkey" FOREIGN KEY (posted_by) REFERENCES users(id)
+    TABLE "acct_journal_entries" CONSTRAINT "acct_journal_entries_voided_by_fkey" FOREIGN KEY (voided_by) REFERENCES users(id)
+    TABLE "audit_log" CONSTRAINT "audit_log_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id)
+    TABLE "cafe_purchases" CONSTRAINT "cafe_purchases_created_by_fkey" FOREIGN KEY (created_by) REFERENCES users(id)
+    TABLE "cafe_sales" CONSTRAINT "cafe_sales_sold_by_fkey" FOREIGN KEY (sold_by) REFERENCES users(id)
+    TABLE "cafe_sales" CONSTRAINT "cafe_sales_voided_by_fkey" FOREIGN KEY (voided_by) REFERENCES users(id)
+    TABLE "cafe_stock_movements" CONSTRAINT "cafe_stock_movements_created_by_fkey" FOREIGN KEY (created_by) REFERENCES users(id)
+    TABLE "saved_views" CONSTRAINT "saved_views_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    TABLE "student_balance_transactions" CONSTRAINT "student_balance_transactions_created_by_fkey" FOREIGN KEY (created_by) REFERENCES users(id)
+    TABLE "student_field_definitions" CONSTRAINT "student_field_definitions_created_by_fkey" FOREIGN KEY (created_by) REFERENCES users(id)
+    TABLE "student_groups" CONSTRAINT "student_groups_created_by_fkey" FOREIGN KEY (created_by) REFERENCES users(id)
+    TABLE "user_preferences" CONSTRAINT "user_preferences_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+Triggers:
+    users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION set_updated_at()
+Access method: heap
+
+                                                          Table "public.roles"
+   Column    |           Type           | Collation | Nullable |      Default      | Storage  | Compression | Stats target | Description 
+-------------+--------------------------+-----------+----------+-------------------+----------+-------------+--------------+-------------
+ id          | uuid                     |           | not null | gen_random_uuid() | plain    |             |              | 
+ name        | text                     |           | not null |                   | extended |             |              | 
+ description | text                     |           | not null | ''::text          | extended |             |              | 
+ is_system   | boolean                  |           | not null | false             | plain    |             |              | 
+ created_at  | timestamp with time zone |           | not null | now()             | plain    |             |              | 
+ updated_at  | timestamp with time zone |           | not null | now()             | plain    |             |              | 
+Indexes:
+    "roles_pkey" PRIMARY KEY, btree (id)
+    "roles_name_lower_unique" UNIQUE, btree (lower(name))
+Check constraints:
+    "roles_name_length" CHECK (char_length(btrim(name)) >= 1 AND char_length(btrim(name)) <= 50)
+Referenced by:
+    TABLE "role_permissions" CONSTRAINT "role_permissions_role_id_fkey" FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
+    TABLE "users" CONSTRAINT "users_role_id_fkey" FOREIGN KEY (role_id) REFERENCES roles(id)
+Triggers:
+    roles_updated_at BEFORE UPDATE ON roles FOR EACH ROW EXECUTE FUNCTION set_updated_at()
+Access method: heap
+
+                                       Table "public.role_permissions"
+     Column     | Type | Collation | Nullable | Default | Storage  | Compression | Stats target | Description 
+----------------+------+-----------+----------+---------+----------+-------------+--------------+-------------
+ role_id        | uuid |           | not null |         | plain    |             |              | 
+ permission_key | text |           | not null |         | extended |             |              | 
+Indexes:
+    "role_permissions_pkey" PRIMARY KEY, btree (role_id, permission_key)
+Foreign-key constraints:
+    "role_permissions_role_id_fkey" FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
+Access method: heap
+
+                                                       Table "public.cafe_sales"
+   Column   |           Type           | Collation | Nullable |      Default      | Storage  | Compression | Stats target | Description 
+------------+--------------------------+-----------+----------+-------------------+----------+-------------+--------------+-------------
+ id         | uuid                     |           | not null | gen_random_uuid() | plain    |             |              | 
+ sold_at    | timestamp with time zone |           | not null | now()             | plain    |             |              | 
+ sold_by    | uuid                     |           | not null |                   | plain    |             |              | 
+ customer   | text                     |           | not null |                   | extended |             |              | 
+ student_id | uuid                     |           |          |                   | plain    |             |              | 
+ total      | bigint                   |           | not null | 0                 | plain    |             |              | 
+ cost_total | bigint                   |           | not null | 0                 | plain    |             |              | 
+ note       | text                     |           |          |                   | extended |             |              | 
+ voided_at  | timestamp with time zone |           |          |                   | plain    |             |              | 
+ voided_by  | uuid                     |           |          |                   | plain    |             |              | 
+ created_at | timestamp with time zone |           | not null | now()             | plain    |             |              | 
+Indexes:
+    "cafe_sales_pkey" PRIMARY KEY, btree (id)
+    "cafe_sales_sold_at_idx" btree (sold_at DESC)
+    "cafe_sales_sold_by_idx" btree (sold_by)
+    "cafe_sales_student_idx" btree (student_id) WHERE student_id IS NOT NULL
+    "cafe_sales_voided_by_idx" btree (voided_by)
+Check constraints:
+    "cafe_sales_amounts_ck" CHECK (total >= 0 AND cost_total >= 0)
+    "cafe_sales_customer_ck" CHECK (customer = ANY (ARRAY['walk_in'::text, 'student'::text]))
+    "cafe_sales_note_ck" CHECK (note IS NULL OR char_length(btrim(note)) <= 500)
+    "cafe_sales_target_ck" CHECK ((customer = 'student'::text) = (student_id IS NOT NULL))
+Foreign-key constraints:
+    "cafe_sales_sold_by_fkey" FOREIGN KEY (sold_by) REFERENCES users(id)
+    "cafe_sales_student_id_fkey" FOREIGN KEY (student_id) REFERENCES students(id)
+    "cafe_sales_voided_by_fkey" FOREIGN KEY (voided_by) REFERENCES users(id)
+Referenced by:
+    TABLE "cafe_sale_items" CONSTRAINT "cafe_sale_items_sale_id_fkey" FOREIGN KEY (sale_id) REFERENCES cafe_sales(id) ON DELETE CASCADE
+Access method: heap
+
+                                                      Table "public.cafe_products"
+   Column   |           Type           | Collation | Nullable |      Default      | Storage  | Compression | Stats target | Description 
+------------+--------------------------+-----------+----------+-------------------+----------+-------------+--------------+-------------
+ id         | uuid                     |           | not null | gen_random_uuid() | plain    |             |              | 
+ name       | text                     |           | not null |                   | extended |             |              | 
+ price      | bigint                   |           | not null |                   | plain    |             |              | 
+ is_active  | boolean                  |           | not null | true              | plain    |             |              | 
+ sort_order | integer                  |           | not null | 0                 | plain    |             |              | 
+ avg_cost   | bigint                   |           | not null | 0                 | plain    |             |              | 
+ created_at | timestamp with time zone |           | not null | now()             | plain    |             |              | 
+ updated_at | timestamp with time zone |           | not null | now()             | plain    |             |              | 
+Indexes:
+    "cafe_products_pkey" PRIMARY KEY, btree (id)
+    "cafe_products_active_sort_idx" btree (is_active, sort_order, lower(name))
+    "cafe_products_name_unique" UNIQUE, btree (lower(name)) WHERE is_active
+Check constraints:
+    "cafe_products_name_length" CHECK (char_length(btrim(name)) >= 1 AND char_length(btrim(name)) <= 80)
+    "cafe_products_price_nonnegative" CHECK (price >= 0)
+    "cafe_products_sort_ck" CHECK (sort_order >= 0)
+Referenced by:
+    TABLE "cafe_purchase_items" CONSTRAINT "cafe_purchase_items_product_id_fkey" FOREIGN KEY (product_id) REFERENCES cafe_products(id)
+    TABLE "cafe_sale_items" CONSTRAINT "cafe_sale_items_product_id_fkey" FOREIGN KEY (product_id) REFERENCES cafe_products(id)
+    TABLE "cafe_stock_movements" CONSTRAINT "cafe_stock_movements_product_id_fkey" FOREIGN KEY (product_id) REFERENCES cafe_products(id)
+Triggers:
+    cafe_products_updated_at BEFORE UPDATE ON cafe_products FOR EACH ROW EXECUTE FUNCTION set_updated_at()
+Access method: heap
+
+                                               Table "public.student_balances"
+   Column   |           Type           | Collation | Nullable | Default | Storage | Compression | Stats target | Description 
+------------+--------------------------+-----------+----------+---------+---------+-------------+--------------+-------------
+ student_id | uuid                     |           | not null |         | plain   |             |              | 
+ balance    | bigint                   |           | not null | 0       | plain   |             |              | 
+ updated_at | timestamp with time zone |           | not null | now()   | plain   |             |              | 
+Indexes:
+    "student_balances_pkey" PRIMARY KEY, btree (student_id)
+Foreign-key constraints:
+    "student_balances_student_id_fkey" FOREIGN KEY (student_id) REFERENCES students(id)
+Triggers:
+    student_balances_updated_at BEFORE UPDATE ON student_balances FOR EACH ROW EXECUTE FUNCTION set_updated_at()
+Access method: heap
+
+                                                                Table "public.acct_journal_entries"
+      Column       |           Type           | Collation | Nullable |                Default                 | Storage  | Compression | Stats target | Description 
+-------------------+--------------------------+-----------+----------+----------------------------------------+----------+-------------+--------------+-------------
+ id                | uuid                     |           | not null | gen_random_uuid()                      | plain    |             |              | 
+ entry_no          | bigint                   |           | not null | nextval('acct_entry_no_seq'::regclass) | plain    |             |              | 
+ entry_date        | date                     |           | not null |                                        | plain    |             |              | 
+ memo              | text                     |           |          |                                        | extended |             |              | 
+ status            | text                     |           | not null | 'draft'::text                          | extended |             |              | 
+ source_type       | text                     |           |          |                                        | extended |             |              | 
+ source_id         | uuid                     |           |          |                                        | plain    |             |              | 
+ posted_by         | uuid                     |           |          |                                        | plain    |             |              | 
+ posted_at         | timestamp with time zone |           |          |                                        | plain    |             |              | 
+ voided_by         | uuid                     |           |          |                                        | plain    |             |              | 
+ voided_at         | timestamp with time zone |           |          |                                        | plain    |             |              | 
+ reverses_entry_id | uuid                     |           |          |                                        | plain    |             |              | 
+ created_by        | uuid                     |           | not null |                                        | plain    |             |              | 
+ created_at        | timestamp with time zone |           | not null | now()                                  | plain    |             |              | 
+Indexes:
+    "acct_journal_entries_pkey" PRIMARY KEY, btree (id)
+    "acct_entries_date_idx" btree (entry_date DESC, entry_no DESC) WHERE status = 'posted'::text
+    "acct_entries_no_unique" UNIQUE, btree (entry_no)
+    "acct_entries_one_opening_unique" UNIQUE, btree (source_type) WHERE source_type = 'opening'::text
+    "acct_entries_source_unique" UNIQUE, btree (source_type, source_id) WHERE source_type IS NOT NULL AND (source_type <> ALL (ARRAY['opening'::text, 'closing'::text])) AND status = 'posted'::text
+    "acct_journal_entries_created_by_idx" btree (created_by)
+    "acct_journal_entries_posted_by_idx" btree (posted_by)
+    "acct_journal_entries_reverses_idx" btree (reverses_entry_id)
+    "acct_journal_entries_voided_by_idx" btree (voided_by)
+Check constraints:
+    "acct_entries_memo_ck" CHECK (memo IS NULL OR char_length(btrim(memo)) <= 500)
+    "acct_entries_reversal_ck" CHECK (reverses_entry_id IS NULL OR reverses_entry_id <> id)
+    "acct_entries_status_ck" CHECK (status = ANY (ARRAY['draft'::text, 'posted'::text, 'voided'::text]))
+Foreign-key constraints:
+    "acct_journal_entries_created_by_fkey" FOREIGN KEY (created_by) REFERENCES users(id)
+    "acct_journal_entries_posted_by_fkey" FOREIGN KEY (posted_by) REFERENCES users(id)
+    "acct_journal_entries_reverses_entry_id_fkey" FOREIGN KEY (reverses_entry_id) REFERENCES acct_journal_entries(id)
+    "acct_journal_entries_voided_by_fkey" FOREIGN KEY (voided_by) REFERENCES users(id)
+Referenced by:
+    TABLE "acct_journal_entries" CONSTRAINT "acct_journal_entries_reverses_entry_id_fkey" FOREIGN KEY (reverses_entry_id) REFERENCES acct_journal_entries(id)
+    TABLE "acct_journal_lines" CONSTRAINT "acct_journal_lines_entry_id_fkey" FOREIGN KEY (entry_id) REFERENCES acct_journal_entries(id) ON DELETE CASCADE
+Triggers:
+    acct_entry_lifecycle_trg BEFORE INSERT OR DELETE OR UPDATE ON acct_journal_entries FOR EACH ROW EXECUTE FUNCTION acct_entry_lifecycle()
+    acct_system_entries_not_voided_trg BEFORE UPDATE OF status ON acct_journal_entries FOR EACH ROW EXECUTE FUNCTION acct_system_entries_not_voided()
+Access method: heap
+
+                                          Table "public.acct_journal_lines"
+   Column   |  Type  | Collation | Nullable |      Default      | Storage  | Compression | Stats target | Description 
+------------+--------+-----------+----------+-------------------+----------+-------------+--------------+-------------
+ id         | uuid   |           | not null | gen_random_uuid() | plain    |             |              | 
+ entry_id   | uuid   |           | not null |                   | plain    |             |              | 
+ account_id | uuid   |           | not null |                   | plain    |             |              | 
+ debit      | bigint |           | not null | 0                 | plain    |             |              | 
+ credit     | bigint |           | not null | 0                 | plain    |             |              | 
+ memo       | text   |           |          |                   | extended |             |              | 
+Indexes:
+    "acct_journal_lines_pkey" PRIMARY KEY, btree (id)
+    "acct_lines_account_idx" btree (account_id)
+    "acct_lines_entry_idx" btree (entry_id)
+Check constraints:
+    "acct_lines_memo_ck" CHECK (memo IS NULL OR char_length(btrim(memo)) <= 500)
+    "acct_lines_nonneg_ck" CHECK (debit >= 0 AND credit >= 0)
+    "acct_lines_one_side_ck" CHECK ((debit > 0) <> (credit > 0))
+Foreign-key constraints:
+    "acct_journal_lines_account_id_fkey" FOREIGN KEY (account_id) REFERENCES acct_accounts(id)
+    "acct_journal_lines_entry_id_fkey" FOREIGN KEY (entry_id) REFERENCES acct_journal_entries(id) ON DELETE CASCADE
+Triggers:
+    acct_entry_balance_trg AFTER INSERT OR DELETE OR UPDATE ON acct_journal_lines DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION acct_entry_balanced()
+    acct_lines_draft_only_trg BEFORE INSERT OR DELETE OR UPDATE ON acct_journal_lines FOR EACH ROW EXECUTE FUNCTION acct_lines_draft_only()
+Access method: heap
+

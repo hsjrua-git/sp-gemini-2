@@ -1,0 +1,1 @@
+{"fixture":"Audit POS 68a993272d","sale":"voided","charge":15,"balance":0,"stock":1,"ledgerReplay":true,"journalsBalanced":true,"productInactive":true,"supplierInactive":true,"studentArchived":true,"purchaseHistory":"retained"}

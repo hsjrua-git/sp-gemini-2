@@ -1,0 +1,1 @@
+{"memo":"Audit journal 8f2f76d388","amount":321,"date":"2026-10-29","cleaned":false,"debitId":"4c29d301-feb7-4ae4-9640-8eb814dd6f09","creditId":"17a53413-322c-4dd9-b2f5-59e8cf366959","baseline":{"netProfit":40986,"totalIncome":229000,"totalAssets":172986,"ledgerClosing":-1656200}}

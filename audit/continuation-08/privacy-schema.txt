@@ -1,0 +1,218 @@
+  current_database   | inet_server_port 
+---------------------+------------------
+ student_panel_audit |            55439
+(1 row)
+
+                      List of relations
+ Schema |             Name             | Type  |    Owner    
+--------+------------------------------+-------+-------------
+ public | acct_accounts                | table | audit_owner
+ public | acct_fiscal_periods          | table | audit_owner
+ public | acct_invariant_locks         | table | audit_owner
+ public | acct_journal_entries         | table | audit_owner
+ public | acct_journal_lines           | table | audit_owner
+ public | acct_mappings                | table | audit_owner
+ public | alerts                       | table | audit_owner
+ public | assignments                  | table | audit_owner
+ public | audit_log                    | table | audit_owner
+ public | cafe_products                | table | audit_owner
+ public | cafe_purchase_items          | table | audit_owner
+ public | cafe_purchases               | table | audit_owner
+ public | cafe_sale_items              | table | audit_owner
+ public | cafe_sales                   | table | audit_owner
+ public | cafe_stock_movements         | table | audit_owner
+ public | cafe_suppliers               | table | audit_owner
+ public | evaluations                  | table | audit_owner
+ public | hierarchy_invariant_locks    | table | audit_owner
+ public | intervals                    | table | audit_owner
+ public | parameters                   | table | audit_owner
+ public | periods                      | table | audit_owner
+ public | role_permissions             | table | audit_owner
+ public | roles                        | table | audit_owner
+ public | saved_views                  | table | audit_owner
+ public | schema_migrations            | table | audit_owner
+ public | secrets                      | table | audit_owner
+ public | sessions                     | table | audit_owner
+ public | student_balance_transactions | table | audit_owner
+ public | student_balances             | table | audit_owner
+ public | student_field_definitions    | table | audit_owner
+ public | student_group_members        | table | audit_owner
+ public | student_groups               | table | audit_owner
+ public | students                     | table | audit_owner
+ public | task_templates               | table | audit_owner
+ public | tasks                        | table | audit_owner
+ public | teachers                     | table | audit_owner
+ public | user_preferences             | table | audit_owner
+ public | user_sessions                | table | audit_owner
+ public | users                        | table | audit_owner
+ public | voice_transcripts            | table | audit_owner
+(40 rows)
+
+                                                         Table "public.students"
+    Column    |           Type           | Collation | Nullable |      Default      | Storage  | Compression | Stats target | Description 
+--------------+--------------------------+-----------+----------+-------------------+----------+-------------+--------------+-------------
+ id           | uuid                     |           | not null | gen_random_uuid() | plain    |             |              | 
+ student_code | text                     |           | not null |                   | extended |             |              | 
+ full_name    | text                     |           | not null |                   | extended |             |              | 
+ created_at   | timestamp with time zone |           | not null | now()             | plain    |             |              | 
+ deleted_at   | timestamp with time zone |           |          |                   | plain    |             |              | 
+ extra        | jsonb                    |           | not null | '{}'::jsonb       | extended |             |              | 
+ gender       | gender_type              |           |          |                   | plain    |             |              | 
+ birth_date   | date                     |           |          |                   | plain    |             |              | 
+ father_name  | text                     |           |          |                   | extended |             |              | 
+ national_id  | text                     |           |          |                   | extended |             |              | 
+ updated_at   | timestamp with time zone |           | not null | now()             | plain    |             |              | 
+Indexes:
+    "students_pkey" PRIMARY KEY, btree (id)
+    "students_national_id_unique" UNIQUE, btree (national_id)
+    "students_student_code_key" UNIQUE CONSTRAINT, btree (student_code)
+Check constraints:
+    "full_name_length" CHECK (char_length(btrim(full_name)) >= 2 AND char_length(btrim(full_name)) <= 100)
+    "student_code_format" CHECK (student_code ~ '^[2-9A-HJ-NP-Z]{8}$'::text)
+    "students_birth_date_sane" CHECK (birth_date IS NULL OR birth_date <= CURRENT_DATE)
+    "students_father_name_length" CHECK (father_name IS NULL OR char_length(btrim(father_name)) >= 1 AND char_length(btrim(father_name)) <= 100)
+    "students_national_id_format" CHECK (national_id IS NULL OR national_id ~ '^[0-9]{10}$'::text)
+Referenced by:
+    TABLE "cafe_sales" CONSTRAINT "cafe_sales_student_id_fkey" FOREIGN KEY (student_id) REFERENCES students(id)
+    TABLE "student_balance_transactions" CONSTRAINT "student_balance_transactions_student_id_fkey" FOREIGN KEY (student_id) REFERENCES students(id)
+    TABLE "student_balances" CONSTRAINT "student_balances_student_id_fkey" FOREIGN KEY (student_id) REFERENCES students(id)
+    TABLE "student_group_members" CONSTRAINT "student_group_members_student_id_fkey" FOREIGN KEY (student_id) REFERENCES students(id)
+Triggers:
+    students_balance_settled_before_delete_trg BEFORE UPDATE OF deleted_at ON students FOR EACH ROW EXECUTE FUNCTION students_balance_settled_before_delete()
+    students_updated_at BEFORE UPDATE ON students FOR EACH ROW EXECUTE FUNCTION set_updated_at()
+Access method: heap
+
+                                                 Table "public.student_field_definitions"
+    Column     |           Type           | Collation | Nullable |      Default      | Storage  | Compression | Stats target | Description 
+---------------+--------------------------+-----------+----------+-------------------+----------+-------------+--------------+-------------
+ id            | uuid                     |           | not null | gen_random_uuid() | plain    |             |              | 
+ label         | text                     |           | not null |                   | extended |             |              | 
+ field_type    | text                     |           | not null |                   | extended |             |              | 
+ choices       | jsonb                    |           | not null | '[]'::jsonb       | extended |             |              | 
+ is_restricted | boolean                  |           | not null | false             | plain    |             |              | 
+ sort_order    | integer                  |           | not null | 0                 | plain    |             |              | 
+ archived_at   | timestamp with time zone |           |          |                   | plain    |             |              | 
+ created_by    | uuid                     |           |          |                   | plain    |             |              | 
+ created_at    | timestamp with time zone |           | not null | now()             | plain    |             |              | 
+ updated_at    | timestamp with time zone |           | not null | now()             | plain    |             |              | 
+Indexes:
+    "student_field_definitions_pkey" PRIMARY KEY, btree (id)
+    "student_field_definitions_created_by_idx" btree (created_by)
+    "student_field_definitions_label_unique" UNIQUE, btree (lower(label)) WHERE archived_at IS NULL
+Check constraints:
+    "field_label_length" CHECK (char_length(btrim(label)) >= 1 AND char_length(btrim(label)) <= 60)
+    "field_type_valid" CHECK (field_type = ANY (ARRAY['text'::text, 'long_text'::text, 'number'::text, 'date'::text, 'yes_no'::text, 'choice'::text]))
+Foreign-key constraints:
+    "student_field_definitions_created_by_fkey" FOREIGN KEY (created_by) REFERENCES users(id)
+Triggers:
+    student_field_definitions_updated_at BEFORE UPDATE ON student_field_definitions FOR EACH ROW EXECUTE FUNCTION set_updated_at()
+Access method: heap
+
+                                                              Table "public.audit_log"
+   Column    |           Type           | Collation | Nullable |           Default            | Storage  | Compression | Stats target | Description 
+-------------+--------------------------+-----------+----------+------------------------------+----------+-------------+--------------+-------------
+ id          | bigint                   |           | not null | generated always as identity | plain    |             |              | 
+ occurred_at | timestamp with time zone |           | not null | now()                        | plain    |             |              | 
+ user_id     | uuid                     |           |          |                              | plain    |             |              | 
+ actor       | text                     |           | not null |                              | extended |             |              | 
+ action      | text                     |           | not null |                              | extended |             |              | 
+ entity_type | text                     |           |          |                              | extended |             |              | 
+ entity_id   | text                     |           |          |                              | extended |             |              | 
+ details     | jsonb                    |           | not null | '{}'::jsonb                  | extended |             |              | 
+ old_data    | jsonb                    |           |          |                              | extended |             |              | 
+ new_data    | jsonb                    |           |          |                              | extended |             |              | 
+Indexes:
+    "audit_log_pkey" PRIMARY KEY, btree (id)
+    "audit_log_actor_lower_idx" btree (lower(actor))
+    "audit_log_category_idx" btree (split_part(action, '.'::text, 1))
+    "audit_log_entity_idx" btree (entity_type, entity_id)
+    "audit_log_occurred_idx" btree (occurred_at DESC, id DESC)
+    "audit_log_user_idx" btree (user_id)
+Foreign-key constraints:
+    "audit_log_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id)
+Access method: heap
+
+                                                               Table "public.users"
+        Column        |           Type           | Collation | Nullable |      Default      | Storage  | Compression | Stats target | Description 
+----------------------+--------------------------+-----------+----------+-------------------+----------+-------------+--------------+-------------
+ id                   | uuid                     |           | not null | gen_random_uuid() | plain    |             |              | 
+ username             | text                     |           | not null |                   | extended |             |              | 
+ full_name            | text                     |           | not null |                   | extended |             |              | 
+ password_hash        | text                     |           | not null |                   | extended |             |              | 
+ is_active            | boolean                  |           | not null | true              | plain    |             |              | 
+ must_change_password | boolean                  |           | not null | true              | plain    |             |              | 
+ last_login_at        | timestamp with time zone |           |          |                   | plain    |             |              | 
+ created_at           | timestamp with time zone |           | not null | now()             | plain    |             |              | 
+ updated_at           | timestamp with time zone |           | not null | now()             | plain    |             |              | 
+ role_id              | uuid                     |           | not null |                   | plain    |             |              | 
+Indexes:
+    "users_pkey" PRIMARY KEY, btree (id)
+    "users_role_idx" btree (role_id)
+    "users_username_unique" UNIQUE, btree (lower(username))
+Check constraints:
+    "users_full_name_length" CHECK (char_length(btrim(full_name)) >= 1 AND char_length(btrim(full_name)) <= 100)
+    "users_username_format" CHECK (username ~ '^[a-z0-9._-]{3,32}$'::text)
+Foreign-key constraints:
+    "users_role_id_fkey" FOREIGN KEY (role_id) REFERENCES roles(id)
+Referenced by:
+    TABLE "acct_fiscal_periods" CONSTRAINT "acct_fiscal_periods_closed_by_fkey" FOREIGN KEY (closed_by) REFERENCES users(id)
+    TABLE "acct_journal_entries" CONSTRAINT "acct_journal_entries_created_by_fkey" FOREIGN KEY (created_by) REFERENCES users(id)
+    TABLE "acct_journal_entries" CONSTRAINT "acct_journal_entries_posted_by_fkey" FOREIGN KEY (posted_by) REFERENCES users(id)
+    TABLE "acct_journal_entries" CONSTRAINT "acct_journal_entries_voided_by_fkey" FOREIGN KEY (voided_by) REFERENCES users(id)
+    TABLE "audit_log" CONSTRAINT "audit_log_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id)
+    TABLE "cafe_purchases" CONSTRAINT "cafe_purchases_created_by_fkey" FOREIGN KEY (created_by) REFERENCES users(id)
+    TABLE "cafe_sales" CONSTRAINT "cafe_sales_sold_by_fkey" FOREIGN KEY (sold_by) REFERENCES users(id)
+    TABLE "cafe_sales" CONSTRAINT "cafe_sales_voided_by_fkey" FOREIGN KEY (voided_by) REFERENCES users(id)
+    TABLE "cafe_stock_movements" CONSTRAINT "cafe_stock_movements_created_by_fkey" FOREIGN KEY (created_by) REFERENCES users(id)
+    TABLE "saved_views" CONSTRAINT "saved_views_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    TABLE "student_balance_transactions" CONSTRAINT "student_balance_transactions_created_by_fkey" FOREIGN KEY (created_by) REFERENCES users(id)
+    TABLE "student_field_definitions" CONSTRAINT "student_field_definitions_created_by_fkey" FOREIGN KEY (created_by) REFERENCES users(id)
+    TABLE "student_groups" CONSTRAINT "student_groups_created_by_fkey" FOREIGN KEY (created_by) REFERENCES users(id)
+    TABLE "user_preferences" CONSTRAINT "user_preferences_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+Triggers:
+    users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION set_updated_at()
+Access method: heap
+
+                                                  Table "public.user_sessions"
+ Column |              Type              | Collation | Nullable | Default | Storage  | Compression | Stats target | Description 
+--------+--------------------------------+-----------+----------+---------+----------+-------------+--------------+-------------
+ sid    | character varying              |           | not null |         | extended |             |              | 
+ sess   | json                           |           | not null |         | extended |             |              | 
+ expire | timestamp(6) without time zone |           | not null |         | plain    |             |              | 
+Indexes:
+    "user_sessions_pkey" PRIMARY KEY, btree (sid)
+    "user_sessions_expire_idx" btree (expire)
+Access method: heap
+
+                                                          Table "public.roles"
+   Column    |           Type           | Collation | Nullable |      Default      | Storage  | Compression | Stats target | Description 
+-------------+--------------------------+-----------+----------+-------------------+----------+-------------+--------------+-------------
+ id          | uuid                     |           | not null | gen_random_uuid() | plain    |             |              | 
+ name        | text                     |           | not null |                   | extended |             |              | 
+ description | text                     |           | not null | ''::text          | extended |             |              | 
+ is_system   | boolean                  |           | not null | false             | plain    |             |              | 
+ created_at  | timestamp with time zone |           | not null | now()             | plain    |             |              | 
+ updated_at  | timestamp with time zone |           | not null | now()             | plain    |             |              | 
+Indexes:
+    "roles_pkey" PRIMARY KEY, btree (id)
+    "roles_name_lower_unique" UNIQUE, btree (lower(name))
+Check constraints:
+    "roles_name_length" CHECK (char_length(btrim(name)) >= 1 AND char_length(btrim(name)) <= 50)
+Referenced by:
+    TABLE "role_permissions" CONSTRAINT "role_permissions_role_id_fkey" FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
+    TABLE "users" CONSTRAINT "users_role_id_fkey" FOREIGN KEY (role_id) REFERENCES roles(id)
+Triggers:
+    roles_updated_at BEFORE UPDATE ON roles FOR EACH ROW EXECUTE FUNCTION set_updated_at()
+Access method: heap
+
+                                       Table "public.role_permissions"
+     Column     | Type | Collation | Nullable | Default | Storage  | Compression | Stats target | Description 
+----------------+------+-----------+----------+---------+----------+-------------+--------------+-------------
+ role_id        | uuid |           | not null |         | plain    |             |              | 
+ permission_key | text |           | not null |         | extended |             |              | 
+Indexes:
+    "role_permissions_pkey" PRIMARY KEY, btree (role_id, permission_key)
+Foreign-key constraints:
+    "role_permissions_role_id_fkey" FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
+Access method: heap
+

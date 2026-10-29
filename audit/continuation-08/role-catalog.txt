@@ -1,0 +1,41 @@
+
+ RUN  v5.0.1 /home/hsjrua/Documents/sp-gemini-1/client
+
+stdout | ../audit/checks/role-catalog.test.jsx > catalog failure is contained before new editor activation
+{"mode":"new","queryStatus":"error","editorEnabled":true,"crashed":true,"errors":["%o\n\n%s\n\n%s\n TypeError: Cannot read properties of undefined (reading 'permissions') The above error occurred in the <PermissionEditor> component. React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.","Unhandled error in the interface: TypeError: Cannot read properties of undefined (reading 'permissions') [object Object]"]}
+
+stdout | ../audit/checks/role-catalog.test.jsx > catalog failure is contained before edit editor activation
+{"mode":"edit","queryStatus":"error","editorEnabled":true,"crashed":true,"errors":["%o\n\n%s\n\n%s\n TypeError: Cannot read properties of undefined (reading 'permissions') The above error occurred in the <PermissionEditor> component. React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.","Unhandled error in the interface: TypeError: Cannot read properties of undefined (reading 'permissions') [object Object]"]}
+
+ ❯ ../audit/checks/role-catalog.test.jsx (3 tests | 2 failed) 539ms
+   × catalog failure is contained before new editor activation 141ms
+   × catalog failure is contained before edit editor activation 63ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  ../audit/checks/role-catalog.test.jsx > catalog failure is contained before new editor activation
+ FAIL  ../audit/checks/role-catalog.test.jsx > catalog failure is contained before edit editor activation
+AssertionError: expected true to be false // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- false[39m
+[31m+ true[39m
+
+ ❯ ../audit/checks/role-catalog.test.jsx:56:19
+     54|     editorEnabled: !!button && !button.disabled, crashed,
+     55|     errors: errors.filter(message => message.includes('permissions') |…
+     56|   expect(crashed).toBe(false);
+       |                   ^
+     57|   expect(screen.getByText('Synthetic catalog unavailable')).toBeTruthy…
+     58|   expect(mocks.create).not.toHaveBeenCalled();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed (3)
+   Start at  23:07:14
+   Duration  2.51s (environment 51%, tests 23%, setup 11%, import 8%, worker 5%, transform 1%)
+

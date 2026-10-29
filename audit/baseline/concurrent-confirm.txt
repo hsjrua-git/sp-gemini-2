@@ -1,0 +1,19 @@
+Concurrent confirmations produced 2 sale requests; expected 1.
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: one confirmed cart must create exactly one sale
+
+2 !== 1
+
+    at file:///home/hsjrua/Documents/sp-gemini-1/audit/checks/concurrent-confirm.mjs:26:8 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 2,
+  expected: 1,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.15.0

@@ -1,0 +1,20 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: /api/cafe/balances/90744d41-9d2e-4efd-8ed0-51d39965bc8b
+
+404 !== 200
+
+    at get (file:///home/hsjrua/Documents/sp-gemini-1/audit/checks/verify-browser-finance.mjs:9:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///home/hsjrua/Documents/sp-gemini-1/audit/checks/verify-browser-finance.mjs:19:19 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 404,
+  expected: 200,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.15.0

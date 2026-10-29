@@ -1,0 +1,53 @@
+
+ RUN  v5.0.1 /home/hsjrua/Documents/sp-gemini-1/client
+
+stdout | ../audit/checks/schedule-calendar.test.jsx > month-end nonleap: schedule next date matches anchored calendar
+{"name":"month-end nonleap","today":"2026-02-01","anchor":"2026-01-31","expectedIso":"2026-02-28","expectedDisplay":"Feb 28, 2026 (۹ اسفند ۱۴۰۴)","shown":"Mar 3, 2026 (۱۲ اسفند ۱۴۰۴)"}
+
+stdout | ../audit/checks/schedule-calendar.test.jsx > month-end leap: schedule next date matches anchored calendar
+{"name":"month-end leap","today":"2028-02-01","anchor":"2028-01-31","expectedIso":"2028-02-29","expectedDisplay":"Feb 29, 2028 (۱۰ اسفند ۱۴۰۶)","shown":"Mar 2, 2028 (۱۲ اسفند ۱۴۰۶)"}
+
+ ❯ ../audit/checks/schedule-calendar.test.jsx (5 tests | 2 failed) 343ms
+   × month-end nonleap: schedule next date matches anchored calendar 52ms
+   × month-end leap: schedule next date matches anchored calendar 56ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  ../audit/checks/schedule-calendar.test.jsx > month-end nonleap: schedule next date matches anchored calendar
+AssertionError: expected 'Mar 3, 2026 (۱۲ اسفند ۱۴۰۴)' to be 'Feb 28, 2026 (۹ اسفند ۱۴۰۴)' // Object.is equality
+
+Expected: [32m"[7mFeb 28[27m, 2026 ([7m۹[27m اسفند ۱۴۰۴)"[39m
+Received: [31m"[7mMar 3[27m, 2026 ([7m۱۲[27m اسفند ۱۴۰۴)"[39m
+
+ ❯ ../audit/checks/schedule-calendar.test.jsx:34:17
+     32|   console.log(JSON.stringify({ name: item.name, today: item.today, anc…
+     33|     expectedIso: item.expected, expectedDisplay: formatIsoDate(item.ex…
+     34|   expect(shown).toBe(formatIsoDate(item.expected));
+       |                 ^
+     35| });
+     36|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  ../audit/checks/schedule-calendar.test.jsx > month-end leap: schedule next date matches anchored calendar
+AssertionError: expected 'Mar 2, 2028 (۱۲ اسفند ۱۴۰۶)' to be 'Feb 29, 2028 (۱۰ اسفند ۱۴۰۶)' // Object.is equality
+
+Expected: [32m"[7mFeb[27m 2[7m9[27m, 2028 (۱[7m۰[27m اسفند ۱۴۰۶)"[39m
+Received: [31m"[7mMar[27m 2, 2028 (۱[7m۲[27m اسفند ۱۴۰۶)"[39m
+
+ ❯ ../audit/checks/schedule-calendar.test.jsx:34:17
+     32|   console.log(JSON.stringify({ name: item.name, today: item.today, anc…
+     33|     expectedIso: item.expected, expectedDisplay: formatIsoDate(item.ex…
+     34|   expect(shown).toBe(formatIsoDate(item.expected));
+       |                 ^
+     35| });
+     36|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 3 passed (5)
+   Start at  23:11:39
+   Duration  2.33s (environment 54%, tests 16%, setup 12%, import 10%, worker 5%, transform 2%)
+

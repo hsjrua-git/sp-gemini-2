@@ -1,0 +1,125 @@
+{"auditPhase":"active","persistedEntryId":"356","responseEntryPresent":true}
+{"auditPhase":"archived","persistedEntryId":"356","responseEntryPresent":true}
+{"auditPhase":"restored","persistedEntryId":"356","responseEntryPresent":true}
+{"cleanup":{"prefix":"Audit privacy 14fab90981","username":"audit-privacy-20a874d752","students":["f5c91d31-e792-4acf-92b6-a5501f31cea4","3581cf25-07f8-459a-81a0-5f8084a780a0"],"fields":["f69bd686-12c6-4e7f-82ed-a9fa845518d5","5811fa0e-9115-49f3-a4e9-f01fbd07fa0a"],"cleaned":true,"roleId":"3c0ddf2c-d0b9-4403-938b-e2eb94fdee1c","userId":"a16163d9-3a27-4687-9795-f2b310e6a75d"}}
+{
+  "checks": [
+    {
+      "name": "new-user password gate covers read and mutation",
+      "pass": true
+    },
+    {
+      "name": "password change keeps caller session and evicts second session",
+      "pass": true
+    },
+    {
+      "name": "active: detail hides restricted field and preserves public field",
+      "pass": true
+    },
+    {
+      "name": "active: list hides restricted field and preserves public field",
+      "pass": true
+    },
+    {
+      "name": "active: mutation hides restricted field and preserves public field",
+      "pass": true
+    },
+    {
+      "name": "active: unauthorized field mutation rejected and stored values preserved",
+      "pass": true
+    },
+    {
+      "name": "active: admin audit retains restricted marker",
+      "pass": true
+    },
+    {
+      "name": "active: restricted audit response removes marker and key",
+      "pass": true
+    },
+    {
+      "name": "active: persisted audit redacts secret-like keys",
+      "pass": true
+    },
+    {
+      "name": "archived: detail hides restricted field and preserves public field",
+      "pass": false,
+      "message": "detail contains restricted key\n\ntrue !== false\n"
+    },
+    {
+      "name": "archived: list hides restricted field and preserves public field",
+      "pass": false,
+      "message": "list contains restricted key\n\ntrue !== false\n"
+    },
+    {
+      "name": "archived: mutation hides restricted field and preserves public field",
+      "pass": false,
+      "message": "mutation contains restricted key\n\ntrue !== false\n"
+    },
+    {
+      "name": "archived: unauthorized field mutation rejected and stored values preserved",
+      "pass": true
+    },
+    {
+      "name": "archived: admin audit retains restricted marker",
+      "pass": true
+    },
+    {
+      "name": "archived: restricted audit response removes marker and key",
+      "pass": true
+    },
+    {
+      "name": "archived: persisted audit redacts secret-like keys",
+      "pass": true
+    },
+    {
+      "name": "restored: detail hides restricted field and preserves public field",
+      "pass": true
+    },
+    {
+      "name": "restored: list hides restricted field and preserves public field",
+      "pass": true
+    },
+    {
+      "name": "restored: mutation hides restricted field and preserves public field",
+      "pass": true
+    },
+    {
+      "name": "restored: unauthorized field mutation rejected and stored values preserved",
+      "pass": true
+    },
+    {
+      "name": "restored: admin audit retains restricted marker",
+      "pass": true
+    },
+    {
+      "name": "restored: restricted audit response removes marker and key",
+      "pass": true
+    },
+    {
+      "name": "restored: persisted audit redacts secret-like keys",
+      "pass": true
+    },
+    {
+      "name": "nonrestricted creation preserves allowed fields",
+      "pass": true
+    },
+    {
+      "name": "existing session re-derives reduced role permissions",
+      "pass": true
+    },
+    {
+      "name": "admin reset evicts all sessions and re-establishes password gate",
+      "pass": true
+    },
+    {
+      "name": "deactivation evicts both sessions",
+      "pass": true
+    },
+    {
+      "name": "actual generated credentials absent from persisted auth audit",
+      "pass": true
+    }
+  ],
+  "passed": 25,
+  "failed": 3
+}

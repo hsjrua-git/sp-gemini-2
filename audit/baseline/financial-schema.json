@@ -1,0 +1,32 @@
+{
+  "command": [
+    "psql",
+    "postgresql://audit_owner@127.0.0.1:55439/student_panel_audit",
+    "-X",
+    "-c",
+    "\\d+ acct_accounts",
+    "-c",
+    "\\d+ acct_journal_entries",
+    "-c",
+    "\\d+ acct_journal_lines",
+    "-c",
+    "\\d+ acct_fiscal_periods",
+    "-c",
+    "\\d+ acct_mappings",
+    "-c",
+    "\\d+ cafe_products",
+    "-c",
+    "\\d+ cafe_sales",
+    "-c",
+    "\\d+ cafe_sale_items",
+    "-c",
+    "\\d+ student_balances",
+    "-c",
+    "\\d+ student_balance_transactions"
+  ],
+  "directory": ".",
+  "started": "2026-10-29T08:36:04.210Z",
+  "ended": "2026-10-29T08:36:04.433Z",
+  "code": 0,
+  "signal": null
+}

@@ -1,0 +1,29 @@
+[
+  {
+    "scenario": "stage-2-undo",
+    "voidCalls": 1
+  },
+  {
+    "scenario": "stage-3-negated-undo",
+    "voidCalls": 1
+  },
+  {
+    "scenario": "model-tool",
+    "voidCalls": 1
+  }
+]
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: no stage-2/3 money change without the required operator confirmation
+    at file:///home/hsjrua/Documents/sp-gemini-1/audit/checks/void-stage-gate.mjs:25:8 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.15.0

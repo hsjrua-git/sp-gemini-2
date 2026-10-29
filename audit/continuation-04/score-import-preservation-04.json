@@ -1,0 +1,11 @@
+{
+  "command": [
+    "node",
+    "audit/checks/score-import-preservation.mjs"
+  ],
+  "directory": ".",
+  "started": "2026-10-29T18:19:36.538Z",
+  "ended": "2026-10-29T18:19:37.925Z",
+  "code": 1,
+  "signal": null
+}

@@ -1,0 +1,95 @@
+npm notice run client@0.0.0 test
+npm notice run vitest run --config ../audit/checks/accounting-cache.vitest.config.mjs
+
+ RUN  v5.0.1 /home/hsjrua/Documents/sp-gemini-1/client
+
+stdout | ../audit/checks/accounting-cache.test.jsx > sale refreshes the previously visited accounting report
+{"action":"sale","consumer":"report","before":"100","observed":"100","expected":"200","callsAfterReturn":1,"refreshed":"200","refreshedCalls":2}
+
+stdout | ../audit/checks/accounting-cache.test.jsx > sale refreshes the previously visited accounting journal
+{"action":"sale","consumer":"journal","before":"absent","observed":"absent","expected":"Posted","callsAfterReturn":1,"refreshed":"Posted","refreshedCalls":2}
+
+stdout | ../audit/checks/accounting-cache.test.jsx > void refreshes the previously visited accounting report
+{"action":"void","consumer":"report","before":"200","observed":"200","expected":"100","callsAfterReturn":1,"refreshed":"100","refreshedCalls":2}
+
+stdout | ../audit/checks/accounting-cache.test.jsx > void refreshes the previously visited accounting journal
+{"action":"void","consumer":"journal","before":"Posted","observed":"Posted","expected":"Voided","callsAfterReturn":1,"refreshed":"Voided","refreshedCalls":2}
+
+ ❯ ../audit/checks/accounting-cache.test.jsx (4 tests | 4 failed) 2119ms
+   × sale refreshes the previously visited accounting report 1060ms
+   × sale refreshes the previously visited accounting journal 397ms
+   × void refreshes the previously visited accounting report 341ms
+   × void refreshes the previously visited accounting journal 310ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  ../audit/checks/accounting-cache.test.jsx > sale refreshes the previously visited accounting report
+AssertionError: expected '100' to be '200' // Object.is equality
+
+Expected: [32m"[7m2[27m00"[39m
+Received: [31m"[7m1[27m00"[39m
+
+ ❯ ../audit/checks/accounting-cache.test.jsx:114:20
+    112|   console.log(JSON.stringify({ action, consumer, before, observed, exp…
+    113|     callsAfterReturn, refreshed: readDisplay(), refreshedCalls: queryF…
+    114|   expect(observed).toBe(expected);
+       |                    ^
+    115| });
+    116|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  ../audit/checks/accounting-cache.test.jsx > sale refreshes the previously visited accounting journal
+AssertionError: expected 'absent' to be 'Posted' // Object.is equality
+
+Expected: [32m"Posted"[39m
+Received: [31m"absent"[39m
+
+ ❯ ../audit/checks/accounting-cache.test.jsx:114:20
+    112|   console.log(JSON.stringify({ action, consumer, before, observed, exp…
+    113|     callsAfterReturn, refreshed: readDisplay(), refreshedCalls: queryF…
+    114|   expect(observed).toBe(expected);
+       |                    ^
+    115| });
+    116|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  ../audit/checks/accounting-cache.test.jsx > void refreshes the previously visited accounting report
+AssertionError: expected '200' to be '100' // Object.is equality
+
+Expected: [32m"[7m1[27m00"[39m
+Received: [31m"[7m2[27m00"[39m
+
+ ❯ ../audit/checks/accounting-cache.test.jsx:114:20
+    112|   console.log(JSON.stringify({ action, consumer, before, observed, exp…
+    113|     callsAfterReturn, refreshed: readDisplay(), refreshedCalls: queryF…
+    114|   expect(observed).toBe(expected);
+       |                    ^
+    115| });
+    116|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  ../audit/checks/accounting-cache.test.jsx > void refreshes the previously visited accounting journal
+AssertionError: expected 'Posted' to be 'Voided' // Object.is equality
+
+Expected: [32m"[7mVoid[27med"[39m
+Received: [31m"[7mPost[27med"[39m
+
+ ❯ ../audit/checks/accounting-cache.test.jsx:114:20
+    112|   console.log(JSON.stringify({ action, consumer, before, observed, exp…
+    113|     callsAfterReturn, refreshed: readDisplay(), refreshedCalls: queryF…
+    114|   expect(observed).toBe(expected);
+       |                    ^
+    115| });
+    116|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed (4)
+   Start at  22:32:47
+   Duration  6.31s (environment 39%, tests 36%, setup 12%, import 7%, worker 6%, transform 1%)
+

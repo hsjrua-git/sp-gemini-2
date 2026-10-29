@@ -1,0 +1,20 @@
+{"total":12000,"balanceIsNull":false,"balanceIsNaN":true}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: walk-in sale has no student balance
+
+NaN !== null
+
+    at file:///home/hsjrua/Documents/sp-gemini-1/audit/checks/walk-in-response.mjs:15:10
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: NaN,
+  expected: null,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.15.0

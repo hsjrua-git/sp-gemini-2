@@ -1,0 +1,23 @@
+{"apiControl":"explicit periods [1] filters successfully","allPeriods":[1,2],"selectedCellPeriods":[1],"selectedCells":210,"downloadedRowCount":30,"downloadedPeriods":["Sample — Group A weekly · 1","Sample — Group A weekly · 2"]}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
+  [
+    'Sample — Group A weekly · 1',
++   'Sample — Group A weekly · 2'
+  ]
+
+    at file:///home/hsjrua/Documents/sp-gemini-1/audit/checks/export-period-control.mjs:26:10 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: [ 'Sample — Group A weekly · 1', 'Sample — Group A weekly · 2' ],
+  expected: [ 'Sample — Group A weekly · 1' ],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.15.0

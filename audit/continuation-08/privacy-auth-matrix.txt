@@ -1,0 +1,18 @@
+{"cleanup":{"prefix":"Audit privacy 2a88993ebf","username":"audit-privacy-b901f9e48b","students":["323af639-89c0-45e8-8696-3c99b9ccb836"],"fields":["80f60830-ce4a-41b3-8e8c-5325b53b3549","04fcddee-f97e-482b-a712-09b7d3914366"],"cleaned":true,"roleId":"f7cd0d5e-303b-4c35-9968-00db16381b20","userId":"59e80a91-9d29-4391-a02b-7b438201ac0c"}}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: positive control: audit stores restricted value before response filtering
+    at auditPrivacy (file:///home/hsjrua/Documents/sp-gemini-1/audit/checks/privacy-auth-matrix.mjs:50:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///home/hsjrua/Documents/sp-gemini-1/audit/checks/privacy-auth-matrix.mjs:134:5 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: undefined,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.15.0

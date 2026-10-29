@@ -1,0 +1,133 @@
+✔ ASCII whole scores, blank and zero retain their established meaning (4.340509ms)
+✖ Persian score digits denote the same whole numbers (2.819686ms)
+✖ Arabic-Indic keyboard digits denote the same whole numbers (0.727451ms)
+✖ localized drafts create numeric save entries and preserve saved comments (2.671149ms)
+✖ typing the same saved score in localized digits is a no-op (0.736808ms)
+✔ digit normalization must retain strict syntax and range checks (0.498041ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 2
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 185.846433
+
+✖ failing tests:
+
+test at audit/checks/localized-score-digits.test.mjs:13:1
+✖ Persian score digits denote the same whole numbers (2.819686ms)
+  AssertionError [ERR_ASSERTION]: ۷
+  + actual - expected
+  
+    {
+  +   error: 'Enter a whole number.'
+  -   value: 7
+    }
+  
+      at TestContext.<anonymous> (file:///home/hsjrua/Documents/sp-gemini-1/audit/checks/localized-score-digits.test.mjs:15:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: { error: 'Enter a whole number.' },
+    expected: { value: 7 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at audit/checks/localized-score-digits.test.mjs:19:1
+✖ Arabic-Indic keyboard digits denote the same whole numbers (0.727451ms)
+  AssertionError [ERR_ASSERTION]: ٧
+  + actual - expected
+  
+    {
+  +   error: 'Enter a whole number.'
+  -   value: 7
+    }
+  
+      at TestContext.<anonymous> (file:///home/hsjrua/Documents/sp-gemini-1/audit/checks/localized-score-digits.test.mjs:21:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: { error: 'Enter a whole number.' },
+    expected: { value: 7 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at audit/checks/localized-score-digits.test.mjs:25:1
+✖ localized drafts create numeric save entries and preserve saved comments (2.671149ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   entries: [],
+  +   errors: {
+  +     'group:parameter': {
+  +       quality: 'Enter a whole number.',
+  +       quantity: 'Enter a whole number.'
+  -   entries: [
+  -     {
+  -       membershipId: null,
+  -       parameterId: 'parameter',
+  -       qualityComment: 'existing quality note',
+  -       qualityValue: 7,
+  -       quantityComment: null,
+  -       quantityValue: 6,
+  -       selected: true
+        }
+  +   }
+  -   ],
+  -   errors: {}
+    }
+  
+      at TestContext.<anonymous> (file:///home/hsjrua/Documents/sp-gemini-1/audit/checks/localized-score-digits.test.mjs:32:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { entries: [], errors: { 'group:parameter': [Object] } },
+    expected: { errors: {}, entries: [ [Object] ] },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at audit/checks/localized-score-digits.test.mjs:36:1
+✖ typing the same saved score in localized digits is a no-op (0.736808ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + {
+  +   qualityText: '۷',
+  +   quantityText: '٦'
+  + }
+  - null
+  
+      at TestContext.<anonymous> (file:///home/hsjrua/Documents/sp-gemini-1/audit/checks/localized-score-digits.test.mjs:37:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { qualityText: '۷', quantityText: '٦' },
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,157 @@
+  current_database   | inet_server_port 
+---------------------+------------------
+ student_panel_audit |            55439
+(1 row)
+
+                             Table "public.intervals"
+   Column    |           Type           | Collation | Nullable |      Default      
+-------------+--------------------------+-----------+----------+-------------------
+ id          | uuid                     |           | not null | gen_random_uuid()
+ name        | text                     |           | not null | 
+ every       | interval                 |           | not null | 
+ sort_order  | integer                  |           | not null | 0
+ created_at  | timestamp with time zone |           | not null | now()
+ updated_at  | timestamp with time zone |           | not null | now()
+ archived_at | timestamp with time zone |           |          | 
+Indexes:
+    "intervals_pkey" PRIMARY KEY, btree (id)
+    "intervals_name_unique" UNIQUE, btree (lower(name))
+Check constraints:
+    "intervals_every_positive" CHECK (every > '00:00:00'::interval)
+    "intervals_name_length" CHECK (char_length(btrim(name)) >= 1 AND char_length(btrim(name)) <= 60)
+    "intervals_sort_ck" CHECK (sort_order >= 0)
+Referenced by:
+    TABLE "assignments" CONSTRAINT "assignments_interval_id_fkey" FOREIGN KEY (interval_id) REFERENCES intervals(id)
+Triggers:
+    intervals_updated_at BEFORE UPDATE ON intervals FOR EACH ROW EXECUTE FUNCTION set_updated_at()
+
+                              Table "public.teachers"
+   Column    |           Type           | Collation | Nullable |      Default      
+-------------+--------------------------+-----------+----------+-------------------
+ id          | uuid                     |           | not null | gen_random_uuid()
+ code        | text                     |           | not null | 
+ full_name   | text                     |           | not null | 
+ birth_date  | date                     |           | not null | 
+ national_id | text                     |           | not null | 
+ created_at  | timestamp with time zone |           | not null | now()
+ updated_at  | timestamp with time zone |           | not null | now()
+ archived_at | timestamp with time zone |           |          | 
+Indexes:
+    "teachers_pkey" PRIMARY KEY, btree (id)
+    "teachers_code_unique" UNIQUE, btree (code)
+    "teachers_national_id_unique" UNIQUE, btree (national_id)
+Check constraints:
+    "teachers_birth_date_sane" CHECK (birth_date <= CURRENT_DATE)
+    "teachers_full_name_length" CHECK (char_length(btrim(full_name)) >= 2 AND char_length(btrim(full_name)) <= 100)
+    "teachers_national_id_format" CHECK (national_id ~ '^[0-9]{10}$'::text)
+Referenced by:
+    TABLE "assignments" CONSTRAINT "assignments_teacher_id_fkey" FOREIGN KEY (teacher_id) REFERENCES teachers(id)
+Triggers:
+    teachers_updated_at BEFORE UPDATE ON teachers FOR EACH ROW EXECUTE FUNCTION set_updated_at()
+
+                               Table "public.evaluations"
+      Column      |           Type           | Collation | Nullable |      Default      
+------------------+--------------------------+-----------+----------+-------------------
+ id               | uuid                     |           | not null | gen_random_uuid()
+ session_id       | uuid                     |           | not null | 
+ parameter_id     | uuid                     |           | not null | 
+ membership_id    | uuid                     |           |          | 
+ quality_value    | integer                  |           |          | 
+ quantity_value   | integer                  |           |          | 
+ quality_comment  | text                     |           |          | 
+ quantity_comment | text                     |           |          | 
+ locks_at         | timestamp with time zone |           | not null | 
+ created_at       | timestamp with time zone |           | not null | now()
+ updated_at       | timestamp with time zone |           | not null | now()
+ archived_at      | timestamp with time zone |           |          | 
+Indexes:
+    "evaluations_pkey" PRIMARY KEY, btree (id)
+    "evaluations_cell_unique" UNIQUE, btree (session_id, parameter_id, membership_id) NULLS NOT DISTINCT
+    "evaluations_membership_idx" btree (membership_id)
+    "evaluations_parameter_idx" btree (parameter_id)
+    "evaluations_session_idx" btree (session_id)
+Check constraints:
+    "evaluation_quality_comment_ck" CHECK (quality_comment IS NULL OR char_length(quality_comment) <= 500)
+    "evaluation_quantity_comment_ck" CHECK (quantity_comment IS NULL OR char_length(quantity_comment) <= 500)
+Foreign-key constraints:
+    "evaluations_membership_id_fkey" FOREIGN KEY (membership_id) REFERENCES student_group_members(id)
+    "evaluations_parameter_id_fkey" FOREIGN KEY (parameter_id) REFERENCES parameters(id)
+    "evaluations_session_id_fkey" FOREIGN KEY (session_id) REFERENCES sessions(id)
+Triggers:
+    evaluations_alert_period_trg AFTER INSERT OR DELETE OR UPDATE ON evaluations FOR EACH ROW EXECUTE FUNCTION evaluations_after_change()
+    evaluations_archived_edit_guard_trg BEFORE UPDATE ON evaluations FOR EACH ROW EXECUTE FUNCTION evaluations_archived_edit_guard()
+    evaluations_lock_guard_trg BEFORE DELETE OR UPDATE ON evaluations FOR EACH ROW EXECUTE FUNCTION evaluations_lock_guard()
+    evaluations_range_ck BEFORE INSERT OR UPDATE OF parameter_id, quality_value, quantity_value ON evaluations FOR EACH ROW EXECUTE FUNCTION check_evaluation_range()
+    evaluations_schema4_guard_trg BEFORE INSERT OR UPDATE ON evaluations FOR EACH ROW EXECUTE FUNCTION evaluations_schema4_guard()
+    evaluations_set_updated_at BEFORE UPDATE ON evaluations FOR EACH ROW EXECUTE FUNCTION set_updated_at()
+
+                                                     Table "public.sessions"
+    Column     |           Type           | Collation | Nullable |                            Default                            
+---------------+--------------------------+-----------+----------+---------------------------------------------------------------
+ id            | uuid                     |           | not null | gen_random_uuid()
+ assignment_id | uuid                     |           | not null | 
+ seq           | integer                  |           | not null | 
+ code          | text                     |           | not null | 
+ planned_date  | date                     |           | not null | 
+ moved_to      | date                     |           |          | 
+ session_date  | date                     |           |          | generated always as (COALESCE(moved_to, planned_date)) stored
+ canceled_at   | timestamp with time zone |           |          | 
+ note          | text                     |           |          | 
+ created_at    | timestamp with time zone |           | not null | now()
+ updated_at    | timestamp with time zone |           | not null | now()
+ archived_at   | timestamp with time zone |           |          | 
+ period_id     | uuid                     |           |          | 
+Indexes:
+    "sessions_pkey" PRIMARY KEY, btree (id)
+    "sessions_assignment_planned_unique" UNIQUE, btree (assignment_id, planned_date)
+    "sessions_assignment_seq_unique" UNIQUE, btree (assignment_id, seq)
+    "sessions_code_unique" UNIQUE, btree (code)
+    "sessions_period_idx" btree (period_id)
+    "sessions_session_date_idx" btree (session_date)
+Check constraints:
+    "sessions_code_ck" CHECK (char_length(btrim(code)) >= 1 AND char_length(btrim(code)) <= 80)
+    "sessions_note_ck" CHECK (note IS NULL OR char_length(note) <= 500)
+    "sessions_seq_positive" CHECK (seq >= 1)
+Foreign-key constraints:
+    "sessions_assignment_id_fkey" FOREIGN KEY (assignment_id) REFERENCES assignments(id)
+    "sessions_period_id_fkey" FOREIGN KEY (period_id) REFERENCES periods(id)
+Referenced by:
+    TABLE "alerts" CONSTRAINT "alerts_session_id_fkey" FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE
+    TABLE "evaluations" CONSTRAINT "evaluations_session_id_fkey" FOREIGN KEY (session_id) REFERENCES sessions(id)
+    TABLE "tasks" CONSTRAINT "tasks_session_id_fkey" FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE
+Triggers:
+    sessions_alert_activity_sync_trg AFTER UPDATE OF archived_at, canceled_at ON sessions FOR EACH ROW EXECUTE FUNCTION sessions_alert_activity_sync()
+    sessions_cancel_guard_trg BEFORE UPDATE OF canceled_at ON sessions FOR EACH ROW EXECUTE FUNCTION sessions_cancel_guard()
+    sessions_identity_guard_trg BEFORE UPDATE ON sessions FOR EACH ROW EXECUTE FUNCTION sessions_identity_guard()
+    sessions_period_activity_guard_trg BEFORE UPDATE OF archived_at, canceled_at ON sessions FOR EACH ROW EXECUTE FUNCTION sessions_period_activity_guard()
+    sessions_period_assignment_guard_trg BEFORE INSERT OR UPDATE OF assignment_id, period_id ON sessions FOR EACH ROW EXECUTE FUNCTION sessions_period_assignment_guard()
+    sessions_period_reactivate_trg AFTER UPDATE OF archived_at, canceled_at ON sessions FOR EACH ROW EXECUTE FUNCTION sessions_period_reactivate()
+    sessions_set_identity_trg BEFORE INSERT ON sessions FOR EACH ROW EXECUTE FUNCTION sessions_set_identity()
+    sessions_updated_at BEFORE UPDATE ON sessions FOR EACH ROW EXECUTE FUNCTION set_updated_at()
+
+                       Table "public.student_group_members"
+   Column   |           Type           | Collation | Nullable |      Default      
+------------+--------------------------+-----------+----------+-------------------
+ student_id | uuid                     |           | not null | 
+ group_id   | uuid                     |           | not null | 
+ added_at   | timestamp with time zone |           | not null | now()
+ id         | uuid                     |           | not null | gen_random_uuid()
+ left_on    | date                     |           |          | 
+ updated_at | timestamp with time zone |           | not null | now()
+Indexes:
+    "student_group_members_pkey" PRIMARY KEY, btree (id)
+    "student_group_members_group_idx" btree (group_id)
+    "student_group_members_history_unique" UNIQUE, btree (student_id, group_id, added_at)
+    "student_group_members_open_unique" UNIQUE, btree (student_id, group_id) WHERE left_on IS NULL
+Check constraints:
+    "student_group_members_dates_ck" CHECK (left_on IS NULL OR left_on >= added_at::date)
+Foreign-key constraints:
+    "student_group_members_group_id_fkey" FOREIGN KEY (group_id) REFERENCES student_groups(id) ON DELETE CASCADE
+    "student_group_members_student_id_fkey" FOREIGN KEY (student_id) REFERENCES students(id)
+Referenced by:
+    TABLE "assignments" CONSTRAINT "assignments_membership_id_fkey" FOREIGN KEY (membership_id) REFERENCES student_group_members(id)
+    TABLE "evaluations" CONSTRAINT "evaluations_membership_id_fkey" FOREIGN KEY (membership_id) REFERENCES student_group_members(id)
+    TABLE "tasks" CONSTRAINT "tasks_membership_id_fkey" FOREIGN KEY (membership_id) REFERENCES student_group_members(id)
+Triggers:
+    student_group_members_updated_at BEFORE UPDATE ON student_group_members FOR EACH ROW EXECUTE FUNCTION set_updated_at()
+

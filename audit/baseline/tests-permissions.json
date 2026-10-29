@@ -1,0 +1,12 @@
+{
+  "command": [
+    "node",
+    "--test",
+    "test/permissions.test.js"
+  ],
+  "directory": "server",
+  "started": "2026-10-29T07:01:46.714Z",
+  "ended": "2026-10-29T07:01:51.171Z",
+  "code": 0,
+  "signal": null
+}

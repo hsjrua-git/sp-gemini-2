@@ -1,0 +1,11 @@
+{
+  "command": [
+    "node",
+    "src/scripts/accountingSmoke.mjs"
+  ],
+  "directory": "server",
+  "started": "2026-10-29T07:03:28.228Z",
+  "ended": "2026-10-29T07:03:28.914Z",
+  "code": 1,
+  "signal": null
+}

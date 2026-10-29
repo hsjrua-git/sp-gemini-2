@@ -1,0 +1,12 @@
+{
+  "command": [
+    "npm",
+    "audit",
+    "--json"
+  ],
+  "directory": "client",
+  "started": "2026-10-29T06:46:43.312Z",
+  "ended": "2026-10-29T06:46:51.381Z",
+  "code": 1,
+  "signal": null
+}

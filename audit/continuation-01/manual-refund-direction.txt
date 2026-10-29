@@ -1,0 +1,100 @@
+{
+  "studentId": "1c903bac-f853-488d-9633-409159e58e97",
+  "mappings": [
+    {
+      "event": "balance.refund",
+      "is_active": true,
+      "debit": "2100",
+      "credit": "1100"
+    },
+    {
+      "event": "balance.topup",
+      "is_active": true,
+      "debit": "1100",
+      "credit": "2100"
+    }
+  ],
+  "topup": {
+    "balanceAfter": 1000
+  },
+  "refund": {
+    "balanceAfter": 1400
+  },
+  "expectedBalance": 600,
+  "actualBalance": 1400,
+  "depositLiability": 600,
+  "ledger": [
+    {
+      "kind": "refund",
+      "amount": "400",
+      "balanceAfter": "1400"
+    },
+    {
+      "kind": "topup",
+      "amount": "1000",
+      "balanceAfter": "1000"
+    }
+  ],
+  "journalLines": [
+    {
+      "kind": "topup",
+      "amount": "1000",
+      "balance_after": "1000",
+      "entry_id": "35f55bb8-0550-4a1b-9826-432fe572801d",
+      "status": "posted",
+      "code": "1100",
+      "debit": "1000",
+      "credit": "0"
+    },
+    {
+      "kind": "topup",
+      "amount": "1000",
+      "balance_after": "1000",
+      "entry_id": "35f55bb8-0550-4a1b-9826-432fe572801d",
+      "status": "posted",
+      "code": "2100",
+      "debit": "0",
+      "credit": "1000"
+    },
+    {
+      "kind": "refund",
+      "amount": "400",
+      "balance_after": "1400",
+      "entry_id": "24976192-9e9d-4911-bdee-e598302f055f",
+      "status": "posted",
+      "code": "1100",
+      "debit": "0",
+      "credit": "400"
+    },
+    {
+      "kind": "refund",
+      "amount": "400",
+      "balance_after": "1400",
+      "entry_id": "24976192-9e9d-4911-bdee-e598302f055f",
+      "status": "posted",
+      "code": "2100",
+      "debit": "400",
+      "credit": "0"
+    }
+  ]
+}
+{"cleanup":"journals voided, balance settled, student archived"}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: student balance must reconcile with its deposit journal
+
+1400 !== 600
+
+    at file:///home/hsjrua/Documents/sp-gemini-1/audit/checks/manual-refund-direction.mjs:56:10
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 1400,
+  expected: 600,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.15.0

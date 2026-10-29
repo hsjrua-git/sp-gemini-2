@@ -1,0 +1,11 @@
+{
+  "command": [
+    "node",
+    "audit/checks/void-stage-gate.mjs"
+  ],
+  "directory": ".",
+  "started": "2026-10-29T07:15:54.298Z",
+  "ended": "2026-10-29T07:15:54.513Z",
+  "code": 1,
+  "signal": null
+}

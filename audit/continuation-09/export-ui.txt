@@ -1,0 +1,114 @@
+
+ RUN  v5.0.1 /home/hsjrua/Documents/sp-gemini-1/client
+
+stdout | ../audit/checks/export-ui.test.jsx > selection scope controls the periods in the downloaded JSON
+{"mode":"selection","requestBody":{"assignmentId":"00000000-0000-4000-8000-000000000001"},"exportedPeriods":[1,2]}
+
+stdout | ../audit/checks/export-ui.test.jsx > trend bar SVG download contains the plotted data
+{"kind":"trend","shape":"bar","name":"chart-1-trend.svg","width":null,"height":null,"ariaLabel":null,"plotPresent":false}
+
+stdout | ../audit/checks/export-ui.test.jsx > comparison bar SVG download contains the plotted data
+{"kind":"comparison","shape":"bar","name":"chart-1-comparison.svg","width":null,"height":null,"ariaLabel":null,"plotPresent":false}
+
+stdout | ../audit/checks/export-ui.test.jsx > comparison radar SVG download contains the plotted data
+{"kind":"comparison","shape":"radar","name":"chart-1-comparison.svg","width":null,"height":null,"ariaLabel":null,"plotPresent":false}
+
+stdout | ../audit/checks/export-ui.test.jsx > heatmap bar SVG download contains the plotted data
+{"kind":"heatmap","shape":"bar","name":"chart-1-heatmap.svg","width":null,"height":null,"ariaLabel":null,"plotPresent":false}
+
+stdout | ../audit/checks/export-ui.test.jsx > distribution default period displays the latest recorded score
+{"defaultPeriod":{"key":"00000000-0000-4000-8000-000000000001:2","assignmentId":"00000000-0000-4000-8000-000000000001","seq":2,"startDate":"2026-02-01","endDate":"2026-02-01","label":"Audit class · 2"},"bars":0}
+
+ ❯ ../audit/checks/export-ui.test.jsx (9 tests | 7 failed) 1467ms
+   × selection scope controls the periods in the downloaded JSON 119ms
+   × trend bar SVG download contains the plotted data 326ms
+   × comparison bar SVG download contains the plotted data 183ms
+   × comparison radar SVG download contains the plotted data 173ms
+   × heatmap bar SVG download contains the plotted data 77ms
+   × heatmap period picker changes the actual cell values 20ms
+   × distribution default period displays the latest recorded score 83ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  ../audit/checks/export-ui.test.jsx > selection scope controls the periods in the downloaded JSON
+AssertionError: expected [ 1, 2 ] to deeply equal [ 1 ]
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  [[22m
+[2m    1,[22m
+[31m+   2,[39m
+[2m  ][22m
+
+ ❯ ../audit/checks/export-ui.test.jsx:94:44
+     92|   console.log(JSON.stringify({ mode: item.mode, requestBody: JSON.pars…
+     93|     exportedPeriods: exported.periods.map(p => p.seq) }));
+     94|   expect(exported.periods.map(p => p.seq)).toEqual(item.expected);
+       |                                            ^
+     95|   expect(exported.students[0].periods.map(p => p.values.p1.value)).toE…
+     96| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  ../audit/checks/export-ui.test.jsx > trend bar SVG download contains the plotted data
+ FAIL  ../audit/checks/export-ui.test.jsx > comparison bar SVG download contains the plotted data
+ FAIL  ../audit/checks/export-ui.test.jsx > comparison radar SVG download contains the plotted data
+ FAIL  ../audit/checks/export-ui.test.jsx > heatmap bar SVG download contains the plotted data
+AssertionError: expected null to be truthy
+
+[32m- Expected:[39m
+true
+
+[31m+ Received:[39m
+null
+
+ ❯ ../audit/checks/export-ui.test.jsx:129:35
+    127|   console.log(JSON.stringify({ kind, shape, name, width: svg.getAttrib…
+    128|     ariaLabel: svg.getAttribute('aria-label'), plotPresent: !!svg.quer…
+    129|   expect(svg.querySelector(mark)).toBeTruthy();
+       |                                   ^
+    130|   expect(Number(svg.getAttribute('width'))).toBeGreaterThan(100);
+    131| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  ../audit/checks/export-ui.test.jsx > heatmap period picker changes the actual cell values
+AssertionError: expected [ 'Audit student — Audit score: 9' ] to deeply equal [ 'Audit student · Audit score: 9' ]
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  [[22m
+[32m-   "Audit student · Audit score: 9",[39m
+[31m+   "Audit student — Audit score: 9",[39m
+[2m  ][22m
+
+ ❯ ../audit/checks/export-ui.test.jsx:135:99
+    133| test('heatmap period picker changes the actual cell values', async () …
+    134|   const view = render(<Charts kind="heatmap" axis="parameter" />);
+    135|   expect([...view.container.querySelectorAll('.heatmap-svg rect title'…
+       |                                                                                                   ^
+    136|   fireEvent.change(screen.getByRole('combobox', { name: 'Period', exac…
+    137|   const titles = [...view.container.querySelectorAll('.heatmap-svg rec…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  ../audit/checks/export-ui.test.jsx > distribution default period displays the latest recorded score
+AssertionError: expected 0 to be greater than 0
+ ❯ ../audit/checks/export-ui.test.jsx:152:23
+    150|   const bars = view.container.querySelectorAll('.recharts-bar-rectangl…
+    151|   console.log(JSON.stringify({ defaultPeriod: cube.lastPeriod, bars: b…
+    152|   expect(bars.length).toBeGreaterThan(0);
+       |                       ^
+    153| });
+    154|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  7 failed | 2 passed (9)
+   Start at  23:23:22
+   Duration  4.90s (import 34%, tests 31%, environment 26%, setup 6%, worker 2%, transform 1%)
+

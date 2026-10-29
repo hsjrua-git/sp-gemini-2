@@ -1,0 +1,17 @@
+{
+  "command": [
+    "npm",
+    "ls",
+    "vite",
+    "vitest",
+    "@vitest/mocker",
+    "source-map-js",
+    "zod",
+    "--all"
+  ],
+  "directory": "client",
+  "started": "2026-10-29T17:43:38.698Z",
+  "ended": "2026-10-29T17:43:40.903Z",
+  "code": 0,
+  "signal": null
+}

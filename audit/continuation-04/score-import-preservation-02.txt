@@ -1,0 +1,35 @@
+Probe failure before cleanup: AssertionError [ERR_ASSERTION]: /api/parameters: {"error":"A parameter with that name or code already exists.","code":"VALIDATION_NOT_UNIQUE"}
+
+409 !== 201
+
+    at ok (file:///home/hsjrua/Documents/sp-gemini-1/audit/checks/score-import-preservation.mjs:17:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///home/hsjrua/Documents/sp-gemini-1/audit/checks/score-import-preservation.mjs:43:15 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 409,
+  expected: 201,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+Cleanup: synthetic scores removed; fixture entities archived.
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: /api/parameters: {"error":"A parameter with that name or code already exists.","code":"VALIDATION_NOT_UNIQUE"}
+
+409 !== 201
+
+    at ok (file:///home/hsjrua/Documents/sp-gemini-1/audit/checks/score-import-preservation.mjs:17:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///home/hsjrua/Documents/sp-gemini-1/audit/checks/score-import-preservation.mjs:43:15 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 409,
+  expected: 201,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.15.0

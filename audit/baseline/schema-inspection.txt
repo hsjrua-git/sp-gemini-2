@@ -1,0 +1,678 @@
+[
+  {
+    "database": "sp_gemini_1_audit",
+    "version": "PostgreSQL 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit"
+  }
+]
+[
+  {
+    "tablename": "acct_accounts"
+  },
+  {
+    "tablename": "acct_fiscal_periods"
+  },
+  {
+    "tablename": "acct_invariant_locks"
+  },
+  {
+    "tablename": "acct_journal_entries"
+  },
+  {
+    "tablename": "acct_journal_lines"
+  },
+  {
+    "tablename": "acct_mappings"
+  },
+  {
+    "tablename": "alerts"
+  },
+  {
+    "tablename": "assignments"
+  },
+  {
+    "tablename": "audit_log"
+  },
+  {
+    "tablename": "cafe_products"
+  },
+  {
+    "tablename": "cafe_purchase_items"
+  },
+  {
+    "tablename": "cafe_purchases"
+  },
+  {
+    "tablename": "cafe_sale_items"
+  },
+  {
+    "tablename": "cafe_sales"
+  },
+  {
+    "tablename": "cafe_stock_movements"
+  },
+  {
+    "tablename": "cafe_suppliers"
+  },
+  {
+    "tablename": "evaluations"
+  },
+  {
+    "tablename": "hierarchy_invariant_locks"
+  },
+  {
+    "tablename": "intervals"
+  },
+  {
+    "tablename": "parameters"
+  },
+  {
+    "tablename": "periods"
+  },
+  {
+    "tablename": "role_permissions"
+  },
+  {
+    "tablename": "roles"
+  },
+  {
+    "tablename": "saved_views"
+  },
+  {
+    "tablename": "schema_migrations"
+  },
+  {
+    "tablename": "secrets"
+  },
+  {
+    "tablename": "sessions"
+  },
+  {
+    "tablename": "student_balance_transactions"
+  },
+  {
+    "tablename": "student_balances"
+  },
+  {
+    "tablename": "student_field_definitions"
+  },
+  {
+    "tablename": "student_group_members"
+  },
+  {
+    "tablename": "student_groups"
+  },
+  {
+    "tablename": "students"
+  },
+  {
+    "tablename": "task_templates"
+  },
+  {
+    "tablename": "tasks"
+  },
+  {
+    "tablename": "teachers"
+  },
+  {
+    "tablename": "user_preferences"
+  },
+  {
+    "tablename": "user_sessions"
+  },
+  {
+    "tablename": "users"
+  },
+  {
+    "tablename": "voice_transcripts"
+  }
+]
+[
+  {
+    "table_name": "cafe_sale_items",
+    "column_name": "id",
+    "data_type": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "cafe_sale_items",
+    "column_name": "sale_id",
+    "data_type": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "cafe_sale_items",
+    "column_name": "product_id",
+    "data_type": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "cafe_sale_items",
+    "column_name": "qty",
+    "data_type": "numeric",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "cafe_sale_items",
+    "column_name": "unit_price",
+    "data_type": "bigint",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "cafe_sale_items",
+    "column_name": "unit_cost",
+    "data_type": "bigint",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "cafe_sales",
+    "column_name": "id",
+    "data_type": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "cafe_sales",
+    "column_name": "sold_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "cafe_sales",
+    "column_name": "sold_by",
+    "data_type": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "cafe_sales",
+    "column_name": "customer",
+    "data_type": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "cafe_sales",
+    "column_name": "student_id",
+    "data_type": "uuid",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "cafe_sales",
+    "column_name": "total",
+    "data_type": "bigint",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "cafe_sales",
+    "column_name": "cost_total",
+    "data_type": "bigint",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "cafe_sales",
+    "column_name": "note",
+    "data_type": "text",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "cafe_sales",
+    "column_name": "voided_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "cafe_sales",
+    "column_name": "voided_by",
+    "data_type": "uuid",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "cafe_sales",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "evaluations",
+    "column_name": "id",
+    "data_type": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "evaluations",
+    "column_name": "session_id",
+    "data_type": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "evaluations",
+    "column_name": "parameter_id",
+    "data_type": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "evaluations",
+    "column_name": "membership_id",
+    "data_type": "uuid",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "evaluations",
+    "column_name": "quality_value",
+    "data_type": "integer",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "evaluations",
+    "column_name": "quantity_value",
+    "data_type": "integer",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "evaluations",
+    "column_name": "quality_comment",
+    "data_type": "text",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "evaluations",
+    "column_name": "quantity_comment",
+    "data_type": "text",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "evaluations",
+    "column_name": "locks_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "evaluations",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "evaluations",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "evaluations",
+    "column_name": "archived_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "periods",
+    "column_name": "id",
+    "data_type": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "periods",
+    "column_name": "assignment_id",
+    "data_type": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "periods",
+    "column_name": "seq",
+    "data_type": "integer",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "periods",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "periods",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "periods",
+    "column_name": "archived_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "sessions",
+    "column_name": "id",
+    "data_type": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "sessions",
+    "column_name": "assignment_id",
+    "data_type": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "sessions",
+    "column_name": "seq",
+    "data_type": "integer",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "sessions",
+    "column_name": "code",
+    "data_type": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "sessions",
+    "column_name": "planned_date",
+    "data_type": "date",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "sessions",
+    "column_name": "moved_to",
+    "data_type": "date",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "sessions",
+    "column_name": "session_date",
+    "data_type": "date",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "sessions",
+    "column_name": "canceled_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "sessions",
+    "column_name": "note",
+    "data_type": "text",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "sessions",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "sessions",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "sessions",
+    "column_name": "archived_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "sessions",
+    "column_name": "period_id",
+    "data_type": "uuid",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "student_balances",
+    "column_name": "student_id",
+    "data_type": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "student_balances",
+    "column_name": "balance",
+    "data_type": "bigint",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "student_balances",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "user_sessions",
+    "column_name": "sid",
+    "data_type": "character varying",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "user_sessions",
+    "column_name": "sess",
+    "data_type": "json",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "user_sessions",
+    "column_name": "expire",
+    "data_type": "timestamp without time zone",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "users",
+    "column_name": "id",
+    "data_type": "uuid",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "users",
+    "column_name": "username",
+    "data_type": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "users",
+    "column_name": "full_name",
+    "data_type": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "users",
+    "column_name": "password_hash",
+    "data_type": "text",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "users",
+    "column_name": "is_active",
+    "data_type": "boolean",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "users",
+    "column_name": "must_change_password",
+    "data_type": "boolean",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "users",
+    "column_name": "last_login_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "YES"
+  },
+  {
+    "table_name": "users",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "users",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone",
+    "is_nullable": "NO"
+  },
+  {
+    "table_name": "users",
+    "column_name": "role_id",
+    "data_type": "uuid",
+    "is_nullable": "NO"
+  }
+]
+[
+  {
+    "table_name": "users",
+    "conname": "users_full_name_length",
+    "definition": "CHECK (((char_length(btrim(full_name)) >= 1) AND (char_length(btrim(full_name)) <= 100)))"
+  },
+  {
+    "table_name": "users",
+    "conname": "users_pkey",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "table_name": "users",
+    "conname": "users_role_id_fkey",
+    "definition": "FOREIGN KEY (role_id) REFERENCES roles(id)"
+  },
+  {
+    "table_name": "users",
+    "conname": "users_username_format",
+    "definition": "CHECK ((username ~ '^[a-z0-9._-]{3,32}$'::text))"
+  },
+  {
+    "table_name": "sessions",
+    "conname": "sessions_assignment_id_fkey",
+    "definition": "FOREIGN KEY (assignment_id) REFERENCES assignments(id)"
+  },
+  {
+    "table_name": "sessions",
+    "conname": "sessions_code_ck",
+    "definition": "CHECK (((char_length(btrim(code)) >= 1) AND (char_length(btrim(code)) <= 80)))"
+  },
+  {
+    "table_name": "sessions",
+    "conname": "sessions_note_ck",
+    "definition": "CHECK (((note IS NULL) OR (char_length(note) <= 500)))"
+  },
+  {
+    "table_name": "sessions",
+    "conname": "sessions_period_id_fkey",
+    "definition": "FOREIGN KEY (period_id) REFERENCES periods(id)"
+  },
+  {
+    "table_name": "sessions",
+    "conname": "sessions_pkey",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "table_name": "sessions",
+    "conname": "sessions_seq_positive",
+    "definition": "CHECK ((seq >= 1))"
+  },
+  {
+    "table_name": "cafe_sales",
+    "conname": "cafe_sales_amounts_ck",
+    "definition": "CHECK (((total >= 0) AND (cost_total >= 0)))"
+  },
+  {
+    "table_name": "cafe_sales",
+    "conname": "cafe_sales_customer_ck",
+    "definition": "CHECK ((customer = ANY (ARRAY['walk_in'::text, 'student'::text])))"
+  },
+  {
+    "table_name": "cafe_sales",
+    "conname": "cafe_sales_note_ck",
+    "definition": "CHECK (((note IS NULL) OR (char_length(btrim(note)) <= 500)))"
+  },
+  {
+    "table_name": "cafe_sales",
+    "conname": "cafe_sales_pkey",
+    "definition": "PRIMARY KEY (id)"
+  },
+  {
+    "table_name": "cafe_sales",
+    "conname": "cafe_sales_sold_by_fkey",
+    "definition": "FOREIGN KEY (sold_by) REFERENCES users(id)"
+  },
+  {
+    "table_name": "cafe_sales",
+    "conname": "cafe_sales_student_id_fkey",
+    "definition": "FOREIGN KEY (student_id) REFERENCES students(id)"
+  },
+  {
+    "table_name": "cafe_sales",
+    "conname": "cafe_sales_target_ck",
+    "definition": "CHECK (((customer = 'student'::text) = (student_id IS NOT NULL)))"
+  },
+  {
+    "table_name": "cafe_sales",
+    "conname": "cafe_sales_voided_by_fkey",
+    "definition": "FOREIGN KEY (voided_by) REFERENCES users(id)"
+  }
+]
+[
+  {
+    "tablename": "cafe_sales",
+    "indexname": "cafe_sales_pkey",
+    "indexdef": "CREATE UNIQUE INDEX cafe_sales_pkey ON public.cafe_sales USING btree (id)"
+  },
+  {
+    "tablename": "cafe_sales",
+    "indexname": "cafe_sales_sold_at_idx",
+    "indexdef": "CREATE INDEX cafe_sales_sold_at_idx ON public.cafe_sales USING btree (sold_at DESC)"
+  },
+  {
+    "tablename": "cafe_sales",
+    "indexname": "cafe_sales_sold_by_idx",
+    "indexdef": "CREATE INDEX cafe_sales_sold_by_idx ON public.cafe_sales USING btree (sold_by)"
+  },
+  {
+    "tablename": "cafe_sales",
+    "indexname": "cafe_sales_student_idx",
+    "indexdef": "CREATE INDEX cafe_sales_student_idx ON public.cafe_sales USING btree (student_id) WHERE (student_id IS NOT NULL)"
+  },
+  {
+    "tablename": "cafe_sales",
+    "indexname": "cafe_sales_voided_by_idx",
+    "indexdef": "CREATE INDEX cafe_sales_voided_by_idx ON public.cafe_sales USING btree (voided_by)"
+  },
+  {
+    "tablename": "sessions",
+    "indexname": "sessions_assignment_planned_unique",
+    "indexdef": "CREATE UNIQUE INDEX sessions_assignment_planned_unique ON public.sessions USING btree (assignment_id, planned_date)"
+  },
+  {
+    "tablename": "sessions",
+    "indexname": "sessions_assignment_seq_unique",
+    "indexdef": "CREATE UNIQUE INDEX sessions_assignment_seq_unique ON public.sessions USING btree (assignment_id, seq)"
+  },
+  {
+    "tablename": "sessions",
+    "indexname": "sessions_code_unique",
+    "indexdef": "CREATE UNIQUE INDEX sessions_code_unique ON public.sessions USING btree (code)"
+  },
+  {
+    "tablename": "sessions",
+    "indexname": "sessions_period_idx",
+    "indexdef": "CREATE INDEX sessions_period_idx ON public.sessions USING btree (period_id)"
+  },
+  {
+    "tablename": "sessions",
+    "indexname": "sessions_pkey",
+    "indexdef": "CREATE UNIQUE INDEX sessions_pkey ON public.sessions USING btree (id)"
+  },
+  {
+    "tablename": "sessions",
+    "indexname": "sessions_session_date_idx",
+    "indexdef": "CREATE INDEX sessions_session_date_idx ON public.sessions USING btree (session_date)"
+  },
+  {
+    "tablename": "users",
+    "indexname": "users_pkey",
+    "indexdef": "CREATE UNIQUE INDEX users_pkey ON public.users USING btree (id)"
+  },
+  {
+    "tablename": "users",
+    "indexname": "users_role_idx",
+    "indexdef": "CREATE INDEX users_role_idx ON public.users USING btree (role_id)"
+  },
+  {
+    "tablename": "users",
+    "indexname": "users_username_unique",
+    "indexdef": "CREATE UNIQUE INDEX users_username_unique ON public.users USING btree (lower(username))"
+  }
+]

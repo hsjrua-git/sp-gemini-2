@@ -1,0 +1,14 @@
+{
+  "command": [
+    "node",
+    "audit/checks/browser-group-fixture.mjs",
+    "readback",
+    "1",
+    "1"
+  ],
+  "directory": ".",
+  "started": "2026-10-29T18:55:58.049Z",
+  "ended": "2026-10-29T18:55:58.473Z",
+  "code": 0,
+  "signal": null
+}

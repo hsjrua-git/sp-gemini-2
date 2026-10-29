@@ -1,0 +1,32 @@
+{
+  "command": [
+    "psql",
+    "postgresql://audit_owner@127.0.0.1:55439/student_panel_audit",
+    "-X",
+    "-v",
+    "ON_ERROR_STOP=1",
+    "-c",
+    "SELECT current_database(), inet_server_port()",
+    "-c",
+    "\\dt public.*",
+    "-c",
+    "\\d+ public.students",
+    "-c",
+    "\\d+ public.student_field_definitions",
+    "-c",
+    "\\d+ public.audit_log",
+    "-c",
+    "\\d+ public.users",
+    "-c",
+    "\\d+ public.user_sessions",
+    "-c",
+    "\\d+ public.roles",
+    "-c",
+    "\\d+ public.role_permissions"
+  ],
+  "directory": ".",
+  "started": "2026-10-29T19:18:18.377Z",
+  "ended": "2026-10-29T19:18:18.551Z",
+  "code": 0,
+  "signal": null
+}

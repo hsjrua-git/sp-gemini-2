@@ -1,0 +1,14 @@
+{
+  "command": [
+    "npm",
+    "ci",
+    "--ignore-scripts",
+    "--no-audit",
+    "--no-fund"
+  ],
+  "directory": "agent",
+  "started": "2026-10-29T06:44:50.475Z",
+  "ended": "2026-10-29T06:44:52.925Z",
+  "code": 0,
+  "signal": null
+}

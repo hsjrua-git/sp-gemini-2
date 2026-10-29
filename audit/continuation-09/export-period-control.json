@@ -1,0 +1,11 @@
+{
+  "command": [
+    "node",
+    "audit/checks/export-period-control.mjs"
+  ],
+  "directory": ".",
+  "started": "2026-10-29T19:53:21.794Z",
+  "ended": "2026-10-29T19:53:22.332Z",
+  "code": 1,
+  "signal": null
+}

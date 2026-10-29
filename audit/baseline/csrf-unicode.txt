@@ -1,0 +1,40 @@
+{"status":null,"error":"ERR_CRYPTO_TIMING_SAFE_EQUAL_LENGTH"}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: invalid CSRF input must be rejected rather than throw
++ actual - expected
+
++ RangeError: Input buffers must have the same byte length
++     at sameToken (file:///home/hsjrua/Documents/sp-gemini-1/server/src/middleware/csrf.js:47:10)
++     at verifyToken (file:///home/hsjrua/Documents/sp-gemini-1/server/src/middleware/csrf.js:120:42)
++     at file:///home/hsjrua/Documents/sp-gemini-1/audit/checks/csrf-unicode.mjs:9:7
++     at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
++     at async node:internal/modules/esm/loader:639:26
++     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
++   code: 'ERR_CRYPTO_TIMING_SAFE_EQUAL_LENGTH'
++ }
+- undefined
+
+    at file:///home/hsjrua/Documents/sp-gemini-1/audit/checks/csrf-unicode.mjs:12:8
+    at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+    at async node:internal/modules/esm/loader:639:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: RangeError: Input buffers must have the same byte length
+      at sameToken (file:///home/hsjrua/Documents/sp-gemini-1/server/src/middleware/csrf.js:47:10)
+      at verifyToken (file:///home/hsjrua/Documents/sp-gemini-1/server/src/middleware/csrf.js:120:42)
+      at file:///home/hsjrua/Documents/sp-gemini-1/audit/checks/csrf-unicode.mjs:9:7
+      at ModuleJob.run (node:internal/modules/esm/module_job:437:25)
+      at async node:internal/modules/esm/loader:639:26
+      at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+    code: 'ERR_CRYPTO_TIMING_SAFE_EQUAL_LENGTH'
+  },
+  expected: undefined,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.15.0

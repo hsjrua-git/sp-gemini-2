@@ -1,0 +1,18 @@
+{
+  "command": [
+    "psql",
+    "postgresql://audit_owner@127.0.0.1:55439/student_panel_audit",
+    "-X",
+    "-v",
+    "ON_ERROR_STOP=1",
+    "-c",
+    "SELECT tablename FROM pg_tables WHERE schemaname='public' AND (tablename LIKE 'acct_%' OR tablename IN ('audit_log','cafe_stock_movements','student_balance_transactions')) ORDER BY tablename",
+    "-c",
+    "SELECT c.relname, t.tgname, pg_get_triggerdef(t.oid) FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid WHERE c.relname IN ('audit_log','cafe_stock_movements','student_balance_transactions') AND NOT t.tgisinternal ORDER BY c.relname, t.tgname"
+  ],
+  "directory": ".",
+  "started": "2026-10-29T18:23:35.996Z",
+  "ended": "2026-10-29T18:23:36.115Z",
+  "code": 0,
+  "signal": null
+}

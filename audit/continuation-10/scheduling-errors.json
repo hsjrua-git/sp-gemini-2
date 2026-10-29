@@ -1,0 +1,14 @@
+{
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "--config",
+    "../audit/checks/scheduling-errors.vitest.config.mjs"
+  ],
+  "directory": "client",
+  "started": "2026-10-29T20:11:22.406Z",
+  "ended": "2026-10-29T20:11:27.181Z",
+  "code": 1,
+  "signal": null
+}

@@ -1,0 +1,14 @@
+{
+  "command": [
+    "npm",
+    "ci",
+    "--ignore-scripts",
+    "--no-audit",
+    "--no-fund"
+  ],
+  "directory": "client",
+  "started": "2026-10-29T06:44:50.646Z",
+  "ended": "2026-10-29T06:45:12.217Z",
+  "code": 0,
+  "signal": null
+}

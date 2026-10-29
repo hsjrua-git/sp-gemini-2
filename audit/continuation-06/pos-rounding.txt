@@ -1,0 +1,53 @@
+
+ RUN  v5.0.1 /home/hsjrua/Documents/sp-gemini-1/client
+
+stdout | ../audit/checks/pos-rounding.test.jsx > POS quote agrees with whole-Toman sale contract: decimal half boundary
+{"label":"decimal half boundary","quantities":["0.145"],"total":"14 Toman","lineAmounts":["14 Toman"]}
+
+stdout | ../audit/checks/pos-rounding.test.jsx > POS quote agrees with whole-Toman sale contract: round once after adding exact line amounts
+{"label":"round once after adding exact line amounts","quantities":["0.005","0.005"],"total":"2 Toman","lineAmounts":["1 Toman","1 Toman"]}
+
+ ❯ ../audit/checks/pos-rounding.test.jsx (3 tests | 2 failed) 732ms
+   × POS quote agrees with whole-Toman sale contract: decimal half boundary 141ms
+   × POS quote agrees with whole-Toman sale contract: round once after adding exact line amounts 208ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  ../audit/checks/pos-rounding.test.jsx > POS quote agrees with whole-Toman sale contract: decimal half boundary
+AssertionError: expected '14 Toman' to be '15 Toman' // Object.is equality
+
+Expected: [32m"1[7m5[27m Toman"[39m
+Received: [31m"1[7m4[27m Toman"[39m
+
+ ❯ ../audit/checks/pos-rounding.test.jsx:47:17
+     45|   // Fixed arithmetic examples are independent of the implementation. …
+     46|   // sums numeric quantities × prices before casting the final sum to …
+     47|   expect(total).toBe(expectedTotal);
+       |                 ^
+     48|   if (expectedLines) expect(lineAmounts).toEqual(expectedLines);
+     49| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  ../audit/checks/pos-rounding.test.jsx > POS quote agrees with whole-Toman sale contract: round once after adding exact line amounts
+AssertionError: expected '2 Toman' to be '1 Toman' // Object.is equality
+
+Expected: [32m"[7m1[27m Toman"[39m
+Received: [31m"[7m2[27m Toman"[39m
+
+ ❯ ../audit/checks/pos-rounding.test.jsx:47:17
+     45|   // Fixed arithmetic examples are independent of the implementation. …
+     46|   // sums numeric quantities × prices before casting the final sum to …
+     47|   expect(total).toBe(expectedTotal);
+       |                 ^
+     48|   if (expectedLines) expect(lineAmounts).toEqual(expectedLines);
+     49| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed (3)
+   Start at  22:19:01
+   Duration  2.83s (environment 46%, tests 29%, setup 12%, import 7%, worker 5%, transform 1%)
+
