@@ -1,0 +1,11 @@
+{
+  "command": [
+    "node",
+    "audit/checks/scoring-report-consistency.mjs"
+  ],
+  "directory": ".",
+  "started": "2026-10-29T20:53:30.516Z",
+  "ended": "2026-10-29T20:53:32.919Z",
+  "code": 1,
+  "signal": null
+}

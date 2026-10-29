@@ -7,6 +7,8 @@
 //
 // Pure so it can be unit tested without a database; the route owns the SQL
 // and resolves which sessions belong to the requested (and previous) bucket.
+// Evaluations arrive in session order, with ISO sessionDate; targets carry ISO
+// addedOn/leftOn bounds so group fallback respects historical membership.
 
 function mergeCell(existing, incoming) {
   if (!existing) return incoming;
@@ -28,9 +30,14 @@ export function buildResults({
 }) {
   const cellMap = new Map();
   const previousMap = new Map();
+  const ownCells = new Set(evaluations
+    .filter((item) => item.membershipId !== null)
+    .map((item) => `${item.sessionId}:${item.membershipId}:${item.parameterId}`));
 
   for (const item of evaluations) {
-    const key = `${item.membershipId ?? 'group'}:${item.parameterId}`;
+    const map = item.periodSeq === seq ? cellMap
+      : item.periodSeq === seq - 1 ? previousMap : null;
+    if (!map) continue;
     const cell = {
       quality: item.qualityValue,
       quantity: item.quantityValue,
@@ -40,10 +47,21 @@ export function buildResults({
         item.qualityComment !== null ||
         item.quantityComment !== null,
     };
-    if (item.periodSeq === seq) {
-      cellMap.set(key, mergeCell(cellMap.get(key), cell));
-    } else if (item.periodSeq === seq - 1) {
-      previousMap.set(key, mergeCell(previousMap.get(key), cell));
+    const add = (membershipId) => {
+      const key = `${membershipId ?? 'group'}:${item.parameterId}`;
+      map.set(key, mergeCell(map.get(key), cell));
+    };
+    add(item.membershipId);
+    if (assignment.groupId && item.membershipId === null) {
+      for (const target of targets) {
+        // An own row shadows the WHOLE group cell for this session, even when
+        // empty. Resolve that before merging across sessions in the period.
+        if (target.addedOn <= item.sessionDate &&
+            (!target.leftOn || target.leftOn >= item.sessionDate) &&
+            !ownCells.has(`${item.sessionId}:${target.membershipId}:${item.parameterId}`)) {
+          add(target.membershipId);
+        }
+      }
     }
   }
 

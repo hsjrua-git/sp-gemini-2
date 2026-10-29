@@ -234,18 +234,48 @@ test('getResults: grid rows, both dimensions, and the previous-seq deltas', asyn
     assert.equal(bobRow.cells[focus].quantity, null);
     assert.equal(bobRow.cells[focus].answered, true);
     assert.equal(bobRow.cells[speed], undefined); // never selected
-    // Previous-seq deltas ride on each row: the group row answered in
-    // period 1, Bob did not exist there.
+    // Previous-seq deltas include the group fallback for Bob.
     assert.equal(grid.hasPrevious, true);
     assert.equal(grid.rows[0].previous[focus].quality, 5);
-    // Bob had no period-1 cell, so his previous is empty.
-    assert.deepEqual(grid.rows[2].previous, {});
+    assert.deepEqual(grid.rows[2].previous, {
+      [focus]: { quality: 5, quantity: 6 },
+      [speed]: { quality: null, quantity: null },
+    });
 
     // The dimension toggle switches the value column without reshaping rows.
     const quantityGrid = await getResults({ assignmentId, seq: 1, dimension: 'quantity' });
     assert.equal(quantityGrid.dimension, 'quantity');
     assert.equal(quantityGrid.rows[0].cells[focus].quantity, 6);
     assert.equal(quantityGrid.rows[1].cells[focus].quantity, 8);
+  } finally {
+    await pool.end();
+  }
+});
+
+test('getResults: group fallback uses each session date and selected-empty shadows', async () => {
+  const pool = await freshDb();
+  try {
+    const { assignmentId, memberships, sessionIds, focus, save } = await seedFixture(pool);
+    // Ada belongs on Jan 13 and Jan 20 only. Bob shadows Jan 6 with a blank.
+    await pool.query(`UPDATE student_group_members SET added_at = '2024-01-13', left_on = '2024-01-20' WHERE id = $1`, [memberships.ada]);
+    for (let i = 0; i < 5; i++) {
+      await save(sessionIds[i], [
+        { membershipId: null, parameterId: focus, selected: true, qualityValue: i + 1, quantityValue: i === 1 ? 6 : null },
+        ...(i === 0 ? [{ membershipId: memberships.bob, parameterId: focus, selected: true, qualityValue: null, quantityValue: null }] : []),
+      ]);
+      if (i === 0) {
+        const first = await getResults({ assignmentId, seq: 1 });
+        assert.equal(first.rows.length, 2, 'Ada has not joined at the only answered session');
+        assert.deepEqual(first.rows[1].cells[focus], { quality: null, quantity: null, answered: false });
+      }
+    }
+    const grid = await getResults({ assignmentId, seq: 2 });
+    const ada = grid.rows.find(row => row.membershipId === memberships.ada);
+    const bob = grid.rows.find(row => row.membershipId === memberships.bob);
+    assert.deepEqual(ada.cells, {}, 'Ada left before the current period');
+    assert.deepEqual(ada.previous[focus], { quality: 3, quantity: 6 });
+    assert.deepEqual(bob.cells[focus], { quality: 5, quantity: null, answered: true });
+    assert.deepEqual(bob.previous[focus], { quality: 4, quantity: 6 });
   } finally {
     await pool.end();
   }

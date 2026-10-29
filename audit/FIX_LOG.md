@@ -100,3 +100,22 @@ accounting smokes pass. `COVERAGE.md` records 499 full reads and explicit limits
 - Full server suite: **140 pass / six integration skips**, exit 0. The probe's
   cube outputs now use a caller-selected phase and exclusive creation so reruns
   cannot overwrite existing evidence.
+
+### A18 — resolve group fallback before period aggregation
+
+- Results now expand group cells only onto session-date-eligible memberships;
+  any own cell (including selected-empty or single-dimension) shadows that
+  session's group cell. Current and previous periods use the same resolution.
+- HTTP and PGlite result queries both supply ISO session dates and membership
+  bounds. The established latest-non-null cross-session merge is preserved.
+  Real schema/index/constraint inspection: `fix-a18/schema.txt`.
+- Pure regressions: baseline **six pass / three fail**, patched **9/9 pass**.
+  PGlite results/dashboard suite: **5/5 pass**, including inclusive join/leave
+  boundaries, prior-period inheritance and empty shadows. Its first baseline
+  run also contains one fixture-range error (quantity 12 for max 10), corrected
+  to 6; that failure is not product evidence. The other baseline failure confirms
+  missing prior group values.
+- Real HTTP reproduction now returns **[8,2,2]**, matching export; dashboard
+  completion is **100%** and average **4**. The combined probe exits 1 only for
+  the separate, still-open A19 trend and A20 dimension-comment contracts.
+- Full server suite **144 pass / six skips**. Evidence: `fix-a18/*.{txt,json}`.

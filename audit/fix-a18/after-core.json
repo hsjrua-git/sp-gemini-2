@@ -1,0 +1,12 @@
+{
+  "command": [
+    "node",
+    "--test",
+    "src/core/services/results.test.js"
+  ],
+  "directory": "server",
+  "started": "2026-10-29T20:54:35.741Z",
+  "ended": "2026-10-29T20:55:28.285Z",
+  "code": 0,
+  "signal": null
+}

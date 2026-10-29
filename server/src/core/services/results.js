@@ -68,7 +68,9 @@ export async function getResults(input = {}) {
       `SELECT ms.id          AS "membershipId",
               s.id           AS "studentId",
               s.full_name    AS "fullName",
-              s.student_code AS "studentCode"
+              s.student_code AS "studentCode",
+              ms.added_at::date::text AS "addedOn",
+              ms.left_on::text AS "leftOn"
        FROM assignments a
        JOIN student_group_members ms
          ON (a.group_id IS NOT NULL AND ms.group_id = a.group_id)
@@ -99,6 +101,7 @@ export async function getResults(input = {}) {
     ),
     db.query(
       `SELECT e.session_id       AS "sessionId",
+              s.session_date::text AS "sessionDate",
               e.membership_id    AS "membershipId",
               e.parameter_id     AS "parameterId",
               e.quality_value    AS "qualityValue",

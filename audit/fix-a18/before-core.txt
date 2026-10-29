@@ -1,0 +1,55 @@
+✔ getResults: validation, 404s, and a not-yet-bucketed period (12961.283939ms)
+✖ getResults: grid rows, both dimensions, and the previous-seq deltas (9528.220265ms)
+✖ getResults: group fallback uses each session date and selected-empty shadows (9083.135784ms)
+✔ getTrends: per (parameter, assignment, period) averages with a dimension choice (8856.538335ms)
+✔ getSummary: expected = selected cells; group rows expand per member and member rows shadow (8672.070793ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 3
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 49749.284699
+
+✖ failing tests:
+
+test at src/core/services/results.test.js:193:1
+✖ getResults: grid rows, both dimensions, and the previous-seq deltas (9528.220265ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + {}
+  - {
+  -   '2e4de039-f924-4fef-ab57-f41dac1d06db': {
+  -     quality: 5,
+  -     quantity: 6
+  -   },
+  -   'baa42dec-690b-4ae2-bdda-b9aad12a3652': {
+  -     quality: null,
+  -     quantity: null
+  -   }
+  - }
+  
+      at TestContext.<anonymous> (file:///home/hsjrua/Documents/sp-gemini-1/server/src/core/services/results.test.js:240:12)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: {},
+    expected: { '2e4de039-f924-4fef-ab57-f41dac1d06db': { quality: 5, quantity: 6 }, 'baa42dec-690b-4ae2-bdda-b9aad12a3652': { quality: null, quantity: null } },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src/core/services/results.test.js:255:1
+✖ getResults: group fallback uses each session date and selected-empty shadows (9083.135784ms)
+  Error [ServiceError]: Some entries are invalid. Nothing was saved.
+      at ServiceError.validation (file:///home/hsjrua/Documents/sp-gemini-1/server/src/core/errors.js:27:12)
+      at saveEvaluationsBulk (file:///home/hsjrua/Documents/sp-gemini-1/server/src/core/services/evaluations.js:306:24)
+      at async TestContext.<anonymous> (file:///home/hsjrua/Documents/sp-gemini-1/server/src/core/services/results.test.js:262:7)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    code: 'VALIDATION',
+    details: { code: 'EVALUATIONS_INVALID_ENTRIES', problems: [ [Object] ] }
+  }

@@ -1,0 +1,28 @@
+{
+  "command": [
+    "psql",
+    "postgresql://audit_owner@127.0.0.1:55439/student_panel_audit",
+    "-X",
+    "-c",
+    "SELECT current_database(), inet_server_port();",
+    "-c",
+    "\\dt",
+    "-c",
+    "\\d+ student_group_members",
+    "-c",
+    "\\d+ assignments",
+    "-c",
+    "\\d+ sessions",
+    "-c",
+    "\\d+ periods",
+    "-c",
+    "\\d+ evaluations",
+    "-c",
+    "\\d+ parameters"
+  ],
+  "directory": ".",
+  "started": "2026-10-29T20:52:26.971Z",
+  "ended": "2026-10-29T20:52:27.317Z",
+  "code": 0,
+  "signal": null
+}

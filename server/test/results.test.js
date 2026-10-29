@@ -13,14 +13,15 @@ const stamina = { id: 'stamina', code: 'stamina', name: 'Stamina', minValue: nul
 const parameters = [speed, balance, stamina];
 
 const targets = [
-  { membershipId: 'm1', studentId: 's1', fullName: 'Ana', studentCode: 'AAAAAAAA' },
-  { membershipId: 'm2', studentId: 's2', fullName: 'Ben', studentCode: 'BBBBBBBB' },
+  { membershipId: 'm1', studentId: 's1', fullName: 'Ana', studentCode: 'AAAAAAAA', addedOn: '2020-01-01', leftOn: null },
+  { membershipId: 'm2', studentId: 's2', fullName: 'Ben', studentCode: 'BBBBBBBB', addedOn: '2020-01-01', leftOn: null },
 ];
 
 const assignment = { id: 'a1', groupId: 'g1', groupName: 'Grade 7' };
 
 const evaluation = (over = {}) => ({
-  sessionId: 'sess-1',
+  sessionId: `sess-${over.periodSeq ?? 5}`,
+  sessionDate: '2026-01-01',
   membershipId: null,
   parameterId: 'speed',
   qualityValue: null,
@@ -138,4 +139,54 @@ test('period 1 has no previous scores; rows without scores stay empty', () => {
       [{}, {}],
     ]
   );
+});
+
+test('members inherit both dimensions and previous values from eligible group cells', () => {
+  const result = build({ evaluations: [
+    evaluation({ periodSeq: 4, qualityValue: 2, quantityValue: 3 }),
+    evaluation({ qualityValue: 0, quantityValue: 6 }),
+  ] });
+  for (const row of result.rows) {
+    assert.deepEqual(row.cells.speed, { quality: 0, quantity: 6, answered: true });
+    assert.deepEqual(row.previous.speed, { quality: 2, quantity: 3 });
+  }
+});
+
+test('own selected-empty and partial cells shadow the entire group cell within a session', () => {
+  const group = evaluation({ qualityValue: 8, quantityValue: 9 });
+  const own = [evaluation({ membershipId: 'm1' }), evaluation({ membershipId: 'm2', quantityValue: 2 })];
+  for (const evaluations of [[group, ...own], [...own, group]]) {
+    const { rows } = build({ evaluations });
+    assert.deepEqual(rows[1].cells.speed, { quality: null, quantity: null, answered: false });
+    assert.deepEqual(rows[2].cells.speed, { quality: null, quantity: 2, answered: true });
+  }
+});
+
+test('fallback is resolved per session before the existing latest-non-null period merge', () => {
+  const { rows } = build({ evaluations: [
+    evaluation({ sessionId: 'one', qualityValue: 9, quantityValue: 8 }),
+    evaluation({ sessionId: 'one', membershipId: 'm1', qualityValue: 3 }),
+    evaluation({ sessionId: 'two', qualityValue: 7, quantityValue: 6 }),
+    evaluation({ sessionId: 'two', membershipId: 'm2' }),
+    evaluation({ sessionId: 'three', quantityValue: 0 }),
+    evaluation({ sessionId: 'three', membershipId: 'm2', qualityComment: 'absent' }),
+  ] });
+  assert.deepEqual(rows[1].cells.speed, { quality: 7, quantity: 0, answered: true });
+  assert.deepEqual(rows[2].cells.speed, { quality: 9, quantity: 8, answered: true });
+});
+
+test('fallback checks inclusive join/leave dates for each current and previous session', () => {
+  const { rows } = build({ targets: [
+    { ...targets[0], addedOn: '2026-01-02', leftOn: '2026-01-03' },
+    { ...targets[1], addedOn: '2026-01-04' },
+  ], evaluations: [
+    evaluation({ periodSeq: 4, sessionDate: '2026-01-01', qualityValue: 1 }),
+    evaluation({ sessionId: 'join', sessionDate: '2026-01-02', quantityValue: 2 }),
+    evaluation({ sessionId: 'leave', sessionDate: '2026-01-03', qualityValue: 3 }),
+    evaluation({ sessionId: 'after', sessionDate: '2026-01-04', qualityValue: 4 }),
+  ] });
+  assert.deepEqual(rows[1].cells.speed, { quality: 3, quantity: 2, answered: true });
+  assert.deepEqual(rows[2].cells.speed, { quality: 4, quantity: null, answered: true });
+  assert.deepEqual(rows[1].previous, {});
+  assert.deepEqual(rows[2].previous, {});
 });

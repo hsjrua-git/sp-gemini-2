@@ -1,0 +1,101 @@
+✔ a group assignment leads with the whole-group row, then its members (7.887854ms)
+✔ current and previous scores are separated; other periods are ignored (8.864756ms)
+✔ a cell is answered when any value or comment is set; both-null is selected but unanswered (0.616516ms)
+✔ an individual assignment has exactly its member and no group row (0.313882ms)
+✔ period 1 has no previous scores; rows without scores stay empty (1.951687ms)
+✖ members inherit both dimensions and previous values from eligible group cells (2.969134ms)
+✔ own selected-empty and partial cells shadow the entire group cell within a session (1.025256ms)
+✖ fallback is resolved per session before the existing latest-non-null period merge (12.235709ms)
+✖ fallback checks inclusive join/leave dates for each current and previous session (2.178546ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 6
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 593.554827
+
+✖ failing tests:
+
+test at test/results.test.js:144:1
+✖ members inherit both dimensions and previous values from eligible group cells (2.969134ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + undefined
+  - {
+  -   answered: true,
+  -   quality: 0,
+  -   quantity: 6
+  - }
+  
+      at TestContext.<anonymous> (file:///home/hsjrua/Documents/sp-gemini-1/server/test/results.test.js:150:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: { quality: 0, quantity: 6, answered: true },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at test/results.test.js:165:1
+✖ fallback is resolved per session before the existing latest-non-null period merge (12.235709ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      answered: true,
+  +   quality: 3,
+  +   quantity: null
+  -   quality: 7,
+  -   quantity: 0
+    }
+  
+      at TestContext.<anonymous> (file:///home/hsjrua/Documents/sp-gemini-1/server/test/results.test.js:174:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { quality: 3, quantity: null, answered: true },
+    expected: { quality: 7, quantity: 0, answered: true },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at test/results.test.js:178:1
+✖ fallback checks inclusive join/leave dates for each current and previous session (2.178546ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + undefined
+  - {
+  -   answered: true,
+  -   quality: 3,
+  -   quantity: 2
+  - }
+  
+      at TestContext.<anonymous> (file:///home/hsjrua/Documents/sp-gemini-1/server/test/results.test.js:188:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: { quality: 3, quantity: 2, answered: true },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
