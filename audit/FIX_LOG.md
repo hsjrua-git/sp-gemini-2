@@ -290,8 +290,15 @@ accounting smokes pass. `COVERAGE.md` records 499 full reads and explicit limits
   formatting preserves BigInt precision. Existing server charge policy retained.
 - Retained actual POS component suite changes **1 pass / 2 failures → 3/3 pass**:
   whole-quantity control, 0.145×100 → **15**, two 0.005×100 lines → **1**.
-  Evidence: `fix-a26/after-component.*`. Browser retry and shared final checks
-  follow; component backend I/O is mocked.
+  Evidence: `fix-a26/after-component.*`; component backend I/O is mocked.
+- Live production-build quote and charge now both equal **15**, balance **−15**,
+  stock **0.855**, with a balanced posted journal. Native confirmed void returns
+  **201**, balance **0**, stock **1**, journal voided. Independent cleanup/replay
+  checks pass; synthetic student/product/supplier are inactive and append-only
+  history retained (`fix-a26/browser.md`, readbacks and cleanup evidence).
+- Shared client **233/233**, clean lint/build and final serial integration/ledger
+  checks pass. Live journal return was outside the 30-second cache window and
+  therefore is not timing-sensitive A27 proof.
 
 ### A30 — anchor-based monthly schedule preview
 

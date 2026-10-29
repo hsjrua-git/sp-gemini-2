@@ -4,7 +4,7 @@ import { randomBytes } from 'node:crypto';
 import { api, login } from './isolated.mjs';
 
 const mode = process.argv[2];
-assert.ok(['prepare', 'readback', 'cleanup'].includes(mode));
+assert.ok(['prepare', 'stock', 'readback', 'cleanup'].includes(mode));
 const file = new URL('../runtime/browser-finance-fixture.json', import.meta.url);
 const call = api();
 let fixture;
@@ -33,7 +33,14 @@ try {
     assert.equal(fixture.cleaned, false);
     const sales = (await request(`/api/cafe/sales?studentId=${fixture.studentId}&includeVoided=1`)).sales;
     const purchases = (await request(`/api/cafe/purchases?supplierId=${fixture.supplierId}`)).purchases;
-    if (mode === 'readback') {
+    if (mode === 'stock') {
+      assert.equal(purchases.length, 0, 'stock the fresh fixture only once');
+      console.log(JSON.stringify(await request('/api/cafe/purchases', 'POST', {
+        supplierId: fixture.supplierId,
+        items: [{ productId: fixture.productId, qty: 1, unitCost: 100 }],
+        note: 'Audit POS quote retry stock',
+      }, 201)));
+    } else if (mode === 'readback') {
       const sourceIds = new Set([...sales, ...purchases].map(row => row.id));
       const journals = (await request('/api/accounting/journal')).entries.filter(row => sourceIds.has(row.sourceId));
       console.log(JSON.stringify({ fixture, purchases, sales,

@@ -1,0 +1,12 @@
+{
+  "command": [
+    "node",
+    "audit/checks/browser-finance-fixture.mjs",
+    "cleanup"
+  ],
+  "directory": ".",
+  "started": "2026-10-29T23:37:01.098Z",
+  "ended": "2026-10-29T23:37:01.886Z",
+  "code": 0,
+  "signal": null
+}

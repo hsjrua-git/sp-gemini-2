@@ -1,0 +1,195 @@
+{
+  "fixture": {
+    "name": "Audit POS 1be15d2d1f",
+    "cleaned": false,
+    "studentId": "10c8ea68-82ba-4c30-8e59-2760f43b369b",
+    "productId": "dbd82028-bb0f-402e-a16e-6e52b4847728",
+    "supplierId": "47f517f1-25d1-4a8d-8f68-dd4bb0a16d29"
+  },
+  "purchases": [
+    {
+      "id": "6d47c683-adf9-44f1-a8ad-0561630734ef",
+      "supplierId": "47f517f1-25d1-4a8d-8f68-dd4bb0a16d29",
+      "supplierName": "Audit POS 1be15d2d1f",
+      "note": "Audit POS quote retry stock",
+      "purchasedAt": "2026-10-30",
+      "createdBy": "fe58037d-d314-4cf4-b489-28b82865ce1f",
+      "createdAt": "2026-10-29T22:16:34.356Z",
+      "items": [
+        {
+          "id": "ab51728f-eee0-411c-bf1e-56623a738fbc",
+          "productId": "dbd82028-bb0f-402e-a16e-6e52b4847728",
+          "productName": "Audit POS 1be15d2d1f",
+          "qty": 1,
+          "unitCost": 100
+        }
+      ],
+      "total": "100.000"
+    }
+  ],
+  "sales": [
+    {
+      "id": "11b42779-88d9-445d-b93a-ea8b2da6a4ba",
+      "soldAt": "2026-10-29T22:17:57.686Z",
+      "soldBy": "sample-admin",
+      "customer": "student",
+      "studentId": "10c8ea68-82ba-4c30-8e59-2760f43b369b",
+      "studentName": "Audit POS 1be15d2d1f",
+      "studentCode": "V5P9KH7V",
+      "total": "15",
+      "costTotal": "15",
+      "note": null,
+      "voidedAt": null,
+      "items": [
+        {
+          "id": "292377d7-420f-4217-86bd-cb4049e6fdf0",
+          "productId": "dbd82028-bb0f-402e-a16e-6e52b4847728",
+          "productName": "Audit POS 1be15d2d1f",
+          "qty": 0.145,
+          "unitPrice": 100,
+          "unitCost": 100
+        }
+      ]
+    }
+  ],
+  "balance": {
+    "balance": -15,
+    "transactions": [
+      {
+        "id": "5bc15c9e-3023-4653-94e6-c45786a3e8b0",
+        "kind": "charge",
+        "amount": "-15",
+        "balanceAfter": "-15",
+        "referenceType": "sale",
+        "referenceId": "11b42779-88d9-445d-b93a-ea8b2da6a4ba",
+        "note": null,
+        "createdBy": "fe58037d-d314-4cf4-b489-28b82865ce1f",
+        "createdAt": "2026-10-29T22:17:57.686Z"
+      }
+    ],
+    "truncated": false
+  },
+  "stock": {
+    "product": {
+      "id": "dbd82028-bb0f-402e-a16e-6e52b4847728",
+      "name": "Audit POS 1be15d2d1f",
+      "isActive": true,
+      "avgCost": "100"
+    },
+    "qty": 0.855,
+    "movements": [
+      {
+        "id": "4f64eeb9-69f5-45a4-8dd0-953f68e5f889",
+        "kind": "purchase",
+        "qty": 1,
+        "unitCost": "100",
+        "referenceType": "purchase",
+        "referenceId": "6d47c683-adf9-44f1-a8ad-0561630734ef",
+        "note": null,
+        "createdBy": "sample-admin",
+        "createdAt": "2026-10-29T22:16:34.356Z",
+        "runningQty": 1
+      },
+      {
+        "id": "7db0a77a-b4fc-4039-afd1-f258909ce9e3",
+        "kind": "sale",
+        "qty": -0.145,
+        "unitCost": "100",
+        "referenceType": "sale",
+        "referenceId": "11b42779-88d9-445d-b93a-ea8b2da6a4ba",
+        "note": null,
+        "createdBy": "sample-admin",
+        "createdAt": "2026-10-29T22:17:57.686Z",
+        "runningQty": 0.855
+      }
+    ]
+  },
+  "journals": [
+    {
+      "id": "f5e0cb59-53ee-47dc-a22a-2f8a15f3e5cd",
+      "entryNo": "1119",
+      "entryDate": "2026-10-30",
+      "memo": "Cafe sale (student)",
+      "status": "posted",
+      "sourceType": "cafe_sale",
+      "sourceId": "11b42779-88d9-445d-b93a-ea8b2da6a4ba",
+      "reversesEntryId": null,
+      "postedAt": "2026-10-29T22:17:57.686Z",
+      "voidedAt": null,
+      "createdAt": "2026-10-29T22:17:57.686Z",
+      "total": "30",
+      "lines": [
+        {
+          "id": "e0c0d576-4fc7-45bc-8997-7acf9c442d75",
+          "accountId": "0f562663-3bae-4d34-8fc5-e011faaf41eb",
+          "accountCode": "1200",
+          "accountName": "موجودی کافه",
+          "debit": 0,
+          "credit": 15,
+          "memo": null
+        },
+        {
+          "id": "cef1fcb1-38ed-4ed3-b1ce-6e11fd11e2bb",
+          "accountId": "a44f23fc-49e7-4c90-99ea-d747d07563d2",
+          "accountCode": "2100",
+          "accountName": "سپرده‌های دانش‌آموزان",
+          "debit": 15,
+          "credit": 0,
+          "memo": null
+        },
+        {
+          "id": "48cec9e0-9eb2-44f8-8107-fed42ad4fed4",
+          "accountId": "637444c3-eafa-4759-a86d-eac049c377a1",
+          "accountCode": "4100",
+          "accountName": "درآمد فروش کافه",
+          "debit": 0,
+          "credit": 15,
+          "memo": null
+        },
+        {
+          "id": "6e29872b-096e-42d6-a56b-7cde517cca4f",
+          "accountId": "37be9c5a-1ec9-4c51-a076-76c3266e2c5b",
+          "accountCode": "5100",
+          "accountName": "بهای تمام‌شده فروش کافه",
+          "debit": 15,
+          "credit": 0,
+          "memo": null
+        }
+      ]
+    },
+    {
+      "id": "0063d17d-a0be-4201-a9c9-2e86fd505239",
+      "entryNo": "1118",
+      "entryDate": "2026-10-30",
+      "memo": "Cafe purchase",
+      "status": "posted",
+      "sourceType": "cafe_purchase",
+      "sourceId": "6d47c683-adf9-44f1-a8ad-0561630734ef",
+      "reversesEntryId": null,
+      "postedAt": "2026-10-29T22:16:34.356Z",
+      "voidedAt": null,
+      "createdAt": "2026-10-29T22:16:34.356Z",
+      "total": "100",
+      "lines": [
+        {
+          "id": "fd4bfb87-583b-426c-af54-70dd4c7c0291",
+          "accountId": "4c29d301-feb7-4ae4-9640-8eb814dd6f09",
+          "accountCode": "1100",
+          "accountName": "صندوق",
+          "debit": 0,
+          "credit": 100,
+          "memo": null
+        },
+        {
+          "id": "cda3a655-89df-4e4d-a66a-c2fc6ed0c191",
+          "accountId": "0f562663-3bae-4d34-8fc5-e011faaf41eb",
+          "accountCode": "1200",
+          "accountName": "موجودی کافه",
+          "debit": 100,
+          "credit": 0,
+          "memo": null
+        }
+      ]
+    }
+  ]
+}
