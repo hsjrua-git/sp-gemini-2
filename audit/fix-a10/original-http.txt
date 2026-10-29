@@ -1,0 +1,8 @@
+{
+  "quantity": 0.145,
+  "unitCost": 100,
+  "expected": 15,
+  "posted": 15,
+  "stockAfter": 0.855,
+  "entryId": "c2784d29-1dce-404f-8509-76c696c9390e"
+}

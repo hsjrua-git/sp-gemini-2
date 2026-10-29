@@ -1,0 +1,13 @@
+{
+  "command": [
+    "env",
+    "DATABASE_URL=postgresql://audit_owner@127.0.0.1:55439/student_panel_audit",
+    "node",
+    "src/scripts/accountingSmoke.mjs"
+  ],
+  "directory": "server",
+  "started": "2026-10-29T21:19:38.863Z",
+  "ended": "2026-10-29T21:19:39.479Z",
+  "code": 0,
+  "signal": null
+}

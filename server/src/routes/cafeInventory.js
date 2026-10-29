@@ -143,12 +143,18 @@ router.post('/', async (req, res) => {
       });
     }
 
-    await client.query(
-      `INSERT INTO cafe_stock_movements
+    // Value the persisted decimal quantities, rounding the transaction total
+    // once in PostgreSQL rather than multiplying money in binary floating point.
+    const movementValue = await client.query(
+      `WITH inserted AS (
+        INSERT INTO cafe_stock_movements
          (product_id, kind, qty, unit_cost, note, created_by)
        SELECT x.product_id, $1, x.qty * $2, x.cost, $3, $4
        FROM unnest($5::uuid[], $6::numeric[], $7::bigint[])
-         AS x(product_id, qty, cost)`,
+          AS x(product_id, qty, cost)
+        RETURNING qty, unit_cost
+       )
+       SELECT COALESCE(SUM(-qty * unit_cost), 0)::bigint AS value FROM inserted`,
       [
         kind,
         kind === 'waste' ? -1 : 1,
@@ -166,12 +172,7 @@ router.post('/', async (req, res) => {
     // pair (Dr expenses / Cr inventory) when the mapping is active.
     if (kind === 'waste') {
       const wasteValue = moneyNumber(
-        Math.round(
-          items.reduce(
-            (sum, item) => sum + Math.abs(item.qty) * byId.get(item.productId),
-            0
-          )
-        ),
+        movementValue.rows[0].value,
         'Waste value'
       );
       if (wasteValue > 0) {

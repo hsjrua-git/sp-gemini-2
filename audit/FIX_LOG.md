@@ -174,3 +174,18 @@ accounting smokes pass. `COVERAGE.md` records 499 full reads and explicit limits
   successful confirm retry. Original malformed-Host reproduction returns **400**.
 - Full agent suite **32/32 pass**. Evidence: `fix-a08/`. Synthetic dialogue
   handlers only; no provider or financial I/O. Shared build/lint checks stand.
+
+### A10 — exact decimal waste valuation
+
+- The stock insert returns its numeric quantities/costs into a SQL aggregate;
+  PostgreSQL rounds the exact transaction total once to bigint. `moneyNumber`
+  still enforces safe HTTP/accounting conversion before posting.
+- Rechecked MCP identity (unrelated port 5432); inspected the pinned isolated
+  schema/indexes/constraints (`fix-a10/schema.txt`). No migration or core mirror
+  change: the inventory write exists only in the HTTP route.
+- Retained six-case real-HTTP regression: half boundary, below/above, multi-line
+  aggregate, rounds-to-zero and whole-unit controls. Baseline **five pass / one
+  fail**; patched **6/6 pass**, with stock readback. Original **0.145×100** now
+  posts **15**, stock **0.855**. Accounting smoke **9/9**; server **145/six skips**.
+- Evidence: `fix-a10/`; synthetic products/suppliers deactivated; append-only
+  purchase/waste/journal evidence retained in the isolated database.
