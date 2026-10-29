@@ -46,7 +46,7 @@ const EvaluationRow = memo(function EvaluationRow({
         <div className="hint code">
           {target.isGroup
             ? t('evaluate.wholeGroup')
-            : formatStudentCode(target.code)}
+            : target.code ? formatStudentCode(target.code) : '—'}
         </div>
       </td>
       {parameters.map((parameter) => {

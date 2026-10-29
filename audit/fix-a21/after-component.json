@@ -1,0 +1,13 @@
+{
+  "command": [
+    "npm",
+    "test",
+    "--",
+    "src/pages/EvaluatePage.test.jsx"
+  ],
+  "directory": "client",
+  "started": "2026-10-29T20:57:13.424Z",
+  "ended": "2026-10-29T20:57:23.367Z",
+  "code": 1,
+  "signal": null
+}

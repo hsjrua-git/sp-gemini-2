@@ -1,0 +1,111 @@
+npm notice run client@0.0.0 test
+npm notice run vitest run src/pages/EvaluatePage.test.jsx
+
+ RUN  v5.0.1 /home/hsjrua/Documents/sp-gemini-1/client
+
+stderr | src/pages/EvaluatePage.test.jsx > sighted individual can select, enter and save a member score
+An error occurred in the <EvaluationRow> component.
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries.
+
+
+stderr | src/pages/EvaluatePage.test.jsx > blind individual can select, enter and save a member score
+An error occurred in the <EvaluationRow> component.
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries.
+
+
+ ❯ src/pages/EvaluatePage.test.jsx (9 tests | 2 failed) 3717ms
+   × sighted individual can select, enter and save a member score 1031ms
+   × blind individual can select, enter and save a member score 1016ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/EvaluatePage.test.jsx > sighted individual can select, enter and save a member score
+ FAIL  src/pages/EvaluatePage.test.jsx > blind individual can select, enter and save a member score
+TestingLibraryElementError: Unable to find role="checkbox" and name `/Speed.*Test Student/`
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div />[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div />[39m
+[36m</body>[39m
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/EvaluatePage.test.jsx:53:32
+     51| ])('%s can select, enter and save a member score', async (_label, mode…
+     52|   mount(mode);
+     53|   fireEvent.click(await screen.findByRole('checkbox', { name: /Speed.*…
+       |                                ^
+     54|   const quality = screen.getByRole('textbox', { name: /Quality.*Speed.…
+     55|   expect(quality).toBeEnabled();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 2 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+TypeError: Cannot read properties of null (reading 'slice')
+ ❯ formatStudentCode src/lib/format.js:14:18
+     12|
+     13| export function formatStudentCode(code) {
+     14|   return `${code.slice(0, 4)}-${code.slice(4)}`;
+       |                  ^
+     15| }
+     16|
+ ❯ EvaluationRow src/components/EvaluationGrid.jsx:49:15
+ ❯ Object.react_stack_bottom_frame node_modules/react-dom/cjs/react-dom-client.development.js:28571:20
+ ❯ renderWithHooks node_modules/react-dom/cjs/react-dom-client.development.js:8030:22
+ ❯ updateFunctionComponent node_modules/react-dom/cjs/react-dom-client.development.js:10569:19
+ ❯ beginWork node_modules/react-dom/cjs/react-dom-client.development.js:12205:18
+ ❯ runWithFiberInDEV node_modules/react-dom/cjs/react-dom-client.development.js:1048:13
+ ❯ performUnitOfWork node_modules/react-dom/cjs/react-dom-client.development.js:19176:22
+ ❯ workLoopSync node_modules/react-dom/cjs/react-dom-client.development.js:19004:41
+ ❯ renderRootSync node_modules/react-dom/cjs/react-dom-client.development.js:18985:11
+
+This error originated in "src/pages/EvaluatePage.test.jsx" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The last test to run before this error was "sighted individual can select, enter and save a member score". This means either:
+- the error was thrown while Vitest was running this test, or
+- the error was thrown after the test completed, and this was the most recent test at that point.
+
+⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+TypeError: Cannot read properties of null (reading 'slice')
+ ❯ formatStudentCode src/lib/format.js:14:18
+     12|
+     13| export function formatStudentCode(code) {
+     14|   return `${code.slice(0, 4)}-${code.slice(4)}`;
+       |                  ^
+     15| }
+     16|
+ ❯ EvaluationRow src/components/EvaluationGrid.jsx:49:15
+ ❯ Object.react_stack_bottom_frame node_modules/react-dom/cjs/react-dom-client.development.js:28571:20
+ ❯ renderWithHooks node_modules/react-dom/cjs/react-dom-client.development.js:8030:22
+ ❯ updateFunctionComponent node_modules/react-dom/cjs/react-dom-client.development.js:10569:19
+ ❯ beginWork node_modules/react-dom/cjs/react-dom-client.development.js:12205:18
+ ❯ runWithFiberInDEV node_modules/react-dom/cjs/react-dom-client.development.js:1048:13
+ ❯ performUnitOfWork node_modules/react-dom/cjs/react-dom-client.development.js:19176:22
+ ❯ workLoopSync node_modules/react-dom/cjs/react-dom-client.development.js:19004:41
+ ❯ renderRootSync node_modules/react-dom/cjs/react-dom-client.development.js:18985:11
+
+This error originated in "src/pages/EvaluatePage.test.jsx" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The last test to run before this error was "blind individual can select, enter and save a member score". This means either:
+- the error was thrown while Vitest was running this test, or
+- the error was thrown after the test completed, and this was the most recent test at that point.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 7 passed (9)
+     Errors  2 errors
+   Start at  00:27:15
+   Duration  7.57s (tests 52%, environment 30%, setup 7%, import 7%, worker 3%, transform 1%)
+

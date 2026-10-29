@@ -345,8 +345,14 @@ function EvaluatePage() {
     );
   }
 
-  const isLoading = savedQuery.isPending || membersQuery.isPending;
-  const loadError = savedQuery.error ?? membersQuery.error ?? sessionsQuery.error;
+  // Disabled queries stay pending without fetching. Only required dependencies
+  // gate the grid: individuals need no roster, blind entry reads no saved cells.
+  const needsSaved = canViewScores && effectiveSessionId !== null;
+  const needsMembers = assignment?.groupId != null;
+  const isLoading = parametersQuery.isPending || sessionsQuery.isPending ||
+    (needsSaved && savedQuery.isPending) || (needsMembers && membersQuery.isPending);
+  const loadError = parametersQuery.error ?? sessionsQuery.error ??
+    (needsSaved ? savedQuery.error : null) ?? (needsMembers ? membersQuery.error : null);
 
   let saveLabel = t('common:actions.save');
   if (mutation.isPending) {
@@ -449,7 +455,7 @@ function EvaluatePage() {
         </p>
       )}
 
-      {sessions.length === 0 && (
+      {sessionsQuery.isSuccess && sessions.length === 0 && (
         <EmptyState
           title={t('evaluate.noSessions')}
           description={t('evaluate.noSessionsDescription')}

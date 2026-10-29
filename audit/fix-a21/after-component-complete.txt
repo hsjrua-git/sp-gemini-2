@@ -1,0 +1,11 @@
+npm notice run client@0.0.0 test
+npm notice run vitest run src/pages/EvaluatePage.test.jsx
+
+ RUN  v5.0.1 /home/hsjrua/Documents/sp-gemini-1/client
+
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  00:28:31
+   Duration  5.99s (tests 41%, environment 35%, setup 10%, import 9%, worker 4%, transform 1%)
+

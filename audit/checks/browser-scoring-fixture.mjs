@@ -7,7 +7,7 @@ import { api, login, openDatabase } from './isolated.mjs';
 // Only synthetic entities and the disposable sample-viewer's role are changed.
 const file = new URL('../runtime/browser-scoring-fixture.json', import.meta.url);
 const mode = process.argv[2];
-assert.ok(['prepare', 'blind', 'sighted', 'readback', 'cleanup'].includes(mode));
+assert.ok(['prepare', 'individual', 'blind', 'sighted', 'readback', 'cleanup'].includes(mode));
 const db = openDatabase();
 const admin = api();
 let fixture;
@@ -62,7 +62,21 @@ try {
   } else {
     fixture = JSON.parse(await fs.readFile(file, 'utf8'));
     assert.equal(fixture.cleaned, false);
-    if (mode === 'blind' || mode === 'sighted') {
+    if (mode === 'individual') {
+      assert.ok(!fixture.individualAssignmentId);
+      const base = (await request('/api/assignments')).assignments.find(a => a.id === fixture.assignmentId);
+      const member = (await request(`/api/groups/${fixture.groupId}/members`)).students.find(s => s.id === fixture.students[0]);
+      fixture.individualAssignmentId = (await request('/api/assignments', 'POST', {
+        name: `${fixture.name} individual`, membershipId: member.membershipId,
+        teacherId: base.teacherId, intervalId: base.intervalId, anchorDate: base.anchorDate,
+      }, 201)).assignment.id;
+      await persist();
+      await request('/api/sessions/generate', 'POST', { assignmentId: fixture.individualAssignmentId, until: base.anchorDate }, 201);
+      const sessions = (await request(`/api/sessions?assignmentId=${fixture.individualAssignmentId}`)).sessions;
+      fixture.sessions.push(...sessions.map(s => s.id));
+      await persist();
+      console.log(JSON.stringify({ assignmentId: fixture.individualAssignmentId, sessions }));
+    } else if (mode === 'blind' || mode === 'sighted') {
       await db.query('UPDATE users SET role_id=$1 WHERE id=$2', [mode === 'blind' ? fixture.roleId : fixture.viewer.role_id, fixture.viewer.id]);
       console.log(`Disposable sample-viewer role ${mode === 'blind' ? 'set to blind fixture' : 'restored'}.`);
     } else if (mode === 'readback') {
@@ -83,6 +97,7 @@ try {
         await request(`/api/sessions/${id}`, 'PATCH', { archived: true });
       }
       if (fixture.assignmentId) await request(`/api/assignments/${fixture.assignmentId}`, 'DELETE', undefined, 204);
+      if (fixture.individualAssignmentId) await request(`/api/assignments/${fixture.individualAssignmentId}`, 'DELETE', undefined, 204);
       if (fixture.parameterId) await request(`/api/parameters/${fixture.parameterId}`, 'PATCH', { archived: true });
       if (fixture.groupId) await request(`/api/groups/${fixture.groupId}`, 'DELETE', undefined, 204);
       for (const id of fixture.students) await request(`/api/students/${id}`, 'DELETE', undefined, 204);

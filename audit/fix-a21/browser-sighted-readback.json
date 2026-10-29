@@ -1,0 +1,12 @@
+{
+  "command": [
+    "node",
+    "audit/checks/browser-scoring-fixture.mjs",
+    "readback"
+  ],
+  "directory": ".",
+  "started": "2026-10-29T21:05:00.652Z",
+  "ended": "2026-10-29T21:05:01.416Z",
+  "code": 0,
+  "signal": null
+}

@@ -1,0 +1,12 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "lint"
+  ],
+  "directory": "client",
+  "started": "2026-10-29T21:05:28.168Z",
+  "ended": "2026-10-29T21:06:18.952Z",
+  "code": 0,
+  "signal": null
+}

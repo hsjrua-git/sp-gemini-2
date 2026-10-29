@@ -119,3 +119,21 @@ accounting smokes pass. `COVERAGE.md` records 499 full reads and explicit limits
   completion is **100%** and average **4**. The combined probe exits 1 only for
   the separate, still-open A19 trend and A20 dimension-comment contracts.
 - Full server suite **144 pass / six skips**. Evidence: `fix-a18/*.{txt,json}`.
+
+### A21 — usable individual and blind scoring grids
+
+- Loading/error gates now include required parameters/sessions and only the
+  applicable saved-score/roster queries. Empty-session UI waits for success.
+  Individual rows safely display a missing student code.
+- Permanent component regression: baseline **four fail / five pass**; final
+  **9/9 pass**. The intermediate run exposed the previously masked null-code
+  crash (two individual cases); both original and intermediate failures remain.
+  Coverage includes all four sighted/blind × group/individual saves, required
+  dependency failures/loading and no-session state.
+- Live production-build retry passes sighted individual **8/4**, blind group
+  member **6/1**, blind individual **5/0**; each PUT returns **200 / changed:1**.
+  Independent readback matches, existing values stay hidden from blind entry.
+  Viewer restored; shared fixture cleanup verified with A22.
+- Evidence: `fix-a21/`, `fix-a22/browser-cleanup-verified.*`. Client lint and full
+  **230-test** suite pass (`stage2-high-checkpoint/`); production build passes.
+  Full core **56/56** and PGlite **35 migrations plus sanity checks** also pass.

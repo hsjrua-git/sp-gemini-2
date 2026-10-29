@@ -12,7 +12,7 @@ try {
   assert.equal((await db.query('SELECT id FROM evaluations WHERE session_id=ANY($1::uuid[])', [fixture.sessions])).rowCount, 0);
   const checks = [
     ['sessions', fixture.sessions, 'archived_at'],
-    ['assignments', [fixture.assignmentId], 'archived_at'],
+    ['assignments', [fixture.assignmentId, fixture.individualAssignmentId].filter(Boolean), 'archived_at'],
     ['parameters', [fixture.parameterId], 'archived_at'],
     ['student_groups', [fixture.groupId], 'archived_at'],
     ['students', fixture.students, 'deleted_at'],
