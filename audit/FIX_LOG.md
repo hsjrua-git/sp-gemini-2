@@ -381,3 +381,12 @@ accounting smokes pass. `COVERAGE.md` records 499 full reads and explicit limits
   successful database setup. No real sudo, cluster bootstrap, authentication or
   later installation stages were executed by this regression. No grants/schema
   policy changes; A24 remains ASK.
+
+### A29 — contain permission-catalog load failures
+
+- Role page's existing load-error gate now includes the permission catalog and
+  displays its error before an editor can consume missing data.
+- Real RolesPage/QueryClient/ErrorBoundary suite changes **1 pass / 2 fail →
+  3/3 pass**: failed-catalog New/Edit paths stay contained and successful editing
+  preserves the selected permission (`fix-a29/after-component.*`). API I/O is
+  mocked; no live outage induced. Shared client lint/build/**233 tests** pass.

@@ -227,13 +227,13 @@ function RolesPage() {
       </main>
     );
   }
-  if (rolesQuery.isError) {
+  if (rolesQuery.isError || catalogQuery.isError) {
     return (
       <main>
         <EmptyState
           tone="danger"
           title={t('roles.loadErrorTitle')}
-          description={errorMessage(rolesQuery.error)}
+          description={errorMessage(rolesQuery.error ?? catalogQuery.error)}
         />
       </main>
     );

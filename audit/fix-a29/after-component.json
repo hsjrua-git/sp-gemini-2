@@ -1,0 +1,15 @@
+{
+  "command": [
+    "npm",
+    "test",
+    "--",
+    "--config",
+    "../audit/checks/role-catalog.vitest.config.mjs",
+    "--maxWorkers=1"
+  ],
+  "directory": "client",
+  "started": "2026-10-29T22:01:36.342Z",
+  "ended": "2026-10-29T22:01:41.672Z",
+  "code": 0,
+  "signal": null
+}
