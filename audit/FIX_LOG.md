@@ -415,3 +415,18 @@ accounting smokes pass. `COVERAGE.md` records 499 full reads and explicit limits
 - Evidence: `fix-a31-a35/`, including actual CSV/SVG/PNG bytes and `browser.md`.
   Live comparison/radar downloads and spreadsheet-application interoperability
   are not claimed; component coverage and file validation are stated separately.
+
+### A36 — show scheduling quick-action refusals
+
+- Sessions and schedule quick actions display translated mutation errors and
+  clear earlier action errors when a new action/retry begins.
+- Expanded bilingual actual-page suite **10/10 passes**, including refusal
+  display, existing edit-form controls, pending retry/different action and
+  successful completion clearing (`fix-a36/after-component.*`). HTTP is mocked.
+- Actual Persian browser quick Cancel returns **409** with the active-evaluation
+  explanation; archived-assignment Restore returns **400** with the inactive-
+  group explanation. Rows retain their protected state (`fix-a36/browser.md`).
+  Synthetic fixture cleanup independently passes in `fix-a25/cleanup-verified.*`.
+- Shared client lint/build/**233 tests** and final isolated integration/ledger
+  checks pass. Adjacent teacher/interval/template/alert actions remain source-only
+  observations outside this established finding.

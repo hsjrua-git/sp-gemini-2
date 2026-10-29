@@ -488,6 +488,13 @@ function SessionsPage() {
   });
   const busy =
     quickCancel.isPending || archive.isPending || restore.isPending;
+  const actionError = quickCancel.error ?? archive.error ?? restore.error;
+  function runAction(mutation, value) {
+    quickCancel.reset();
+    archive.reset();
+    restore.reset();
+    mutation.mutate(value);
+  }
 
   const sessions = sessionsQuery.data?.sessions ?? [];
 
@@ -613,6 +620,9 @@ function SessionsPage() {
             {errorMessage(sessionsQuery.error)}
           </p>
         )}
+        {actionError && (
+          <p className="error" role="alert">{errorMessage(actionError)}</p>
+        )}
         {sessionsQuery.data?.truncated && (
           <p className="hint">{t('sessions.truncated')}</p>
         )}
@@ -728,7 +738,7 @@ function SessionsPage() {
                             type="button"
                             className="quiet"
                             onClick={() =>
-                              quickCancel.mutate({ session, canceled: false })
+                              runAction(quickCancel, { session, canceled: false })
                             }
                             disabled={busy}
                           >
@@ -739,7 +749,7 @@ function SessionsPage() {
                             type="button"
                             className="quiet"
                             onClick={() =>
-                              quickCancel.mutate({ session, canceled: true })
+                              runAction(quickCancel, { session, canceled: true })
                             }
                             disabled={busy}
                           >
@@ -750,7 +760,7 @@ function SessionsPage() {
                           <button
                             type="button"
                             className="quiet"
-                            onClick={() => restore.mutate(session)}
+                            onClick={() => runAction(restore, session)}
                             disabled={busy}
                           >
                             {t('common:actions.unarchive')}
@@ -759,7 +769,7 @@ function SessionsPage() {
                           <button
                             type="button"
                             className="quiet"
-                            onClick={() => archive.mutate(session)}
+                            onClick={() => runAction(archive, session)}
                             disabled={busy}
                           >
                             {t('common:actions.archive')}

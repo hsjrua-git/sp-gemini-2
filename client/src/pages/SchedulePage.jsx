@@ -548,6 +548,12 @@ function SchedulePage() {
       updateAssignment(assignment.id, { archived: false }),
     onSuccess: invalidate,
   });
+  const actionError = archive.error ?? restore.error;
+  function runAction(mutation, value) {
+    archive.reset();
+    restore.reset();
+    mutation.mutate(value);
+  }
 
   const assignments = assignmentsQuery.data ?? [];
   const intervals = intervalsQuery.data ?? [];
@@ -593,6 +599,9 @@ function SchedulePage() {
           <p className="error" role="alert">
             {errorMessage(assignmentsQuery.error)}
           </p>
+        )}
+        {actionError && (
+          <p className="error" role="alert">{errorMessage(actionError)}</p>
         )}
         {assignments.length === 0 && !assignmentsQuery.isPending && (
           <EmptyState
@@ -666,7 +675,7 @@ function SchedulePage() {
                             <button
                               type="button"
                               className="quiet"
-                              onClick={() => restore.mutate(assignment)}
+                              onClick={() => runAction(restore, assignment)}
                               disabled={archive.isPending || restore.isPending}
                             >
                               {t('common:actions.restore')}
@@ -684,7 +693,7 @@ function SchedulePage() {
                               <button
                                 type="button"
                                 className="quiet"
-                                onClick={() => archive.mutate(assignment.id)}
+                                onClick={() => runAction(archive, assignment.id)}
                                 disabled={archive.isPending || restore.isPending}
                               >
                                 {t('common:actions.archive')}

@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within, act } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthContext } from '../../client/src/auth/AuthContext.jsx';
 import { setLanguage } from '../../client/src/i18n/index.js';
@@ -93,4 +93,41 @@ test.each(['en', 'fa'])('assignment restore displays its inactive-group refusal 
   await settledRefusal(client, 'ASSIGNMENTS_GROUP_INACTIVE', button);
   console.log(JSON.stringify({ language, action: 'restore assignment', settled: '400', errors: [...document.querySelectorAll('main .error')].map(e => e.textContent) }));
   expect(await screen.findByText(i18n.t('errors:ASSIGNMENTS_GROUP_INACTIVE'))).toBeVisible();
+});
+
+test.each(['en', 'fa'])('a new session action clears the previous refusal while pending and after success in %s', async language => {
+  const client = mount(SessionsPage, language);
+  const row = (await screen.findByText('AUDIT-SESSION')).closest('tr');
+  const cancel = within(row).getByRole('button', { name: i18n.t('common:actions.cancel'), exact: true });
+  fireEvent.click(cancel);
+  await settledRefusal(client, 'SESSIONS_HAS_EVALUATIONS', cancel);
+  const message = i18n.t('errors:SESSIONS_HAS_EVALUATIONS');
+  expect(await screen.findByText(message)).toBeVisible();
+  let finish;
+  io.request.mockImplementationOnce(() => new Promise(resolve => { finish = resolve; }));
+  fireEvent.click(within(row).getByRole('button', { name: i18n.t('common:actions.archive'), exact: true }));
+  await waitFor(() => expect(client.isMutating()).toBe(1));
+  expect(screen.queryByText(message)).toBeNull();
+  await act(async () => finish({ session: { ...session, archivedAt: '2026-10-30' } }));
+  await waitFor(() => expect(client.isMutating()).toBe(0));
+  expect(screen.queryByText(message)).toBeNull();
+});
+
+test.each(['en', 'fa'])('assignment retry clears its refusal while pending and after success in %s', async language => {
+  const client = mount(SchedulePage, language);
+  fireEvent.click(screen.getByRole('checkbox', { name: i18n.t('admin:schedule.includeArchived') }));
+  const row = (await screen.findByText('AUDIT-ASSIGNMENT')).closest('tr');
+  const restore = within(row).getByRole('button', { name: i18n.t('common:actions.restore'), exact: true });
+  fireEvent.click(restore);
+  await settledRefusal(client, 'ASSIGNMENTS_GROUP_INACTIVE', restore);
+  const message = i18n.t('errors:ASSIGNMENTS_GROUP_INACTIVE');
+  expect(await screen.findByText(message)).toBeVisible();
+  let finish;
+  io.request.mockImplementationOnce(() => new Promise(resolve => { finish = resolve; }));
+  fireEvent.click(restore);
+  await waitFor(() => expect(client.isMutating()).toBe(1));
+  expect(screen.queryByText(message)).toBeNull();
+  await act(async () => finish({ assignment: { ...assignment, archivedAt: null } }));
+  await waitFor(() => expect(client.isMutating()).toBe(0));
+  expect(screen.queryByText(message)).toBeNull();
 });
