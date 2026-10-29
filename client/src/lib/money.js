@@ -17,7 +17,19 @@ export function formatAmount(value) {
 
 // A whole Toman figure (balances, prices, totals).
 export function formatWhole(value) {
-  return wholeFormat.format(Number(value ?? 0));
+  return wholeFormat.format(typeof value === 'bigint' ? value : Number(value ?? 0));
+}
+
+// Prices are whole Toman and quantities have at most three decimal places.
+// Keep the exact thousandths in BigInt, then round the aggregate once like PG.
+export function saleQuote(lines) {
+  const thousandths = lines.reduce((sum, { qty, unitPrice }) => {
+    if (qty === null || unitPrice === null || !Number.isFinite(qty) ||
+        !Number.isSafeInteger(unitPrice)) return sum;
+    const scaledQty = BigInt(qty.toFixed(3).replace('.', ''));
+    return sum + scaledQty * BigInt(unitPrice);
+  }, 0n);
+  return (thousandths + 500n) / 1000n;
 }
 
 export const MAX_INPUT = 100_000;

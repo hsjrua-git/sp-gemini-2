@@ -13,7 +13,7 @@ import EmptyState from '../components/EmptyState.jsx';
 import { errorMessage } from '../i18n/errors.js';
 import { formatDateTime, toIsoDate } from '../lib/format.js';
 import { useDebouncedValue } from '../lib/useDebouncedValue.js';
-import { formatAmount, formatWhole, parseQuantity, parseWholeNumber } from '../lib/money.js';
+import { formatAmount, formatWhole, parseQuantity, parseWholeNumber, saleQuote } from '../lib/money.js';
 // The cafe POS: tap products into a cart, pick walk-in or a student (charged
 // to their prepaid balance — overdraft allowed, so balances may go negative by
 // design), record the sale, and void today's mistakes. Money and quantities in
@@ -134,13 +134,7 @@ function CafeSalesPage() {
     qty: parseQuantity(line.qtyText),
     unitPrice: parseWholeNumber(line.priceText),
   }));
-  const total = parsedLines.reduce(
-    (sum, line) =>
-      line.qty !== null && line.unitPrice !== null
-        ? sum + Math.round(line.qty * line.unitPrice)
-        : sum,
-    0
-  );
+  const total = saleQuote(parsedLines);
 
   function addProduct(product) {
     setLines((current) => {
@@ -415,7 +409,7 @@ function CafeSalesPage() {
                       <td className="nowrap">
                         {line.qty !== null && line.unitPrice !== null ? (
                           <>
-                            {formatWhole(Math.round(line.qty * line.unitPrice))}{' '}
+                            {formatWhole(saleQuote([line]))}{' '}
                             <span className="hint">{t('money.unit')}</span>
                           </>
                         ) : (

@@ -282,3 +282,13 @@ accounting smokes pass. `COVERAGE.md` records 499 full reads and explicit limits
   retains it. Original failed run is preserved. Full server **149/six skips**,
   core **57/57**, PGlite, lint/build and client checks pass at the A17 checkpoint.
   Completion-denominator and broader aggregation policies remain ASK.
+
+### A26 — exact POS quote matching the charge contract
+
+- Quote arithmetic uses BigInt thousandths and rounds the aggregate once;
+  single-line display uses the same exact half-boundary rule. Whole-Toman
+  formatting preserves BigInt precision. Existing server charge policy retained.
+- Retained actual POS component suite changes **1 pass / 2 failures → 3/3 pass**:
+  whole-quantity control, 0.145×100 → **15**, two 0.005×100 lines → **1**.
+  Evidence: `fix-a26/after-component.*`. Browser retry and shared final checks
+  follow; component backend I/O is mocked.
