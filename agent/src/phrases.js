@@ -41,6 +41,7 @@ const fa = {
     return parts.join(' ');
   },
   notConfirmed: () => 'تأیید کامل نشده؛ فروش ثبت نمی‌شود.',
+  saleInProgress: () => 'فروش در حال ثبت است؛ لطفاً منتظر نتیجه بمانید.',
   voided: (total, balanceAfter) => {
     const parts = [`فروش ${tomanWords(total)} ابطال شد.`];
     if (balanceAfter !== null && balanceAfter !== undefined) {
@@ -107,6 +108,7 @@ const en = {
     return parts.join(' ');
   },
   notConfirmed: () => 'Not fully confirmed; nothing was recorded.',
+  saleInProgress: () => 'The sale is being recorded; please wait for the result.',
   voided: (total, balanceAfter) => {
     const parts = [`The ${total.toLocaleString('en-US')} toman sale was voided.`];
     if (balanceAfter !== null && balanceAfter !== undefined) {

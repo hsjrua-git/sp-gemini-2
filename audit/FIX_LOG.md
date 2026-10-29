@@ -55,3 +55,19 @@ accounting smokes pass. `COVERAGE.md` records 499 full reads and explicit limits
 - Full server suite: **139 pass / six skips**. Separate HTTP integration **6/6**
   and serial stock **6**, sale/report **8+5**, alerts **6**, invariant **5**, and
   accounting **9** smokes pass. Evidence: `fix-a02/*.{txt,json}`.
+
+### A03 — single-flight kiosk sale submission
+
+- Sale authorization is consumed synchronously before adapter I/O. A detached
+  request snapshot and an in-flight guard protect the cart/customer while the
+  request settles; screen/speech input receives a bilingual pending response.
+- Cart edits/cancellation and direct tool re-entry are refused during submission.
+  A student lookup started against an earlier cart cannot attach to a later one.
+  Failure retains the cart but clears confirmation, requiring a fresh protocol.
+- Seven permanent adapter-level regressions: stages 2/3/4 overlapping input,
+  pending edits/re-entry, delayed attachment, failure/reconfirmation and a
+  nonempty-cart model-boundary control. Baseline **five fail / two pass**; fixed
+  **7/7 pass**. Original reproduction now produces exactly **one** sale request.
+- Full agent suite **28/28 pass**. Evidence: `fix-a03/*.{txt,json}`. These tests
+  exercise real dialogue/tool handlers with a delayed adapter, not real charges.
+  Cross-process idempotency and A09's void protocol remain ASK.

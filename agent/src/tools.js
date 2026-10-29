@@ -144,6 +144,7 @@ export function makeToolHandlers({ panel, state }) {
     },
 
     async add_to_cart({ productName, qty }) {
+      if (state.saleInFlight) return { ok: false, reason: 'sale_in_progress' };
       const product = findProduct(productName);
       if (!product) return { ok: false, reason: 'not_in_menu' };
       const quantity = Number(qty);
@@ -168,6 +169,7 @@ export function makeToolHandlers({ panel, state }) {
     },
 
     async remove_from_cart({ productName }) {
+      if (state.saleInFlight) return { ok: false, reason: 'sale_in_progress' };
       const product = findProduct(productName);
       const before = state.cart.length;
       state.cart = state.cart.filter((line) => line.productId !== product?.id);
@@ -183,7 +185,11 @@ export function makeToolHandlers({ panel, state }) {
     },
 
     async attach_student({ studentId }) {
+      if (state.saleInFlight) return { ok: false, reason: 'sale_in_progress' };
+      const cart = state.cart;
       const found = await panel.findStudents(String(studentId));
+      if (state.saleInFlight) return { ok: false, reason: 'sale_in_progress' };
+      if (state.cart !== cart) return { ok: false, reason: 'cart_changed' };
       const student =
         found.find((s) => s.id === studentId) ??
         (found.length === 1 ? found[0] : null);
@@ -196,6 +202,7 @@ export function makeToolHandlers({ panel, state }) {
     },
 
     async request_confirmation() {
+      if (state.saleInFlight) return { ok: false, reason: 'sale_in_progress' };
       if (state.cart.length === 0) return { ok: false, reason: 'empty_cart' };
       state.phase = 'confirming';
       return { ok: true, cart: snapshotCart(state), student: state.student };
@@ -205,14 +212,28 @@ export function makeToolHandlers({ panel, state }) {
       // The confirmation protocol lives in the Supervisor, never in the
       // model: this refuses unless dialogue.js set stageGate = 'open', which
       // happens only after the protocol completed for THIS cart.
+      if (state.saleInFlight) return { ok: false, reason: 'sale_in_progress' };
       if (state.stageGate !== 'open') return { ok: false, reason: 'not_confirmed' };
       if (state.cart.length === 0) return { ok: false, reason: 'empty_cart' };
-      const sale = await panel.recordSale({
+      // Consume this cart's authorization before any I/O. The request is a
+      // detached snapshot; cart/identity edits are refused until it settles.
+      const submission = {
         customer: state.student ? 'student' : 'walk_in',
         studentId: state.student?.id,
         items: state.cart.map((line) => ({ productId: line.productId, qty: line.qty })),
         note: note ? `voice: ${note}` : 'voice',
-      });
+      };
+      state.saleInFlight = true;
+      state.phase = 'recording';
+      state.stageGate = 'closed';
+      let sale;
+      try {
+        sale = await panel.recordSale(submission);
+      } finally {
+        state.saleInFlight = false;
+        state.phase = 'idle';
+        state.spokenConfirmed = false;
+      }
       state.lastSale = { id: sale.id, total: sale.total };
       const result = {
         ok: true,
@@ -242,9 +263,11 @@ export function makeToolHandlers({ panel, state }) {
 
 // Clear the cart after a sale; the gate closes with it.
 export function resetCart(state) {
+  if (state.saleInFlight) return false;
   state.cart = [];
   state.student = null;
   state.phase = 'idle';
   state.stageGate = 'closed';
   state.spokenConfirmed = false;
+  return true;
 }

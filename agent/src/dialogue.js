@@ -27,7 +27,8 @@ export class Dialogue {
       productsLoaded: false,
       cart: [],
       student: null,
-      phase: 'idle', // idle | confirming
+      phase: 'idle', // idle | confirming | recording
+      saleInFlight: false,
       stageGate: 'closed',
       lastSale: null,
       spokenConfirmed: false,
@@ -88,6 +89,10 @@ export class Dialogue {
     if (text === '') return;
     const lang = detectLanguage(text, this.state.lang);
     const t = phrases(lang);
+    if (this.state.saleInFlight) {
+      this.say(t.saleInProgress(), lang);
+      return;
+    }
     this.sink.event('turn', { role: 'user', text, lang });
 
     let spoken;
@@ -96,8 +101,10 @@ export class Dialogue {
     } catch (err) {
       console.error('[dialogue] turn failed:', err.message);
       spoken = t.error();
-      this.state.phase = 'idle';
-      this.state.stageGate = 'closed';
+      if (!this.state.saleInFlight) {
+        this.state.phase = 'idle';
+        this.state.stageGate = 'closed';
+      }
     }
     this.state.history.push({ role: 'user', content: text }, { role: 'assistant', content: spoken });
     this.state.history = this.state.history.slice(-8);
@@ -108,6 +115,7 @@ export class Dialogue {
   async #route(text, lang, t) {
     this.#touch(lang);
     await this.ensureProducts();
+    if (this.state.saleInFlight) return t.saleInProgress();
     const parsed = parseUtterance(text, this.state);
     const P = parsed?.params ?? {};
     this.#touch(P.lang);
@@ -115,8 +123,7 @@ export class Dialogue {
     // The literal yes/no of the confirmation protocol — before any brain.
     if (parsed?.intent === 'confirm_yes') return this.#onSpokenYes(t);
     if (parsed?.intent === 'confirm_no') {
-      resetCart(this.state);
-      return t.canceled();
+      return resetCart(this.state) ? t.canceled() : t.saleInProgress();
     }
     if (parsed?.intent === 'switch_language') {
       this.state.lang = P.lang;
@@ -143,6 +150,7 @@ export class Dialogue {
   }
 
   async #runIntent(parsed, lang, t) {
+    if (this.state.saleInFlight) return t.saleInProgress();
     if (!parsed) {
       this.missed += 1;
       if (this.missed >= MAX_MISSED) {
@@ -167,6 +175,7 @@ export class Dialogue {
       }
       case 'add': {
         const result = await h.add_to_cart({ productName: parsed.params.product.name, qty: parsed.params.qty });
+        if (result.reason === 'sale_in_progress') return t.saleInProgress();
         if (!result.ok) return result.reason === 'invalid_qty' ? t.invalidQty() : t.notInMenu();
         this.state.phase = 'idle';
         this.state.spokenConfirmed = false;
@@ -174,17 +183,18 @@ export class Dialogue {
       }
       case 'remove': {
         const result = await h.remove_from_cart({ productName: parsed.params.product.name });
+        if (result.reason === 'sale_in_progress') return t.saleInProgress();
         this.state.phase = 'idle';
         this.state.spokenConfirmed = false;
         return result.ok ? t.removed() : t.notInCart();
       }
       case 'attach': {
         const result = await h.attach_student({ studentId: parsed.params.search });
+        if (result.reason === 'sale_in_progress') return t.saleInProgress();
         return result.ok ? t.attachStudent(result.student.name, result.student.balance) : t.studentNotFound();
       }
       case 'cancel': {
-        resetCart(this.state);
-        return t.canceled();
+        return resetCart(this.state) ? t.canceled() : t.saleInProgress();
       }
       case 'void': {
         const result = await h.void_last_sale();
@@ -216,6 +226,7 @@ export class Dialogue {
 
   // The spoken "yes" while the dialogue is confirming.
   async #onSpokenYes(t) {
+    if (this.state.saleInFlight) return t.saleInProgress();
     if (this.state.cart.length === 0) return t.emptyCart();
     if (this.state.phase !== 'confirming') {
       // yes with a cart but no read-back yet → read it back first
@@ -240,6 +251,10 @@ export class Dialogue {
   async confirmScreen() {
     const t = phrases(this.state.lang);
     if (this.state.muted) return;
+    if (this.state.saleInFlight) {
+      this.say(t.saleInProgress());
+      return;
+    }
     if (this.state.cart.length === 0 || this.state.phase !== 'confirming') {
       this.say(t.emptyCart());
       return;
@@ -264,16 +279,18 @@ export class Dialogue {
 
   async cancelScreen() {
     const t = phrases(this.state.lang);
-    resetCart(this.state);
-    this.say(t.canceled());
+    this.say(resetCart(this.state) ? t.canceled() : t.saleInProgress());
     this.publishState();
   }
 
   async #executeSale(t) {
+    if (this.state.saleInFlight) return t.saleInProgress();
     this.state.stageGate = 'open';
     let result;
     try {
-      result = await this.handlers.record_sale({ note: `stage-${this.stage}` });
+      const pending = this.handlers.record_sale({ note: `stage-${this.stage}` });
+      this.publishState();
+      result = await pending;
     } finally {
       this.state.stageGate = 'closed';
       this.state.spokenConfirmed = false;

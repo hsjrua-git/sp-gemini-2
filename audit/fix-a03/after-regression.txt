@@ -1,0 +1,16 @@
+[dialogue] confirmScreen failed: deliberate adapter failure
+✔ stage 2: overlapping screen/speech confirmations submit once (80.975526ms)
+✔ stage 3: overlapping screen/speech confirmations submit once (3.775376ms)
+✔ stage 4: overlapping screen/speech confirmations submit once (2.623282ms)
+✔ pending sale rejects cart edits, cancellation and direct tool re-entry (6.785913ms)
+✔ student lookup started before submission cannot attach to a later cart (7.791796ms)
+✔ failed submission retains cart and needs fresh confirmation before retry (10.76711ms)
+✔ a model cannot submit a nonempty, unconfirmed cart (1.134095ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 413.513468
