@@ -113,7 +113,7 @@ function ExportRunButton({
       '#ffffff';
     for (let index = 0; index < config.charts.length; index += 1) {
       const chart = config.charts[index];
-      const svg = chartNodes.current.get(index)?.querySelector('svg');
+      const svg = chartNodes.current.get(index)?.querySelector('svg[data-chart-root]');
       if (!svg) {
         throw new Error(t('exportRun.captureFailed', { index: index + 1 }));
       }

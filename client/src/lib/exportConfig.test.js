@@ -83,14 +83,14 @@ describe('normalizeExportConfig', () => {
       charts: [
         { kind: 'nope' },
         { kind: 'comparison', parameterIds: ['a', 'a', 2], comparisonShape: 'pie' },
-        { kind: 'heatmap', imageFormat: 'gif', seq: 4 },
+        { kind: 'heatmap', imageFormat: 'gif', periodKey: 'assignment:4' },
       ],
     });
     expect(config.charts).toEqual([
       {
         kind: 'comparison',
         parameterIds: ['a'],
-        seq: null,
+        periodKey: null,
         comparisonShape: 'bar',
         heatmapAxis: 'period',
         imageFormat: 'png',
@@ -98,7 +98,7 @@ describe('normalizeExportConfig', () => {
       {
         kind: 'heatmap',
         parameterIds: [],
-        seq: 4,
+        periodKey: 'assignment:4',
         comparisonShape: 'bar',
         heatmapAxis: 'period',
         imageFormat: 'png',

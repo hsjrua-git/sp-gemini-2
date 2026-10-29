@@ -390,3 +390,28 @@ accounting smokes pass. `COVERAGE.md` records 499 full reads and explicit limits
   3/3 pass**: failed-catalog New/Edit paths stay contained and successful editing
   preserves the selected permission (`fix-a29/after-component.*`). API I/O is
   mocked; no live outage induced. Shared client lint/build/**233 tests** pass.
+
+### A31–A35 — consistent export scope, plots, periods and labels
+
+- **A31:** PNG rasterization loads the serialized SVG through CSP-allowed data
+  URLs. Production-equivalent CSP is enforced by the separate preview config.
+- **A32:** chart renderers expose explicit SVG plot roots; export captures those
+  instead of the first legend SVG. Heatmap capture retains the same contract.
+- **A33:** page and API adapter agree on `scope.periods`; selected/all data-row
+  scope now survives the actual download.
+- **A34:** chart selectors, preview, renderers and prefill use `periodKey`;
+  distribution fallback takes the latest bucket's key. Prefill normalization is
+  unit-verified; direct browser route-state prefill was not separately exercised.
+- **A35:** trend/comparison use existing translated period labels; heatmap uses
+  readable assignment/sequence headings and captions with full title text.
+- Retained real-component suite **11/11 passes**, including selected/all export,
+  three plotted captures, heatmap/default distribution and both-language labels.
+  Shared client **233/233**, clean lint and production build pass.
+- Actual Persian production-build retries pass: selected period 1 downloads
+  **15 rows**, all-calendar **30**; Speed PNG **878×560** and SVG **439×280** contain
+  plotted line/points; default and explicit distributions have nonzero bars;
+  heatmap period 1→2→1 shows **64→44→64** matching CSVs. Headers are distinct and
+  readable, error console empty. Independent download-byte validator passes.
+- Evidence: `fix-a31-a35/`, including actual CSV/SVG/PNG bytes and `browser.md`.
+  Live comparison/radar downloads and spreadsheet-application interoperability
+  are not claimed; component coverage and file validation are stated separately.

@@ -34,7 +34,7 @@ function TrendChart({ cube, parameterIds }) {
       points: cohortAverages(cube, parameter.id),
     }));
     return cube.periods.map((period, index) => {
-      const row = { label: t('shared.periodKey', { label: period.label }) };
+      const row = { label: t('shared.periodLabel', { label: period.label }) };
       for (const item of series) row[item.parameter.id] = item.points[index].average;
       return row;
     });
@@ -50,7 +50,7 @@ function TrendChart({ cube, parameterIds }) {
   return (
     <div className="chart-box">
       <ResponsiveContainer width="100%" height={280}>
-        <LineChart data={data} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
+        <LineChart data-chart-root data={data} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
             dataKey="label"

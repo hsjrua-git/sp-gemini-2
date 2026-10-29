@@ -28,11 +28,14 @@ function HeatmapMatrix({ cube, axis = 'period', parameterId = null, periodKey = 
     return <p className="hint">{t('heatmap.empty')}</p>;
   }
 
-  const width = LEFT + columns.length * CELL_W;
+  const columnWidth = axis === 'period'
+    ? Math.max(CELL_W, ...columns.map(column => String(column.label).length * 7 + 16))
+    : CELL_W;
+  const width = LEFT + columns.length * columnWidth;
   const height = TOP + rows.length * CELL_H;
   const caption =
     axis === 'parameter'
-      ? t('heatmap.captionParameter', { number: model.periodKey ?? '—' })
+      ? t('heatmap.captionParameter', { number: model.periodLabel ?? '—' })
       : t('heatmap.captionPeriod', { name: model.parameterName ?? '—' });
 
   return (
@@ -40,6 +43,7 @@ function HeatmapMatrix({ cube, axis = 'period', parameterId = null, periodKey = 
       <p className="hint">{caption}</p>
       <div className="heatmap-wrap">
         <svg
+          data-chart-root
           className="heatmap-svg"
           width={width}
           height={height}
@@ -50,12 +54,13 @@ function HeatmapMatrix({ cube, axis = 'period', parameterId = null, periodKey = 
           {columns.map((column, columnIndex) => (
             <text
               key={`h-${column.key}`}
-              x={LEFT + columnIndex * CELL_W + CELL_W / 2}
+              x={LEFT + columnIndex * columnWidth + columnWidth / 2}
               y={TOP - 10}
               textAnchor="middle"
               style={{ fill: 'var(--ink-soft)', fontSize: '11px', fontWeight: 600 }}
             >
-              {truncate(String(column.label), 8)}
+              {axis === 'period' ? column.label : truncate(String(column.label), 8)}
+              <title>{column.label}</title>
             </text>
           ))}
           {rows.map((row, rowIndex) => (
@@ -78,14 +83,14 @@ function HeatmapMatrix({ cube, axis = 'period', parameterId = null, periodKey = 
                 ? `color-mix(in srgb, var(--brand) ${cell.percent}%, var(--surface-2))`
                 : 'var(--surface-2)';
               const textFill = filled && cell.percent > 55 ? 'var(--surface)' : 'var(--ink)';
-              const x = LEFT + columnIndex * CELL_W;
+              const x = LEFT + columnIndex * columnWidth;
               const y = TOP + rowIndex * CELL_H;
               return (
                 <g key={`${row.id}-${column.key}`}>
                   <rect
                     x={x + GAP / 2}
                     y={y + GAP / 2}
-                    width={CELL_W - GAP}
+                    width={columnWidth - GAP}
                     height={CELL_H - GAP}
                     rx="3"
                     style={{ fill, stroke: 'var(--surface)', strokeWidth: 1 }}
@@ -105,7 +110,7 @@ function HeatmapMatrix({ cube, axis = 'period', parameterId = null, periodKey = 
                   </rect>
                   {cell.value !== null && (
                     <text
-                      x={x + CELL_W / 2}
+                      x={x + columnWidth / 2}
                       y={y + CELL_H / 2}
                       textAnchor="middle"
                       dominantBaseline="middle"

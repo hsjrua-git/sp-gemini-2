@@ -45,14 +45,14 @@ export function buildHeatmap(cube, { axis = 'period', parameterId = null, period
         };
       })
     );
-    return { axis, periodKey: period?.key ?? null, rows, columns, cells };
+    return { axis, periodKey: period?.key ?? null, periodLabel: period?.label ?? null, rows, columns, cells };
   }
 
   // axis === 'period': one parameter is fixed; columns are the periods.
   const parameter = parameterById(cube, parameterId) ?? cube.parameters[0] ?? null;
   const columns = cube.periods.map((period) => ({
     key: period.key,
-    label: `P${period.key}`,
+    label: period.label,
     period,
   }));
   const cells = rows.map((row) =>

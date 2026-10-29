@@ -82,7 +82,7 @@ function cleanChart(raw) {
   return {
     kind: raw.kind,
     parameterIds: cleanStringIds(raw.parameterIds),
-    seq: Number.isInteger(raw.seq) && raw.seq >= 1 ? raw.seq : null,
+    periodKey: typeof raw.periodKey === 'string' && /:[1-9]\d*$/.test(raw.periodKey) ? raw.periodKey : null,
     comparisonShape: pickEnum(raw.comparisonShape, COMPARISON_SHAPES, 'bar'),
     heatmapAxis: pickEnum(raw.heatmapAxis, HEATMAP_AXES, 'period'),
     imageFormat: pickEnum(raw.imageFormat, IMAGE_FORMATS, 'png'),

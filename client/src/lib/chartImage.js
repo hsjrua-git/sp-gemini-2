@@ -77,7 +77,7 @@ export function svgToPng(svgEl, { scale = 2, background = null } = {}) {
   const svgString = svgToString(svgEl);
   const { width, height } = sizeOf(svgEl);
   return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' }));
+    const url = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgString)}`;
     const img = new Image();
     img.onload = () => {
       try {
@@ -90,15 +90,12 @@ export function svgToPng(svgEl, { scale = 2, background = null } = {}) {
           ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        URL.revokeObjectURL(url);
         canvas.toBlob((out) => (out ? resolve(out) : reject(new Error('PNG encoding failed'))), 'image/png');
       } catch (err) {
-        URL.revokeObjectURL(url);
         reject(err);
       }
     };
     img.onerror = () => {
-      URL.revokeObjectURL(url);
       reject(new Error('Could not rasterize the chart SVG'));
     };
     img.src = url;

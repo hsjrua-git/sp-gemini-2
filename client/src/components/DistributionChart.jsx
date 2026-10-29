@@ -28,7 +28,7 @@ function DistributionChart({ cube, parameterId, periodKey }) {
       null,
     [cube.parameters, parameterId]
   );
-  const period = periodKey ?? cube.lastPeriod;
+  const period = periodKey ?? cube.lastPeriod?.key ?? null;
 
   const bins = useMemo(() => {
     if (!parameter || period === null) return [];
@@ -49,7 +49,7 @@ function DistributionChart({ cube, parameterId, periodKey }) {
   return (
     <div className="chart-box">
       <ResponsiveContainer width="100%" height={280}>
-        <BarChart data={bins} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
+        <BarChart data-chart-root data={bins} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
             dataKey="label"

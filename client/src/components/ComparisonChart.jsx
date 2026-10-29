@@ -38,7 +38,7 @@ function ComparisonChart({ cube, parameterIds, shape = 'bar' }) {
       points: cohortAverages(cube, parameter.id),
     }));
     return cube.periods.map((period, index) => {
-      const row = { label: t('shared.periodKey', { label: period.label }) };
+      const row = { label: t('shared.periodLabel', { label: period.label }) };
       for (const item of series) row[item.parameter.id] = item.points[index].average;
       return row;
     });
@@ -55,7 +55,7 @@ function ComparisonChart({ cube, parameterIds, shape = 'bar' }) {
     return (
       <div className="chart-box">
         <ResponsiveContainer width="100%" height={320}>
-          <RadarChart data={data} margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
+          <RadarChart data-chart-root data={data} margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
             <PolarGrid />
             <PolarAngleAxis dataKey="label" tick={{ fill: 'currentColor', fontSize: 12 }} />
             <PolarRadiusAxis tick={{ fill: 'currentColor', fontSize: 11 }} />
@@ -80,7 +80,7 @@ function ComparisonChart({ cube, parameterIds, shape = 'bar' }) {
   return (
     <div className="chart-box">
       <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={data} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
+        <BarChart data-chart-root data={data} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
             dataKey="label"

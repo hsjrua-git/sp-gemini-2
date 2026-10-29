@@ -19,7 +19,7 @@ function ChartView({ cube, chart }) {
         <DistributionChart
           cube={cube}
           parameterId={chart.parameterIds[0] ?? null}
-          periodNumber={chart.periodNumber}
+          periodKey={chart.periodKey}
         />
       );
     case 'comparison':
@@ -36,7 +36,7 @@ function ChartView({ cube, chart }) {
           cube={cube}
           axis={chart.heatmapAxis}
           parameterId={chart.parameterIds[0] ?? null}
-          periodNumber={chart.periodNumber}
+          periodKey={chart.periodKey}
         />
       );
     default:

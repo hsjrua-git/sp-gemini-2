@@ -16,6 +16,11 @@ export default async (env) => {
     },
     preview: {
       host: '127.0.0.1', port: 5300, strictPort: true,
+      // Exact production policy from the isolated Express server. A preview
+      // without it cannot establish that PNG export works under shipped CSP.
+      headers: {
+        'Content-Security-Policy': "default-src 'self';script-src 'self';style-src 'self' 'unsafe-inline';img-src 'self' data:;font-src 'self';connect-src 'self';object-src 'none';base-uri 'self';form-action 'self';frame-ancestors 'none'",
+      },
       proxy: { '/api': { target: 'http://127.0.0.1:3300', changeOrigin: false } },
     },
   };

@@ -1,0 +1,11 @@
+npm notice run client@0.0.0 test
+npm notice run vitest run --config ../audit/checks/export-ui.vitest.config.mjs --maxWorkers=1
+
+ RUN  v5.0.3 /home/hsjrua/Documents/sp-gemini-1/client
+
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  01:32:08
+   Duration  8.80s (tests 45%, import 24%, environment 21%, setup 6%, worker 2%, transform 1%)
+
