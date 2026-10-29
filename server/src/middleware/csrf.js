@@ -40,11 +40,13 @@ function parseCookies(header) {
 }
 
 function sameToken(a, b) {
-  if (typeof a !== 'string' || typeof b !== 'string' || a.length !== b.length) {
+  if (typeof a !== 'string' || typeof b !== 'string') {
     return false;
   }
   // Constant-time compare so a wrong token can't be recovered by timing.
-  return timingSafeEqual(Buffer.from(a), Buffer.from(b));
+  const left = Buffer.from(a);
+  const right = Buffer.from(b);
+  return left.length === right.length && timingSafeEqual(left, right);
 }
 
 function hostOf(value) {

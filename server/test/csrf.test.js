@@ -192,3 +192,16 @@ test('issue and verifyToken tolerate malformed percent-encoded cookies without t
     true
   );
 });
+
+test('verifyToken refuses mismatched Unicode tokens without a byte-length exception', () => {
+  for (const [cookieToken, csrfHeader] of [['é', 'a'], ['a', 'é'], ['🙂', 'ab'], ['é', 'è']]) {
+    const res = makeRes();
+    const req = makeReq({ method: 'PUT', cookie: `csrf=${encodeURIComponent(cookieToken)}`, csrfHeader });
+    assert.equal(runMiddleware(verifyToken, req, res), false);
+    assert.equal(res.statusCode, 403);
+    assert.equal(res.body.code, 'CSRF');
+  }
+  assert.equal(runMiddleware(verifyToken, makeReq({
+    method: 'POST', cookie: 'csrf=%C3%A9', csrfHeader: 'é',
+  }), makeRes()), true);
+});

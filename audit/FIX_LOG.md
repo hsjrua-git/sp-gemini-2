@@ -151,3 +151,14 @@ accounting smokes pass. `COVERAGE.md` records 499 full reads and explicit limits
   verified. Evidence: `fix-a22/`, including the exact uploaded CSV and browser log.
 - Production build and full client **230/230**, lint, core **56/56**, PGlite all
   pass at the shared HIGH checkpoint. Partial-import semantics remain A23/ASK.
+
+### A04 — compare CSRF token byte lengths
+
+- Encodes both tokens before the length check and timing-safe comparison.
+  Mismatched ASCII/Unicode input now returns the established 403/CSRF response.
+- Retained middleware regression covers both mismatch directions, surrogate-pair
+  input, same-byte-length mismatch and matching Unicode control. Baseline
+  **11 pass / one exception**; patched **12/12 pass**. Original reproduction
+  returns **403**, no exception. Full server suite **145 pass / six skips**.
+- Evidence: `fix-a04/`. Shared lint/build/client/core/PGlite checkpoint remains
+  valid for the unchanged packages; this narrow change is middleware-only.
