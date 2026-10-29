@@ -137,3 +137,17 @@ accounting smokes pass. `COVERAGE.md` records 499 full reads and explicit limits
 - Evidence: `fix-a21/`, `fix-a22/browser-cleanup-verified.*`. Client lint and full
   **230-test** suite pass (`stage2-high-checkpoint/`); production build passes.
   Full core **56/56** and PGlite **35 migrations plus sanity checks** also pass.
+
+### A22 — render scalar score-import previews
+
+- Preview cells select qualityValue/quantityValue from the server's nested
+  snapshots, preserving zero, blank fallback and redacted previous values.
+- Seven permanent component cases use the real server preview builder for new,
+  changed, unchanged, blind, locked and blank values. Baseline **seven failures**;
+  patched **7/7 pass**, including permitted/disabled confirmation controls.
+- Real file upload/check/confirm now passes: preview **6→0 / 1→5** and **— / 7**,
+  one new/one changed score; dryRun **200**, confirmation **200 / changed:2**.
+  Independent readback matches. No console error; fixture cleanup independently
+  verified. Evidence: `fix-a22/`, including the exact uploaded CSV and browser log.
+- Production build and full client **230/230**, lint, core **56/56**, PGlite all
+  pass at the shared HIGH checkpoint. Partial-import semantics remain A23/ASK.

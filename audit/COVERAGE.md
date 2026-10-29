@@ -53,3 +53,15 @@ data or third-party source. Dependency advisory/reachability findings are in
 All **65 existing test files** have individual ratings in `TEST_QUALITY.md`.
 The audit's known failing regressions are separate from the passing project
 suites; passing totals do not supersede any finding.
+
+## Stage 2 workflow updates
+
+The preceding table records Stage 1. A21/A22 retries at the separate production
+preview `127.0.0.1:5300` now pass: individual sighted save, group-member blind
+save, individual blind save with existing values hidden, and actual CSV upload →
+preview → confirmation. Independent Administrator reads confirm the submitted
+values; fixture cleanup is independently verified. See `fix-a21/browser.md` and
+`fix-a22/browser.md`. The current observed desktop viewport is **1233×887**;
+this supersedes “desktop unavailable” for these workflows only, not a desktop
+route sweep. Native locked override and pointer hit-testing retain their
+documented harness limits. Baseline source hashes remain historical after fixes.

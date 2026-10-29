@@ -1,0 +1,13 @@
+{
+  "command": [
+    "npm",
+    "test",
+    "--",
+    "src/pages/ImportScoresPage.test.jsx"
+  ],
+  "directory": "client",
+  "started": "2026-10-29T20:59:45.626Z",
+  "ended": "2026-10-29T21:00:02.294Z",
+  "code": 1,
+  "signal": null
+}

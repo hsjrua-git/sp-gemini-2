@@ -66,6 +66,9 @@ function CellView({ cell, info, canOverride }) {
     );
   }
   if (!info) return <div className="muted">{cell.text}</div>;
+  const valueKey = cell.dimension === 'quantity' ? 'quantityValue' : 'qualityValue';
+  const from = info.from?.[valueKey] ?? '—';
+  const to = info.to?.[valueKey] ?? '—';
 
   if (info.status === 'problem') {
     return (
@@ -76,12 +79,12 @@ function CellView({ cell, info, canOverride }) {
     );
   }
   if (info.status === 'unchanged') {
-    return <div className="muted">{t('imports.scores.cellSame', { value: info.to })}</div>;
+    return <div className="muted">{t('imports.scores.cellSame', { value: to })}</div>;
   }
   if (info.status === 'new') {
     return (
       <div>
-        <strong>{info.to}</strong>{' '}
+        <strong>{to}</strong>{' '}
         <span className="chg">{t('imports.scores.cellNew')}</span>
       </div>
     );
@@ -89,7 +92,7 @@ function CellView({ cell, info, canOverride }) {
   if (info.status === 'change') {
     return (
       <div>
-        {info.from} → <strong>{info.to}</strong>
+        {from} → <strong>{to}</strong>
       </div>
     );
   }
@@ -98,7 +101,7 @@ function CellView({ cell, info, canOverride }) {
   if (info.status === 'save') {
     return (
       <div>
-        <strong>{info.to}</strong>{' '}
+        <strong>{to}</strong>{' '}
         <span className="chg">{t('imports.scores.cellSave')}</span>
       </div>
     );
@@ -108,7 +111,7 @@ function CellView({ cell, info, canOverride }) {
       <span className="lock" aria-hidden="true">
         <LockIcon />
       </span>{' '}
-      {info.from ?? '—'} → <strong>{info.to}</strong>
+      {from} → <strong>{to}</strong>
       <div className="small">
         {canOverride
           ? t('imports.scores.cellLockedReason')

@@ -1,0 +1,11 @@
+{
+  "command": [
+    "node",
+    "audit/checks/verify-browser-fixture-cleanup.mjs"
+  ],
+  "directory": ".",
+  "started": "2026-10-29T21:10:53.109Z",
+  "ended": "2026-10-29T21:10:53.627Z",
+  "code": 0,
+  "signal": null
+}

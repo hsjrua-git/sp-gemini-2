@@ -1,0 +1,11 @@
+npm notice run client@0.0.0 test
+npm notice run vitest run src/pages/ImportScoresPage.test.jsx
+
+ RUN  v5.0.1 /home/hsjrua/Documents/sp-gemini-1/client
+
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  00:30:34
+   Duration  8.19s (tests 49%, environment 31%, setup 8%, import 8%, worker 3%, transform 1%)
+

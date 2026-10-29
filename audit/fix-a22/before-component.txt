@@ -1,0 +1,455 @@
+npm notice run client@0.0.0 test
+npm notice run vitest run src/pages/ImportScoresPage.test.jsx
+
+ RUN  v5.0.1 /home/hsjrua/Documents/sp-gemini-1/client
+
+stderr | src/pages/ImportScoresPage.test.jsx > renders scalar dimensions for new (blind=undefined, values=0,66)
+Error: Objects are not valid as a React child (found: object with keys {selected, qualityValue, quantityValue, qualityComment, quantityComment}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectTypeImpl (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:6461:13)
+    at throwOnInvalidObjectType (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:6475:11)
+    at reconcileChildFibersImpl (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:7416:11)
+    at /home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:7456:33
+    at reconcileChildren (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:10096:13)
+    at beginWork (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:12468:13)
+    at runWithFiberInDEV (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+    at performUnitOfWork (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:19176:22)
+    at workLoopSync (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:19004:41)
+    at renderRootSync (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:18985:11) {
+  [stack]: [Getter/Setter],
+  [message]: 'Objects are not valid as a React child (found: object with keys {selected, qualityValue, quantityValue, qualityComment, quantityComment}). If you meant to render a collection of children, use an array instead.'
+}
+
+The above error occurred in the <strong> component.
+
+React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.
+
+Unhandled error in the interface: Error: Objects are not valid as a React child (found: object with keys {selected, qualityValue, quantityValue, qualityComment, quantityComment}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectTypeImpl (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:6461:13)
+    at throwOnInvalidObjectType (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:6475:11)
+    at reconcileChildFibersImpl (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:7416:11)
+    at /home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:7456:33
+    at reconcileChildren (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:10096:13)
+    at beginWork (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:12468:13)
+    at runWithFiberInDEV (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+    at performUnitOfWork (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:19176:22)
+    at workLoopSync (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:19004:41)
+    at renderRootSync (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:18985:11) {
+  componentStack: '\n' +
+    '    at strong (<anonymous>)\n' +
+    '    at div (<anonymous>)\n' +
+    '    at CellView (/home/hsjrua/Documents/sp-gemini-1/client/src/pages/ImportScoresPage.jsx:51:21)\n' +
+    '    at td (<anonymous>)\n' +
+    '    at tr (<anonymous>)\n' +
+    '    at tbody (<anonymous>)\n' +
+    '    at table (<anonymous>)\n' +
+    '    at div (<anonymous>)\n' +
+    '    at section (<anonymous>)\n' +
+    '    at main (<anonymous>)\n' +
+    '    at ImportScoresPage (/home/hsjrua/Documents/sp-gemini-1/client/src/pages/ImportScoresPage.jsx:131:17)\n' +
+    '    at ErrorBoundary (/home/hsjrua/Documents/sp-gemini-1/client/src/components/ErrorBoundary.jsx:5:1)\n' +
+    '    at Router (file:///home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-router/dist/development/lib/components.js:549:29)\n' +
+    '    at MemoryRouter (file:///home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-router/dist/development/lib/components.js:373:25)\n' +
+    '    at QueryClientProvider (file:///home/hsjrua/Documents/sp-gemini-1/client/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:42:32)'
+}
+
+stderr | src/pages/ImportScoresPage.test.jsx > renders scalar dimensions for change (blind=undefined, values=0,5)
+Error: Objects are not valid as a React child (found: object with keys {selected, qualityValue, quantityValue, qualityComment, quantityComment}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectTypeImpl (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:6461:13)
+    at throwOnInvalidObjectType (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:6475:11)
+    at createChild (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:6764:11)
+    at reconcileChildrenArray (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:7033:25)
+    at reconcileChildFibersImpl (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:7357:20)
+    at /home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:7456:33
+    at reconcileChildren (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:10096:13)
+    at beginWork (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:12468:13)
+    at runWithFiberInDEV (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+    at performUnitOfWork (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:19176:22) {
+  [stack]: [Getter/Setter],
+  [message]: 'Objects are not valid as a React child (found: object with keys {selected, qualityValue, quantityValue, qualityComment, quantityComment}). If you meant to render a collection of children, use an array instead.'
+}
+
+The above error occurred in the <div> component.
+
+React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.
+
+Unhandled error in the interface: Error: Objects are not valid as a React child (found: object with keys {selected, qualityValue, quantityValue, qualityComment, quantityComment}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectTypeImpl (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:6461:13)
+    at throwOnInvalidObjectType (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:6475:11)
+    at createChild (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:6764:11)
+    at reconcileChildrenArray (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:7033:25)
+    at reconcileChildFibersImpl (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:7357:20)
+    at /home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:7456:33
+    at reconcileChildren (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:10096:13)
+    at beginWork (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:12468:13)
+    at runWithFiberInDEV (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+    at performUnitOfWork (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:19176:22) {
+  componentStack: '\n' +
+    '    at div (<anonymous>)\n' +
+    '    at CellView (/home/hsjrua/Documents/sp-gemini-1/client/src/pages/ImportScoresPage.jsx:51:21)\n' +
+    '    at td (<anonymous>)\n' +
+    '    at tr (<anonymous>)\n' +
+    '    at tbody (<anonymous>)\n' +
+    '    at table (<anonymous>)\n' +
+    '    at div (<anonymous>)\n' +
+    '    at section (<anonymous>)\n' +
+    '    at main (<anonymous>)\n' +
+    '    at ImportScoresPage (/home/hsjrua/Documents/sp-gemini-1/client/src/pages/ImportScoresPage.jsx:131:17)\n' +
+    '    at ErrorBoundary (/home/hsjrua/Documents/sp-gemini-1/client/src/components/ErrorBoundary.jsx:5:1)\n' +
+    '    at Router (file:///home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-router/dist/development/lib/components.js:549:29)\n' +
+    '    at MemoryRouter (file:///home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-router/dist/development/lib/components.js:373:25)\n' +
+    '    at QueryClientProvider (file:///home/hsjrua/Documents/sp-gemini-1/client/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:42:32)'
+}
+
+stderr | src/pages/ImportScoresPage.test.jsx > renders scalar dimensions for save (blind=true, values=0,5)
+Error: Objects are not valid as a React child (found: object with keys {selected, qualityValue, quantityValue, qualityComment, quantityComment}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectTypeImpl (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:6461:13)
+    at throwOnInvalidObjectType (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:6475:11)
+    at reconcileChildFibersImpl (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:7416:11)
+    at /home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:7456:33
+    at reconcileChildren (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:10096:13)
+    at beginWork (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:12468:13)
+    at runWithFiberInDEV (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+    at performUnitOfWork (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:19176:22)
+    at workLoopSync (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:19004:41)
+    at renderRootSync (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:18985:11) {
+  [stack]: [Getter/Setter],
+  [message]: 'Objects are not valid as a React child (found: object with keys {selected, qualityValue, quantityValue, qualityComment, quantityComment}). If you meant to render a collection of children, use an array instead.'
+}
+
+The above error occurred in the <strong> component.
+
+React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.
+
+Unhandled error in the interface: Error: Objects are not valid as a React child (found: object with keys {selected, qualityValue, quantityValue, qualityComment, quantityComment}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectTypeImpl (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:6461:13)
+    at throwOnInvalidObjectType (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:6475:11)
+    at reconcileChildFibersImpl (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:7416:11)
+    at /home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:7456:33
+    at reconcileChildren (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:10096:13)
+    at beginWork (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:12468:13)
+    at runWithFiberInDEV (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+    at performUnitOfWork (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:19176:22)
+    at workLoopSync (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:19004:41)
+    at renderRootSync (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:18985:11) {
+  componentStack: '\n' +
+    '    at strong (<anonymous>)\n' +
+    '    at div (<anonymous>)\n' +
+    '    at CellView (/home/hsjrua/Documents/sp-gemini-1/client/src/pages/ImportScoresPage.jsx:51:21)\n' +
+    '    at td (<anonymous>)\n' +
+    '    at tr (<anonymous>)\n' +
+    '    at tbody (<anonymous>)\n' +
+    '    at table (<anonymous>)\n' +
+    '    at div (<anonymous>)\n' +
+    '    at section (<anonymous>)\n' +
+    '    at main (<anonymous>)\n' +
+    '    at ImportScoresPage (/home/hsjrua/Documents/sp-gemini-1/client/src/pages/ImportScoresPage.jsx:131:17)\n' +
+    '    at ErrorBoundary (/home/hsjrua/Documents/sp-gemini-1/client/src/components/ErrorBoundary.jsx:5:1)\n' +
+    '    at Router (file:///home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-router/dist/development/lib/components.js:549:29)\n' +
+    '    at MemoryRouter (file:///home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-router/dist/development/lib/components.js:373:25)\n' +
+    '    at QueryClientProvider (file:///home/hsjrua/Documents/sp-gemini-1/client/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:42:32)'
+}
+
+stderr | src/pages/ImportScoresPage.test.jsx > renders scalar dimensions for locked (blind=undefined, values=0,5)
+Error: Objects are not valid as a React child (found: object with keys {selected, qualityValue, quantityValue, qualityComment, quantityComment}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectTypeImpl (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:6461:13)
+    at throwOnInvalidObjectType (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:6475:11)
+    at createChild (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:6764:11)
+    at reconcileChildrenArray (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:7033:25)
+    at reconcileChildFibersImpl (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:7357:20)
+    at /home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:7456:33
+    at reconcileChildren (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:10096:13)
+    at beginWork (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:12468:13)
+    at runWithFiberInDEV (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+    at performUnitOfWork (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:19176:22) {
+  [stack]: [Getter/Setter],
+  [message]: 'Objects are not valid as a React child (found: object with keys {selected, qualityValue, quantityValue, qualityComment, quantityComment}). If you meant to render a collection of children, use an array instead.'
+}
+
+The above error occurred in the <div> component.
+
+React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.
+
+Unhandled error in the interface: Error: Objects are not valid as a React child (found: object with keys {selected, qualityValue, quantityValue, qualityComment, quantityComment}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectTypeImpl (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:6461:13)
+    at throwOnInvalidObjectType (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:6475:11)
+    at createChild (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:6764:11)
+    at reconcileChildrenArray (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:7033:25)
+    at reconcileChildFibersImpl (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:7357:20)
+    at /home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:7456:33
+    at reconcileChildren (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:10096:13)
+    at beginWork (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:12468:13)
+    at runWithFiberInDEV (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+    at performUnitOfWork (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:19176:22) {
+  componentStack: '\n' +
+    '    at div (<anonymous>)\n' +
+    '    at CellView (/home/hsjrua/Documents/sp-gemini-1/client/src/pages/ImportScoresPage.jsx:51:21)\n' +
+    '    at td (<anonymous>)\n' +
+    '    at tr (<anonymous>)\n' +
+    '    at tbody (<anonymous>)\n' +
+    '    at table (<anonymous>)\n' +
+    '    at div (<anonymous>)\n' +
+    '    at section (<anonymous>)\n' +
+    '    at main (<anonymous>)\n' +
+    '    at ImportScoresPage (/home/hsjrua/Documents/sp-gemini-1/client/src/pages/ImportScoresPage.jsx:131:17)\n' +
+    '    at ErrorBoundary (/home/hsjrua/Documents/sp-gemini-1/client/src/components/ErrorBoundary.jsx:5:1)\n' +
+    '    at Router (file:///home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-router/dist/development/lib/components.js:549:29)\n' +
+    '    at MemoryRouter (file:///home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-router/dist/development/lib/components.js:373:25)\n' +
+    '    at QueryClientProvider (file:///home/hsjrua/Documents/sp-gemini-1/client/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:42:32)'
+}
+
+stderr | src/pages/ImportScoresPage.test.jsx > renders scalar dimensions for locked (blind=true, values=0,5)
+Error: Objects are not valid as a React child (found: object with keys {selected, qualityValue, quantityValue, qualityComment, quantityComment}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectTypeImpl (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:6461:13)
+    at throwOnInvalidObjectType (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:6475:11)
+    at reconcileChildFibersImpl (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:7416:11)
+    at /home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:7456:33
+    at reconcileChildren (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:10096:13)
+    at beginWork (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:12468:13)
+    at runWithFiberInDEV (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+    at performUnitOfWork (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:19176:22)
+    at workLoopSync (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:19004:41)
+    at renderRootSync (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:18985:11) {
+  [stack]: [Getter/Setter],
+  [message]: 'Objects are not valid as a React child (found: object with keys {selected, qualityValue, quantityValue, qualityComment, quantityComment}). If you meant to render a collection of children, use an array instead.'
+}
+
+The above error occurred in the <strong> component.
+
+React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.
+
+Unhandled error in the interface: Error: Objects are not valid as a React child (found: object with keys {selected, qualityValue, quantityValue, qualityComment, quantityComment}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectTypeImpl (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:6461:13)
+    at throwOnInvalidObjectType (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:6475:11)
+    at reconcileChildFibersImpl (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:7416:11)
+    at /home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:7456:33
+    at reconcileChildren (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:10096:13)
+    at beginWork (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:12468:13)
+    at runWithFiberInDEV (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+    at performUnitOfWork (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:19176:22)
+    at workLoopSync (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:19004:41)
+    at renderRootSync (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:18985:11) {
+  componentStack: '\n' +
+    '    at strong (<anonymous>)\n' +
+    '    at div (<anonymous>)\n' +
+    '    at CellView (/home/hsjrua/Documents/sp-gemini-1/client/src/pages/ImportScoresPage.jsx:51:21)\n' +
+    '    at td (<anonymous>)\n' +
+    '    at tr (<anonymous>)\n' +
+    '    at tbody (<anonymous>)\n' +
+    '    at table (<anonymous>)\n' +
+    '    at div (<anonymous>)\n' +
+    '    at section (<anonymous>)\n' +
+    '    at main (<anonymous>)\n' +
+    '    at ImportScoresPage (/home/hsjrua/Documents/sp-gemini-1/client/src/pages/ImportScoresPage.jsx:131:17)\n' +
+    '    at ErrorBoundary (/home/hsjrua/Documents/sp-gemini-1/client/src/components/ErrorBoundary.jsx:5:1)\n' +
+    '    at Router (file:///home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-router/dist/development/lib/components.js:549:29)\n' +
+    '    at MemoryRouter (file:///home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-router/dist/development/lib/components.js:373:25)\n' +
+    '    at QueryClientProvider (file:///home/hsjrua/Documents/sp-gemini-1/client/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:42:32)'
+}
+
+stderr | src/pages/ImportScoresPage.test.jsx > renders scalar dimensions for new (blind=undefined, values=,5)
+Error: Objects are not valid as a React child (found: object with keys {selected, qualityValue, quantityValue, qualityComment, quantityComment}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectTypeImpl (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:6461:13)
+    at throwOnInvalidObjectType (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:6475:11)
+    at reconcileChildFibersImpl (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:7416:11)
+    at /home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:7456:33
+    at reconcileChildren (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:10096:13)
+    at beginWork (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:12468:13)
+    at runWithFiberInDEV (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+    at performUnitOfWork (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:19176:22)
+    at workLoopSync (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:19004:41)
+    at renderRootSync (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:18985:11) {
+  [stack]: [Getter/Setter],
+  [message]: 'Objects are not valid as a React child (found: object with keys {selected, qualityValue, quantityValue, qualityComment, quantityComment}). If you meant to render a collection of children, use an array instead.'
+}
+
+The above error occurred in the <strong> component.
+
+React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.
+
+Unhandled error in the interface: Error: Objects are not valid as a React child (found: object with keys {selected, qualityValue, quantityValue, qualityComment, quantityComment}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectTypeImpl (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:6461:13)
+    at throwOnInvalidObjectType (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:6475:11)
+    at reconcileChildFibersImpl (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:7416:11)
+    at /home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:7456:33
+    at reconcileChildren (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:10096:13)
+    at beginWork (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:12468:13)
+    at runWithFiberInDEV (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+    at performUnitOfWork (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:19176:22)
+    at workLoopSync (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:19004:41)
+    at renderRootSync (/home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-dom/cjs/react-dom-client.development.js:18985:11) {
+  componentStack: '\n' +
+    '    at strong (<anonymous>)\n' +
+    '    at div (<anonymous>)\n' +
+    '    at CellView (/home/hsjrua/Documents/sp-gemini-1/client/src/pages/ImportScoresPage.jsx:51:21)\n' +
+    '    at td (<anonymous>)\n' +
+    '    at tr (<anonymous>)\n' +
+    '    at tbody (<anonymous>)\n' +
+    '    at table (<anonymous>)\n' +
+    '    at div (<anonymous>)\n' +
+    '    at section (<anonymous>)\n' +
+    '    at main (<anonymous>)\n' +
+    '    at ImportScoresPage (/home/hsjrua/Documents/sp-gemini-1/client/src/pages/ImportScoresPage.jsx:131:17)\n' +
+    '    at ErrorBoundary (/home/hsjrua/Documents/sp-gemini-1/client/src/components/ErrorBoundary.jsx:5:1)\n' +
+    '    at Router (file:///home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-router/dist/development/lib/components.js:549:29)\n' +
+    '    at MemoryRouter (file:///home/hsjrua/Documents/sp-gemini-1/client/node_modules/react-router/dist/development/lib/components.js:373:25)\n' +
+    '    at QueryClientProvider (file:///home/hsjrua/Documents/sp-gemini-1/client/node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:42:32)'
+}
+
+ ❯ src/pages/ImportScoresPage.test.jsx (7 tests | 7 failed) 8491ms
+   × renders scalar dimensions for new (blind=undefined, values=0,66) 1950ms
+   × renders scalar dimensions for change (blind=undefined, values=0,5) 1262ms
+   × renders scalar dimensions for unchanged (blind=undefined, values=7,6) 408ms
+   × renders scalar dimensions for save (blind=true, values=0,5) 1248ms
+   × renders scalar dimensions for locked (blind=undefined, values=0,5) 1229ms
+   × renders scalar dimensions for locked (blind=true, values=0,5) 1200ms
+   × renders scalar dimensions for new (blind=undefined, values=,5) 1176ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/ImportScoresPage.test.jsx > renders scalar dimensions for new (blind=undefined, values=0,66)
+ FAIL  src/pages/ImportScoresPage.test.jsx > renders scalar dimensions for change (blind=undefined, values=0,5)
+ FAIL  src/pages/ImportScoresPage.test.jsx > renders scalar dimensions for save (blind=true, values=0,5)
+ FAIL  src/pages/ImportScoresPage.test.jsx > renders scalar dimensions for locked (blind=undefined, values=0,5)
+ FAIL  src/pages/ImportScoresPage.test.jsx > renders scalar dimensions for locked (blind=true, values=0,5)
+ FAIL  src/pages/ImportScoresPage.test.jsx > renders scalar dimensions for new (blind=undefined, values=,5)
+TestingLibraryElementError: Unable to find role="button" and name `/^Import \d/`
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<main>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"empty-state"[39m
+      [36m>[39m
+        [36m<span[39m
+          [33maria-hidden[39m=[32m"true"[39m
+          [33mclass[39m=[32m"empty-state-mark danger"[39m
+        [36m>[39m
+          [36m<svg[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-width[39m=[32m"1.7"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M12 4 3 20h18L12 4Z"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M12 10v4"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+            [36m/>[39m
+            [36m<circle[39m
+              [33mcx[39m=[32m"12"[39m
+              [33mcy[39m=[32m"17"[39m
+              [33mfill[39m=[32m"currentColor"[39m
+              [33mr[39m=[32m"0.6"[39m
+              [33mstroke[39m=[32m"none"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+        [36m</span>[39m
+        [36m<h1>[39m
+          [0mSomething went wrong[0m
+        [36m</h1>[39m
+        [36m<p>[39m
+          [0mThis screen hit an unexpected error. Reloading the page usually fixes it.[0m
+        [36m</p>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"primary"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0mReload[0m
+        [36m</button>[39m
+      [36m</div>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<main>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"empty-state"[39m
+      [36m>[39m
+        [36m<span[39m
+          [33maria-hidden[39m=[32m"true"[39m
+          [33mclass[39m=[32m"empty-state-mark danger"[39m
+        [36m>[39m
+          [36m<svg[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-width[39m=[32m"1.7"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M12 4 3 20h18L12 4Z"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M12 10v4"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+            [36m/>[39m
+            [36m<circle[39m
+              [33mcx[39m=[32m"12"[39m
+              [33mcy[39m=[32m"17"[39m
+              [33mfill[39m=[32m"currentColor"[39m
+              [33mr[39m=[32m"0.6"[39m
+              [33mstroke[39m=[32m"none"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+        [36m</span>[39m
+        [36m<h1>[39m
+          [0mSomething went wrong[0m
+        [36m</h1>[39m
+        [36m<p>[39m
+          [0mThis screen hit an unexpected error. Reloading the page usually fixes it.[0m
+        [36m</p>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"primary"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0mReload[0m
+        [36m</button>[39m
+      [36m</div>[39m
+    [36m</main>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/ImportScoresPage.test.jsx:68:37
+     66|   await waitFor(() => expect(check).toBeEnabled());
+     67|   fireEvent.click(check);
+     68|   const importButton = await screen.findByRole('button', { name: /^Imp…
+       |                                     ^
+     69|   expect(screen.queryByText('Something went wrong')).not.toBeInTheDocu…
+     70|   const row = screen.getByRole('row', { name: /Test Student/ });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  src/pages/ImportScoresPage.test.jsx > renders scalar dimensions for unchanged (blind=undefined, values=7,6)
+Error: [2mexpect([22m[31melement[39m[2m).toHaveTextContent()[22m
+
+Expected element to have text content:
+[32m  7[39m
+Received:
+[31m  [object Object] (same)[39m
+ ❯ src/pages/ImportScoresPage.test.jsx:73:67
+     71|   const cells = within(row).getAllByRole('cell').slice(2);
+     72|   expect(cells).toHaveLength(2);
+     73|   scenario.expected.forEach((text, index) => expect(cells[index]).toHa…
+       |                                                                   ^
+     74|   expect(row.textContent).not.toContain('[object Object]');
+     75|   if (scenario.blind) {
+ ❯ src/pages/ImportScoresPage.test.jsx:73:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  7 failed (7)
+   Start at  00:29:49
+   Duration  13.03s (tests 68%, environment 20%, import 5%, setup 5%, worker 2%, transform 1%)
+
