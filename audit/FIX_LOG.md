@@ -367,3 +367,17 @@ accounting smokes pass. `COVERAGE.md` records 499 full reads and explicit limits
   additional executed cache cases. A26's real journal return confirms voided
   status but exceeds the timing window. Shared client lint/build/**233 tests**
   and final isolated integration/ledger checks pass.
+
+### A28 — installer superuser path honors the selected endpoint
+
+- Both privileged probe and bootstrap pass configured host/port plus explicit
+  postgres role/database. Noninteractive sudo probe falls back to the existing
+  password-capable network path when unavailable.
+- Byte-identical installer/fake-dispatch controls **6/6 pass**: default local,
+  nondefault local and remote host, each with sudo available/unavailable.
+  Exactly one bootstrap and successful follow-up connection target the configured
+  endpoint (`fix-a28/after-dispatch.*`, matching source hash retained).
+- Child exit 1 intentionally stops at the fake server-version response after
+  successful database setup. No real sudo, cluster bootstrap, authentication or
+  later installation stages were executed by this regression. No grants/schema
+  policy changes; A24 remains ASK.

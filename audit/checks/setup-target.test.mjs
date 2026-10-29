@@ -7,7 +7,8 @@ import { spawnSync } from 'node:child_process';
 
 const root = path.resolve(import.meta.dirname, '../..');
 for (const sudo of ['available', 'unavailable']) {
-  test(`installer respects configured PostgreSQL endpoint with sudo ${sudo}`, { skip: process.platform !== 'linux' }, async () => {
+  for (const target of ['127.0.0.1:55439', '127.0.0.1:5432', 'audit-db.invalid:55440']) {
+  test(`installer respects ${target} with sudo ${sudo}`, { skip: process.platform !== 'linux' }, async () => {
     const folder = await fs.mkdtemp(path.join(root, 'audit/.tmp/setup-target-'));
     const bin = path.join(folder, 'bin');
     await fs.mkdir(bin);
@@ -19,7 +20,7 @@ for (const sudo of ['available', 'unavailable']) {
     assert.deepEqual(await fs.readFile(copy), source);
     // Synthetic configuration, no real credential or .env is read by the child.
     await fs.writeFile(path.join(folder, 'server/.env'),
-      'DATABASE_URL=postgres://audit_fake@127.0.0.1:55439/audit_fake\nPORT=3300\nHOST=127.0.0.1\n', { mode: 0o600 });
+      `DATABASE_URL=postgres://audit_fake@${target}/audit_fake\nPORT=3300\nHOST=127.0.0.1\n`, { mode: 0o600 });
     const dispatcher = await fs.readFile(path.join(root, 'audit/checks/setup-target-dispatcher.mjs'), 'utf8');
     for (const name of ['sudo', 'psql', 'npm']) {
       await fs.writeFile(path.join(bin, name), `#!${process.execPath}\n${dispatcher}`, { mode: 0o700 });
@@ -41,8 +42,10 @@ for (const sudo of ['available', 'unavailable']) {
     // On failure setup makes a third connection solely to print diagnostics.
     assert.ok(connections.length >= 2, 'initial and post-bootstrap connection attempts both executed');
     assert.equal(connections[0].reachable, false);
-    assert.ok(connections.every(event => event.target === '127.0.0.1:55439'));
-    assert.equal(bootstraps[0].target, '127.0.0.1:55439', 'bootstrap must use the configured endpoint');
+    assert.ok(connections.every(event => event.target === target));
+    assert.equal(bootstraps[0].target, target, 'bootstrap must use the configured endpoint');
+    assert.ok(events.filter(event => event.operation === 'privileged probe').every(event => event.target === target));
     assert.equal(connections[1].reachable, true, 'application connection succeeds at configured endpoint');
   });
+  }
 }

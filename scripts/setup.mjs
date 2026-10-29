@@ -273,12 +273,13 @@ function requireSupportedPostgres(c) {
 }
 
 // Run SQL as a superuser. SQL is fed on stdin (never argv), so no secret ever
-// appears in the process list. On Linux we try the local `postgres` OS account
-// via sudo (peer auth, usually no DB password). Otherwise we connect over TCP
-// as the `postgres` role; psql prompts for that password (masked by psql).
+// appears in the process list. Both paths explicitly target the selected host
+// and port. sudo may use the postgres account's credentials; if unavailable,
+// the existing network path asks for the superuser password.
 function runSuperSql(c, sql, { linuxSudo }) {
   if (linuxSudo) {
-    return capture('sudo', ['-u', 'postgres', 'psql', '-v', 'ON_ERROR_STOP=1', '-X'], { input: sql });
+    return capture('sudo', ['-u', 'postgres', 'psql', '-h', c.host, '-p', c.port,
+      '-U', 'postgres', '-d', 'postgres', '-w', '-v', 'ON_ERROR_STOP=1', '-X'], { input: sql });
   }
   const env = c.superPassword ? { PGPASSWORD: c.superPassword } : {};
   return capture(
@@ -505,4 +506,3 @@ async function main() {
 }
 
 main();
-
