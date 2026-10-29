@@ -75,28 +75,47 @@ function Layout() {
   useEffect(() => {
     if (!isMobile || !drawerOpen) return undefined;
     const sidebar = sidebarRef.current;
+    const toggle = toggleRef.current;
     if (!sidebar) return undefined;
 
     const focusable = () =>
-      sidebar.querySelectorAll(
+      [...sidebar.querySelectorAll(
         'a[href], button:not([disabled]), summary, [tabindex]:not([tabindex="-1"])',
-      );
+      )].filter((element) => {
+        const style = window.getComputedStyle(element);
+        return element.tabIndex >= 0 && !element.matches(':disabled') &&
+          !element.closest('[inert]') && element.getClientRects().length > 0 &&
+          style.visibility !== 'hidden' && style.visibility !== 'collapse';
+      });
 
-    focusable()[0]?.focus();
+    const focusFirst = () => (focusable()[0] ?? sidebar).focus();
+    focusFirst();
+
+    function containFocus(event) {
+      if (!sidebar.contains(event.target)) focusFirst();
+    }
 
     function handleKey(event) {
       if (event.key === 'Escape') {
         event.preventDefault();
+        document.removeEventListener('focusin', containFocus);
         setDrawerOpen(false);
-        toggleRef.current?.focus();
+        toggle?.focus();
         return;
       }
       if (event.key !== 'Tab') return;
       const items = focusable();
-      if (items.length === 0) return;
+      if (items.length === 0) {
+        event.preventDefault();
+        sidebar.focus();
+        return;
+      }
       const first = items[0];
       const last = items[items.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
+      if (!items.includes(document.activeElement)) {
+        event.preventDefault();
+        (event.shiftKey ? last : first).focus();
+      } else if (event.shiftKey && document.activeElement === first) {
         event.preventDefault();
         last.focus();
       } else if (!event.shiftKey && document.activeElement === last) {
@@ -106,8 +125,13 @@ function Layout() {
     }
 
     document.addEventListener('keydown', handleKey);
-    return () => document.removeEventListener('keydown', handleKey);
-  }, [isMobile, drawerOpen]);
+    document.addEventListener('focusin', containFocus);
+    return () => {
+      document.removeEventListener('keydown', handleKey);
+      document.removeEventListener('focusin', containFocus);
+      if (sidebar.contains(document.activeElement)) toggle?.focus();
+    };
+  }, [isMobile, drawerOpen, openPanel]);
 
   const showNav = !user.mustChangePassword;
 
@@ -212,6 +236,7 @@ function Layout() {
         id="primary-navigation"
         aria-label={t('aria.primaryNav')}
         ref={sidebarRef}
+        tabIndex={-1}
         inert={isMobile && !drawerOpen}
       >
         <div className="sidebar-top">

@@ -3,7 +3,7 @@
 // Native browser.press drives keys; DOM focus only establishes boundary starts.
 // Returns assertion results, including failures, and closes the menu in finally.
 const tabs = await tools.browser.tabs.list();
-const tab = tabs.tabs.find(t => t.url === 'http://127.0.0.1:3300/schedule');
+const tab = tabs.tabs.find(t => t.url === 'http://127.0.0.1:5300/schedule');
 if (!tab || tab.loading) throw new Error('Load the isolated /schedule page first.');
 const tabID = tab.id;
 const inspect = async () => (await tools.browser.evaluate({ tabID, script: `
@@ -37,6 +37,14 @@ try {
   await tools.browser.evaluate({ tabID, script: 'document.querySelector("aside .account-signout").focus()' });
   await tools.browser.press({ tabID, key: 'Tab' });
   observations.wrap = await inspect();
+  await tools.browser.evaluate({ tabID, script: 'document.querySelector("main button").focus()' });
+  observations.containment = await inspect();
+  await tools.browser.evaluate({ tabID, script: 'document.querySelector("aside .panel-back").focus()' });
+  await tools.browser.press({ tabID, key: 'Enter' });
+  observations.panelBack = await inspect();
+  await tools.browser.evaluate({ tabID, script: 'document.querySelector("aside .panel-link").focus()' });
+  await tools.browser.press({ tabID, key: 'Enter' });
+  observations.panelOpen = await inspect();
 } finally {
   await tools.browser.press({ tabID, key: 'Escape' });
   observations.escape = await inspect();
@@ -46,6 +54,9 @@ const checks = [
   { name: 'forward Tab stays inside open menu', pass: observations.forward.inside },
   { name: 'reverse Tab from first wraps to last', pass: observations.reverse.last },
   { name: 'forward Tab from last wraps to first', pass: observations.wrap.first },
+  { name: 'outside focus returns to first', pass: observations.containment.first },
+  { name: 'panel list refocuses first', pass: observations.panelBack.first },
+  { name: 'panel opening refocuses first', pass: observations.panelOpen.first },
   { name: 'Escape closes and restores toggle focus', pass: !observations.escape.open && observations.escape.toggle },
   { name: 'closed sidebar becomes inert', pass: observations.escape.inert },
 ];

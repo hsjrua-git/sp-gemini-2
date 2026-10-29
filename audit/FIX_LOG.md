@@ -320,3 +320,15 @@ accounting smokes pass. `COVERAGE.md` records 499 full reads and explicit limits
   without changing native-platform tracking policy. Regeneration may recreate
   the template assertion. Android build/device execution remains unverified;
   arithmetic-only test deletion remains ASK.
+
+### A15 — visible mobile-menu focus targets and containment
+
+- Focus candidates exclude hidden/disabled/inert elements; Tab boundaries wrap,
+  outside focus is contained, panel changes refocus, and Escape releases the
+  listener before restoring the toggle. Sidebar is a fallback focus target.
+- Real production-build browser at **528×887 Persian/RTL** passes all nine
+  retained checks: opening/forward/both wraps/containment/panel-back/panel-open/
+  Escape/inertness. `fix-a15/browser.md` records native keys and harness history;
+  the user narrowed the Review pane after programmatic resizing failed.
+- Shared `fix-ui-checkpoint/`: client **233/233**, production build and clean lint
+  pass. Initial lint ref-cleanup warning was fixed and its output retained.
