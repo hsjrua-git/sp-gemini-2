@@ -17,8 +17,15 @@ import './index.css';
 import App from './App.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 import CustomCursor from './components/CustomCursor.jsx';
+import InstallAppPrompt from './components/InstallAppPrompt.jsx';
 
 applyRememberedTheme();
+
+if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
 
 function signOutOn401(error) {
   if (error?.status === 401) {
@@ -56,6 +63,7 @@ createRoot(document.getElementById('root')).render(
             <PreferencesProvider>
               <App />
               <CustomCursor />
+              <InstallAppPrompt />
             </PreferencesProvider>
           </AuthProvider>
         </BrowserRouter>
