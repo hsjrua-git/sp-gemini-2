@@ -3,6 +3,7 @@ import pool from '../db/pool.js';
 import { isUuid } from '../lib/ids.js';
 import { generateCode } from '../lib/studentCode.js';
 import { parseAssignmentBody } from '../validation/schedule.js';
+import { recordAudit } from '../lib/audit.js';
 
 const router = Router();
 const UNIQUE_VIOLATION = '23505';
@@ -20,6 +21,7 @@ const ASSIGNMENT_COLUMNS = `
   g.name          AS "groupName",
   a.membership_id AS "membershipId",
   ms.student_id   AS "studentId",
+  ms.group_id     AS "studentGroupId",
   sf.full_name    AS "studentName",
   msg.name            AS "studentGroupName",
   a.anchor_date::text AS "anchorDate",
@@ -149,6 +151,55 @@ router.get('/memberships', async (req, res) => {
     [studentId]
   );
   res.json({ memberships: result.rows });
+});
+
+router.get('/targets', async (req, res) => {
+  const result = await pool.query(
+    `SELECT ms.id, ms.group_id AS "groupId", s.id AS "studentId",
+            s.full_name AS "fullName", s.student_code AS "studentCode"
+     FROM student_group_members ms JOIN students s ON s.id = ms.student_id
+     JOIN student_groups g ON g.id = ms.group_id
+     WHERE ms.left_on IS NULL AND s.deleted_at IS NULL AND g.archived_at IS NULL
+     ORDER BY lower(s.full_name) LIMIT 5001`
+  );
+  res.json({ memberships: result.rows.slice(0, 5000), truncated: result.rowCount > 5000 });
+});
+
+router.post('/bulk', async (req, res) => {
+  const { groupIds = [], membershipIds = [], ...fields } = req.body ?? {};
+  if (![groupIds, membershipIds].every(ids => Array.isArray(ids) && ids.every(isUuid)) ||
+      groupIds.length + membershipIds.length < 1 || groupIds.length + membershipIds.length > 200) {
+    return res.status(400).json({ error: 'Choose 1 to 200 group or student targets.', code: 'WORKFLOW_TARGETS_INVALID' });
+  }
+  const targets = [...new Set(groupIds)].map(groupId => ({ groupId }))
+    .concat([...new Set(membershipIds)].map(membershipId => ({ membershipId })));
+  const parsed = targets.map(target => parseAssignmentBody({ ...fields, ...target, code: null }));
+  const invalid = parsed.find(item => item.error);
+  if (invalid) return res.status(400).json(invalid);
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const ids = [];
+    for (const item of parsed) {
+      const a = item.value;
+      const invalidRef = await checkReferences(client, a);
+      if (invalidRef) { await client.query('ROLLBACK'); return res.status(400).json(invalidRef); }
+      const created = await client.query(
+        `INSERT INTO assignments (code, name, teacher_id, interval_id, group_id, membership_id, anchor_date)
+         VALUES ($1, $2, $3, $4, $5, $6, $7::date) RETURNING id`,
+        [generateCode(), a.name, a.teacherId, a.intervalId, a.groupId ?? null, a.membershipId ?? null, a.anchorDate]
+      );
+      ids.push(created.rows[0].id);
+    }
+    await recordAudit(client, { userId: req.user.id, actor: req.user.username, action: 'assignment.create_bulk', entityType: 'assignment', details: { ids, targets } });
+    await client.query('COMMIT');
+    res.status(201).json({ created: ids.length, ids });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    if (error.code === '23505') return res.status(409).json({ error: 'A selected target already has this schedule. No assignments were created.', code: 'ASSIGNMENTS_DUPLICATE_SCHEDULE' });
+    if (['23503', '23514', '22P02'].includes(error.code)) return res.status(400).json({ error: 'Choose valid active targets, teacher and interval.', code: 'WORKFLOW_TARGETS_INVALID' });
+    throw error;
+  } finally { client.release(); }
 });
 
 router.get('/', async (req, res) => {

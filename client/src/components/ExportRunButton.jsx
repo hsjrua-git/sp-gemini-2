@@ -61,6 +61,7 @@ function tabularRows(config, cube, auditEntries) {
 function ExportRunButton({
   config,
   cube,
+  cubes,
   scope = null,
   auditEntries = [],
   chartNodes,
@@ -75,7 +76,9 @@ function ExportRunButton({
   // One file per selected tabular content type — except XLSX, which folds them
   // all into a single multi-sheet workbook.
   async function tabularFiles() {
-    const selected = tabularRows(config, cube, auditEntries);
+    const sources = cubes ?? [cube];
+    const selected = sources.flatMap((source, index) => tabularRows({ ...config, include: { ...config.include, auditTrail: index === 0 && config.include.auditTrail } }, source, auditEntries)
+      .map(item => ({ ...item, cube: source, name: `${item.name}-${source.dimension}`, sheet: `${item.sheet} ${source.dimension}` })));
     if (selected.length === 0) return [];
 
     if (config.tabularFormat === 'xlsx') {
@@ -89,7 +92,7 @@ function ExportRunButton({
       return selected.map((item) => ({
         name: `${item.name}.json`,
         data: JSON.stringify(
-          item.key === 'data' ? cubeJson(cube, { scope }) : rowsToObjects(item.rows),
+          item.key === 'data' ? cubeJson(item.cube, { scope }) : rowsToObjects(item.rows),
           null,
           2
         ),
@@ -111,13 +114,14 @@ function ExportRunButton({
     const surface =
       getComputedStyle(document.documentElement).getPropertyValue('--surface').trim() ||
       '#ffffff';
+    for (const source of cubes ?? [cube]) {
     for (let index = 0; index < config.charts.length; index += 1) {
       const chart = config.charts[index];
-      const svg = chartNodes.current.get(index)?.querySelector('svg[data-chart-root]');
+      const svg = chartNodes.current.get(cubes ? `${source.dimension}:${index}` : index)?.querySelector('svg[data-chart-root]');
       if (!svg) {
         throw new Error(t('exportRun.captureFailed', { index: index + 1 }));
       }
-      const base = `chart-${index + 1}-${chart.kind}`;
+      const base = `chart-${index + 1}-${chart.kind}-${source.dimension}`;
       if (chart.imageFormat === 'png' && canExportPng()) {
         const blob = await svgToPng(svg, { scale: 2, background: surface });
         files.push({ name: `${base}.png`, data: blob, compressed: true });
@@ -128,6 +132,7 @@ function ExportRunButton({
           type: 'image/svg+xml;charset=utf-8',
         });
       }
+    }
     }
     return files;
   }

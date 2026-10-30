@@ -734,7 +734,7 @@ function ImportScoresPage() {
                         };
                       return (
                         <div key={parameter.id} className="row">
-                          <strong>{parameter.name}</strong>
+                          <strong>{parameter.path || parameter.name}</strong>
                           <label className="inline">
                             {t('imports.scores.qualityCol')}
                             <select
@@ -918,7 +918,7 @@ function ImportScoresPage() {
                       key={parameter.id}
                       colSpan={dimensionCount(preview.mapping[parameter.id])}
                     >
-                      {parameter.name}
+                      {parameter.path || parameter.name}
                     </th>
                   ))}
                 </tr>

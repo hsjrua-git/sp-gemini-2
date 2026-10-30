@@ -6,12 +6,14 @@ import { errorMessage } from '../i18n/errors.js';
 import { formatRange } from '../lib/format.js';
 import { numberToText, parseOptionalNumber } from '../lib/numbers.js';
 import { useAuth } from '../auth/AuthContext.jsx';
+import { branchIds } from '../lib/hierarchy.js';
+import HierarchySelect from './HierarchySelect.jsx';
 
 // One parameter card: name + code + the shared integer range. No unit, no
 // per-period activation; narrowing below recorded values is refused by the
 // server with a friendly message.
-function ParameterRow({ parameter }) {
-  const { t } = useTranslation(['students', 'common']);
+function ParameterRow({ parameter, parameters = [], expanded = true, onToggle }) {
+  const { t } = useTranslation(['students', 'common', 'workflows']);
   const queryClient = useQueryClient();
   const { can } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
@@ -20,6 +22,8 @@ function ParameterRow({ parameter }) {
   const [minText, setMinText] = useState(numberToText(parameter.minValue));
   const [maxText, setMaxText] = useState(numberToText(parameter.maxValue));
   const [problem, setProblem] = useState(null);
+  const [parentId, setParentId] = useState(parameter.parentId ?? '');
+  const excluded = new Set(branchIds(parameters, [parameter.id]));
 
   const update = useMutation({
     mutationFn: (fields) => updateParameter(parameter.id, fields),
@@ -34,6 +38,7 @@ function ParameterRow({ parameter }) {
     setCode(parameter.code);
     setMinText(numberToText(parameter.minValue));
     setMaxText(numberToText(parameter.maxValue));
+    setParentId(parameter.parentId ?? '');
     setProblem(null);
     update.reset();
     setIsEditing(true);
@@ -68,6 +73,7 @@ function ParameterRow({ parameter }) {
       code: code.trim(),
       minValue: min.value,
       maxValue: max.value,
+      parentId: parentId || null,
     });
   }
 
@@ -94,7 +100,7 @@ function ParameterRow({ parameter }) {
             />
           </label>
           <label>
-            {t('parameters.minLabel')}
+            {t('workflows:quantityMin')}
             <input
               type="number"
               step="1"
@@ -103,7 +109,7 @@ function ParameterRow({ parameter }) {
             />
           </label>
           <label>
-            {t('parameters.maxLabel')}
+            {t('workflows:quantityMax')}
             <input
               type="number"
               step="1"
@@ -112,6 +118,9 @@ function ParameterRow({ parameter }) {
             />
           </label>
           <div className="row">
+            <label>{t('workflows:tree.parent')}
+              <HierarchySelect items={parameters.filter(item => !excluded.has(item.id))} value={parentId} onChange={setParentId} emptyLabel={t('workflows:tree.root')} />
+            </label>
             <button type="submit" disabled={update.isPending}>
               {t('common:actions.save')}
             </button>
@@ -130,9 +139,10 @@ function ParameterRow({ parameter }) {
 
   const range = formatRange(parameter);
   return (
-    <div className="param-card">
+    <div className={`param-card${parameter.depth ? ' param-child' : ''}`}>
       <div className="param-card-head">
-        <h3>{parameter.name}</h3>
+        {parameter.hasChildren && <button type="button" className="quiet tree-disclosure" aria-expanded={expanded} aria-label={t('workflows:tree.expand', { name: parameter.name })} onClick={onToggle}><span aria-hidden="true">⌄</span></button>}
+        <h3 title={parameter.path}>{parameter.name}{parameter.depth > 0 && <span className="hierarchy-context">{parameter.path.split(' / ').slice(0, -1).join(' / ')}</span>}</h3>
         {can('parameters.manage') && (
           <button type="button" className="quiet" onClick={startEditing}>
             {t('common:actions.edit')}
@@ -141,8 +151,9 @@ function ParameterRow({ parameter }) {
       </div>
       <span className="chip-row">
         <span className="chip code">{parameter.code}</span>
+        <span className="chip">{t('workflows:quality')}</span>
         {range !== '—' && (
-          <span className="chip">{t('parameters.rangeChip', { range })}</span>
+          <span className="chip">{t('workflows:quantityRange')}: {range}</span>
         )}
         {range === '—' && <span className="hint">{t('parameters.noRange')}</span>}
       </span>

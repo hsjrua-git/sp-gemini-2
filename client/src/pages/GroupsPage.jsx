@@ -15,23 +15,8 @@ import { listStudents } from '../api/students.js';
 import { formatIsoDate } from '../lib/format.js';
 import { useDebouncedValue } from '../lib/useDebouncedValue.js';
 import { errorMessage } from '../i18n/errors.js';
-
-function buildTree(groups) {
-  const byParent = new Map();
-  for (const group of groups) {
-    const key = group.parentId ?? 'root';
-    if (!byParent.has(key)) byParent.set(key, []);
-    byParent.get(key).push(group);
-  }
-  const walk = (parentKey, depth) => {
-    const children = byParent.get(parentKey) ?? [];
-    return children.flatMap((group) => [
-      { ...group, depth },
-      ...walk(group.id, depth + 1),
-    ]);
-  };
-  return walk('root', 0);
-}
+import HierarchySelect from '../components/HierarchySelect.jsx';
+import { branchIds, hierarchy } from '../lib/hierarchy.js';
 
 function MemberPanel({ group, onClose }) {
   const { t } = useTranslation(['admin', 'common']);
@@ -196,18 +181,7 @@ function NewGroupForm({ groups }) {
         </label>
         <label>
           {t('groups.inside')}
-          <select
-            value={parentId}
-            onChange={(event) => setParentId(event.target.value)}
-          >
-            <option value="">{t('groups.topLevel')}</option>
-            {groups.map((group) => (
-              <option key={group.id} value={group.id}>
-                {' '.repeat(group.depth * 2)}
-                {group.name}
-              </option>
-            ))}
-          </select>
+          <HierarchySelect items={groups} value={parentId} onChange={setParentId} emptyLabel={t('groups.topLevel')} />
         </label>
       </div>
       <button type="submit" disabled={create.isPending || name.trim() === ''}>
@@ -222,8 +196,8 @@ function NewGroupForm({ groups }) {
   );
 }
 
-function GroupRow({ group, groups, canManage, canAssign, onManage }) {
-  const { t } = useTranslation(['admin', 'common']);
+function GroupRow({ group, groups, canManage, canAssign, onManage, expanded, onToggle }) {
+  const { t } = useTranslation(['admin', 'common', 'workflows']);
   const queryClient = useQueryClient();
   const [renaming, setRenaming] = useState(false);
   const [name, setName] = useState(group.name);
@@ -249,7 +223,9 @@ function GroupRow({ group, groups, canManage, canAssign, onManage }) {
   return (
     <tr>
       <td>
-        <span style={{ paddingInlineStart: `${group.depth * 1.25}rem` }}>
+        <div className="group-name">
+          {group.hasChildren && <button type="button" className="quiet tree-disclosure" aria-expanded={expanded} aria-label={t('workflows:tree.expand', { name: group.name })} onClick={onToggle}><span aria-hidden="true">⌄</span></button>}
+          <span>
           {renaming ? (
             <input
               value={name}
@@ -260,7 +236,9 @@ function GroupRow({ group, groups, canManage, canAssign, onManage }) {
           ) : (
             group.name
           )}
-        </span>
+          {group.depth > 0 && <span className="hierarchy-context">{group.path.split(' / ').slice(0, -1).join(' / ')}</span>}
+          </span>
+        </div>
       </td>
       <td>{group.memberCount}</td>
       <td className="actions">
@@ -279,21 +257,13 @@ function GroupRow({ group, groups, canManage, canAssign, onManage }) {
           </>
         ) : moving ? (
           <>
-            <select
+            <HierarchySelect
+              items={groups.filter(candidate => !branchIds(groups, [group.id]).includes(candidate.id))}
               value={parentId}
-              onChange={(event) => setParentId(event.target.value)}
+              onChange={setParentId}
+              emptyLabel={t('groups.topLevel')}
               aria-label={t('groups.moveLabel', { name: group.name })}
-            >
-              <option value="">{t('groups.topLevel')}</option>
-              {groups
-                .filter((candidate) => candidate.id !== group.id)
-                .map((candidate) => (
-                  <option key={candidate.id} value={candidate.id}>
-                    {' '.repeat(candidate.depth * 2)}
-                    {candidate.name}
-                  </option>
-                ))}
-            </select>
+            />
             <button
               type="button"
               onClick={() => update.mutate({ parentId: parentId || null })}
@@ -349,15 +319,17 @@ function GroupRow({ group, groups, canManage, canAssign, onManage }) {
 }
 
 function GroupsPage() {
-  const { t } = useTranslation(['admin', 'common']);
+  const { t } = useTranslation(['admin', 'common', 'workflows']);
   const { can } = useAuth();
   const canManage = can('groups.manage');
   const canAssign = can('groups.assign');
   const [managing, setManaging] = useState(null);
+  const [search, setSearch] = useState('');
+  const [collapsed, setCollapsed] = useState([]);
 
   const groupsQuery = useQuery({ queryKey: ['groups'], queryFn: () => listGroups() });
   const tree = useMemo(
-    () => (groupsQuery.data ? buildTree(groupsQuery.data) : []),
+    () => (groupsQuery.data ? hierarchy(groupsQuery.data) : []),
     [groupsQuery.data]
   );
 
@@ -386,6 +358,7 @@ function GroupsPage() {
 
       <section className="section-card">
         <h2>{t('groups.listTitle')}</h2>
+        <input type="search" aria-label={t('workflows:tree.search', { label: t('groups.title') })} placeholder={t('workflows:tree.search', { label: t('groups.title') })} value={search} onChange={event => setSearch(event.target.value)} />
         {groupsQuery.isPending && (
           <p className="hint">{t('common:status.loading')}</p>
         )}
@@ -406,7 +379,7 @@ function GroupsPage() {
                 </tr>
               </thead>
               <tbody>
-                {tree.map((group) => (
+                {tree.filter(group => search.trim() ? group.path.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()) : !group.ancestorIds.some(id => collapsed.includes(id))).map((group) => (
                   <GroupRow
                     key={group.id}
                     group={group}
@@ -414,6 +387,8 @@ function GroupsPage() {
                     canManage={canManage}
                     canAssign={canAssign}
                     onManage={setManaging}
+                    expanded={!collapsed.includes(group.id)}
+                    onToggle={() => setCollapsed(current => current.includes(group.id) ? current.filter(id => id !== group.id) : [...current, group.id])}
                   />
                 ))}
               </tbody>

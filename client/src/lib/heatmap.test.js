@@ -37,13 +37,13 @@ describe('buildHeatmap axis "period"', () => {
       `${A1}:2`,
     ]);
     expect(grid.cells[0]).toEqual([
-      { value: 4, percent: 40 },
-      { value: 8, percent: 80 },
+      { value: 4, percent: 4 },
+      { value: 8, percent: 8 },
     ]);
     // Ben has nothing in period 1.
     expect(grid.cells[1]).toEqual([
       { value: null, percent: null },
-      { value: 3, percent: 30 },
+      { value: 3, percent: 3 },
     ]);
   });
 
@@ -60,11 +60,11 @@ describe('buildHeatmap axis "parameter"', () => {
     expect(grid.periodKey).toBe(p2);
     expect(grid.columns.map((column) => column.key)).toEqual(['speed', 'balance']);
     expect(grid.cells[0]).toEqual([
-      { value: 8, percent: 80 },
-      { value: 5, percent: null }, // balance has no min/max
+      { value: 8, percent: 8 },
+      { value: 5, percent: 5 }, // quality always has a percentage scale
     ]);
     expect(grid.cells[1]).toEqual([
-      { value: 3, percent: 30 },
+      { value: 3, percent: 3 },
       { value: null, percent: null },
     ]);
   });

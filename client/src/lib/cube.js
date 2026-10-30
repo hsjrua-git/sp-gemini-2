@@ -41,6 +41,7 @@ export function buildCube({
   cells = [],
   filters = [],
   dimension = 'quality',
+  periodStudents = null,
 }) {
   const dim = dimension === 'quantity' ? 'quantity' : 'quality';
 
@@ -118,7 +119,8 @@ export function buildCube({
   const cellAt = (studentId, parameterId, key) => {
     const value = valueAt(studentId, parameterId, key);
     const previousKey = previousKeyOf(key);
-    const previous = previousKey === null ? null : valueAt(studentId, parameterId, previousKey);
+    const stored = latestByKey.get(`${studentId}:${parameterId}:${key}`);
+    const previous = stored && 'previous' in stored ? stored.previous?.[dim] ?? null : (previousKey === null ? null : valueAt(studentId, parameterId, previousKey));
     const delta =
       value !== null && previous !== null ? round(value - previous) : null;
     return { value, previous, delta };
@@ -134,9 +136,9 @@ export function buildCube({
             : last
         );
 
-  const passes = (student, filter) => {
+  const passes = (student, filter, key = lastPeriod?.key) => {
     const value =
-      lastPeriod === null ? null : valueAt(student.id, filter.parameterId, lastPeriod.key);
+      key == null ? null : valueAt(student.id, filter.parameterId, key);
     const has = value !== null;
     if (filter.op === 'missing') return !has;
     if (filter.op === 'present') return has;
@@ -145,9 +147,10 @@ export function buildCube({
     return compare ? compare(value, filter.value) : true;
   };
 
-  const filteredStudents = students.filter((student) =>
-    filters.every((filter) => passes(student, filter))
-  );
+  const included = periodStudents ? new Map(buckets.map(bucket => [bucket.key, new Set(students.filter(student =>
+    periodStudents[bucket.key]?.includes(student.id) && filters.every(filter => passes(student, filter, bucket.key))).map(student => student.id))])) : null;
+  const includesStudent = (id, key) => included ? included.get(key)?.has(id) === true : true;
+  const filteredStudents = students.filter(student => included ? buckets.some(bucket => includesStudent(student.id, bucket.key)) : filters.every(filter => passes(student, filter)));
 
   return {
     dimension: dim,
@@ -156,8 +159,9 @@ export function buildCube({
     assignments,
     students: filteredStudents,
     lastPeriod,
-    valueAt,
-    cellAt,
+    includesStudent: included ? includesStudent : undefined,
+    valueAt: (id, parameterId, key) => includesStudent(id, key) ? valueAt(id, parameterId, key) : null,
+    cellAt: (id, parameterId, key) => includesStudent(id, key) ? cellAt(id, parameterId, key) : { value: null, previous: null, delta: null },
   };
 }
 

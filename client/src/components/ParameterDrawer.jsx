@@ -17,6 +17,7 @@ import { formatChange, formatParameterHint } from '../lib/format.js';
 import { useLocale } from '../lib/locale.js';
 import { CloseIcon } from './icons.jsx';
 import Drawer from './Drawer.jsx';
+import { dimensionRange } from '../lib/dimensions.js';
 
 const AXIS = { fill: 'currentColor', fontSize: 11 };
 const MARGIN = { top: 8, right: 8, bottom: 0, left: 0 };
@@ -32,13 +33,14 @@ function DrawerBody({ stat, trend, trendError, titleId, onClose }) {
   const { isRtl } = useLocale();
   const gradientId = useId();
   const { parameter } = stat;
-  const bins = distribution(stat.values, parameter);
+  const range = dimensionRange(parameter, stat.dimension);
+  const bins = distribution(stat.values, range);
   const trendData = trend.map((point) => ({
     label: point.label,
     average: point.average,
   }));
   const hasTrend = trend.some((point) => point.average !== null);
-  const hint = formatParameterHint(parameter);
+  const hint = formatParameterHint(parameter, stat.dimension);
 
   return (
     <>
@@ -106,7 +108,7 @@ function DrawerBody({ stat, trend, trendError, titleId, onClose }) {
                 reversed={isRtl}
               />
               <YAxis
-                domain={[parameter.minValue ?? 'auto', parameter.maxValue ?? 'auto']}
+                  domain={[range.minValue ?? 'auto', range.maxValue ?? 'auto']}
                 tick={AXIS}
                 width={32}
                 orientation={isRtl ? 'right' : 'left'}

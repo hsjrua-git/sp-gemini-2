@@ -11,7 +11,8 @@ const mocks = vi.hoisted(() => ({
 }));
 vi.mock('../api/schedule.js', () => ({ listAssignments: mocks.assignments }));
 vi.mock('../api/sessions.js', () => ({ listSessions: mocks.sessions }));
-vi.mock('../api/groups.js', () => ({ listGroupMembers: mocks.members }));
+vi.mock('../api/groups.js', () => ({ listGroupMembers: mocks.members, listGroups: async () => [] }));
+vi.mock('../api/tasks.js', () => ({ listSessionTasks: async () => [], listTaskTargets: async () => ({ targets: [] }) }));
 vi.mock('../api/parameters.js', () => ({ listParameters: mocks.parameters }));
 vi.mock('../api/evaluations.js', () => ({ listEvaluations: mocks.evaluations, saveEvaluations: mocks.save }));
 
@@ -30,7 +31,7 @@ beforeEach(() => {
 });
 afterEach(() => { for (const client of clients.splice(0)) client.clear(); });
 
-function mount({ individual = false, blind = false } = {}) {
+function mount({ individual = false, blind = false, override = false } = {}) {
   mocks.assignments.mockResolvedValue([{ id: 'assignment', name: 'Test Assignment',
     groupId: individual ? null : 'group', groupName: 'Test Group',
     membershipId: individual ? student.membershipId : null,
@@ -38,7 +39,7 @@ function mount({ individual = false, blind = false } = {}) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity } } });
   clients.push(client);
   render(<QueryClientProvider client={client}><MemoryRouter>
-    <AuthContext value={{ can: key => key === 'scores.enter' || (!blind && key === 'scores.view') }}>
+    <AuthContext value={{ can: key => key === 'scores.enter' || (!blind && key === 'scores.view') || (override && key === 'scores.override') }}>
       <EvaluatePage />
     </AuthContext>
   </MemoryRouter></QueryClientProvider>);
@@ -83,4 +84,26 @@ test('an assignment without sessions has a settled empty state', async () => {
   expect(screen.queryByText('Loading…')).not.toBeInTheDocument();
   expect(mocks.evaluations).not.toHaveBeenCalled();
   expect(mocks.members).not.toHaveBeenCalled();
+});
+
+test('locked edits require a written reason and discard clears it', async () => {
+  mocks.evaluations.mockResolvedValue([{ membershipId: 'membership', parameterId: 'parameter',
+    selected: true, qualityValue: 60, quantityValue: null, isLocked: true, locksAt: '2026-01-01T00:00:00Z' }]);
+  mount({ individual: true, override: true });
+  const quality = await screen.findByRole('textbox', { name: /Quality.*Speed.*Test Student/ });
+  fireEvent.change(quality, { target: { value: '70' } });
+  const save = screen.getByRole('button', { name: /Save 1/ });
+  expect(save).toBeDisabled();
+  const reason = screen.getByRole('textbox', { name: /reason for changing/ });
+  fireEvent.change(reason, { target: { value: '   ok   ' } });
+  expect(save).toBeDisabled();
+  fireEvent.change(reason, { target: { value: '  Corrected source sheet  ' } });
+  fireEvent.click(save);
+  await waitFor(() => expect(mocks.save).toHaveBeenCalledOnce());
+  expect(mocks.save.mock.calls[0][0].overrideReason).toBe('Corrected source sheet');
+  await waitFor(() => expect(screen.queryByRole('textbox', { name: /reason for changing/ })).toBeNull());
+  fireEvent.change(quality, { target: { value: '80' } });
+  expect(screen.getByRole('textbox', { name: /reason for changing/ }).value).toBe('');
+  fireEvent.click(screen.getByRole('button', { name: /Discard/ }));
+  expect(screen.queryByRole('textbox', { name: /reason for changing/ })).toBeNull();
 });

@@ -48,6 +48,7 @@ const FieldsPage = lazyWithReload(() => import('./pages/FieldsPage.jsx'));
 const TeachersPage = lazyWithReload(() => import('./pages/TeachersPage.jsx'));
 const SchedulePage = lazyWithReload(() => import('./pages/SchedulePage.jsx'));
 const SessionsPage = lazyWithReload(() => import('./pages/SessionsPage.jsx'));
+const TaskTemplatesPage = lazyWithReload(() => import('./pages/TaskTemplatesPage.jsx'));
 const CafeProductsPage = lazyWithReload(() => import('./pages/CafeProductsPage.jsx'));
 const CafeSalesPage = lazyWithReload(() => import('./pages/CafeSalesPage.jsx'));
 const CafePurchasesPage = lazyWithReload(() => import('./pages/CafePurchasesPage.jsx'));
@@ -86,6 +87,7 @@ const ROUTE_PRELOADS = [
   ['/teachers', TeachersPage],
   ['/schedule', SchedulePage],
   ['/sessions', SessionsPage],
+  ['/task-templates', TaskTemplatesPage],
   ['/cafe', CafeSalesPage],
   ['/cafe/products', CafeProductsPage],
   ['/cafe/purchases', CafePurchasesPage],
@@ -618,6 +620,7 @@ function AnimatedRoutes() {
             <Route path="/teachers" element={<TeachersPage />} />
             <Route path="/schedule" element={<SchedulePage />} />
             <Route path="/sessions" element={<SessionsPage />} />
+            <Route path="/task-templates" element={<TaskTemplatesPage />} />
             <Route path="/cafe" element={<CafeSalesPage />} />
             <Route path="/cafe/products" element={<CafeProductsPage />} />
             <Route path="/cafe/purchases" element={<CafePurchasesPage />} />

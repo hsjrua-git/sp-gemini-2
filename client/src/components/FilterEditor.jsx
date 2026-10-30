@@ -56,7 +56,7 @@ function FilterRow({ filter, parameters, onChange, onRemove }) {
         )}
         {parameters.map((parameter) => (
           <option key={parameter.id} value={parameter.id}>
-            {parameter.name}
+            {parameter.path || parameter.name}
           </option>
         ))}
       </select>

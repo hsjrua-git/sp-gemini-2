@@ -21,6 +21,7 @@ function SavedViewsBar({
         <label className="inline">
           {t('savedViews.label')}
           <select
+            disabled={busy}
             value={activeId ?? ''}
             onChange={(event) => onLoad(event.target.value || null)}
           >

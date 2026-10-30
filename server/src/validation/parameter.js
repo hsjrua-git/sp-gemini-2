@@ -1,3 +1,5 @@
+import { isUuid } from '../lib/ids.js';
+
 const MAX_NAME = 60;
 const MAX_CODE = 40;
 
@@ -5,6 +7,13 @@ export function parseParameterInput(body, { partial = false } = {}) {
   const input =
     body !== null && typeof body === 'object' && !Array.isArray(body) ? body : {};
   const values = {};
+
+  if ('parentId' in input) {
+    if (input.parentId !== null && !isUuid(input.parentId)) {
+      return { error: 'Choose a valid parent parameter.', code: 'VALIDATION_INVALID_CHOICE' };
+    }
+    values.parentId = input.parentId;
+  }
 
   if (!partial || 'name' in input) {
     const name =

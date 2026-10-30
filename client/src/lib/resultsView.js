@@ -83,6 +83,7 @@ export function normalizeConfig(raw) {
   const seqOk = raw.seq === null || raw.seq === undefined;
 
   return {
+    ...(raw.reportScope ? { reportScope: raw.reportScope } : {}),
     assignmentId: isUuid(raw.assignmentId) ? raw.assignmentId : null,
     seq: seqOk ? null : Number.isInteger(raw.seq) && raw.seq >= 1 ? raw.seq : null,
     dimension: DIMENSIONS.includes(raw.dimension) ? raw.dimension : base.dimension,

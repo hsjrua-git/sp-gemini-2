@@ -333,7 +333,7 @@ test('semantic problems: range, unknown target, unknown parameter, duplicates', 
       () =>
         saveEvaluationsBulk({
           sessionId,
-          entries: [{ membershipId: null, parameterId: p.id, selected: true, qualityValue: 99, quantityValue: null }],
+          entries: [{ membershipId: null, parameterId: p.id, selected: true, qualityValue: 101, quantityValue: null }],
         }),
       (err) => {
         assert.equal(err.code, 'VALIDATION');

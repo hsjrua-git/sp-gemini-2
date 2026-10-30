@@ -9,7 +9,7 @@ import GroupFilter from './GroupFilter.jsx';
 // subgroups), or a hand-picked set. `value` is the config.students slice
 // ({ mode, groupId, ids }); `onChange` receives the next slice. The full roster
 // is only fetched when the user actually switches to hand-picking.
-function ExportStudentPicker({ value, onChange }) {
+function ExportStudentPicker({ value, onChange, allowGroup = true }) {
   const { t } = useTranslation(['reports', 'common']);
   const [search, setSearch] = useState('');
   const selecting = value.mode === 'selection';
@@ -54,7 +54,7 @@ function ExportStudentPicker({ value, onChange }) {
           />
           {t('shared.allStudents')}
         </label>
-        <label className="inline">
+        {allowGroup && <label className="inline">
           <input
             type="radio"
             name="student-mode"
@@ -62,7 +62,7 @@ function ExportStudentPicker({ value, onChange }) {
             onChange={() => setMode('group')}
           />
           {t('pickers.byGroup')}
-        </label>
+        </label>}
         <label className="inline">
           <input
             type="radio"

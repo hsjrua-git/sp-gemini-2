@@ -10,6 +10,7 @@ export const DEFAULT_PREFERENCES = {
   studentShowAllPeriods: false,
   hiddenParameterIds: [],
   csvDelimiter: ',',
+  reportScope: { groupIds: [], assignmentIds: [], periodIds: [], dimensions: ['quality'] },
   // The dashboard hero/constellation customization (schema-4): which dimension
   // feeds the values, what counts as "answered", and which assignment period
   // the class field shows (null = the assignment's latest period).
@@ -21,5 +22,6 @@ export const DEFAULT_PREFERENCES = {
     groupId: null,
     mode: 'auto',
     autoRotate: true,
+    parameterIds: null, // null = all; [] = deliberately show none
   },
 };

@@ -19,29 +19,30 @@ function Meter({ percent }) {
 // in that assignment, showing the viewed dimension's value (their own member
 // cell, else the whole-group cell — marked), the range meter and the change
 // vs the previous period.
-function ByPeriodView({ evaluations, parameters, assignmentsById, dimension }) {
+function ByPeriodView({ evaluations, parameters, assignmentsById, dimension, selectedPeriods, comparisonEvaluations = evaluations }) {
   const { t } = useTranslation(['reports', 'common']);
 
   const assignmentIds = [...new Set(evaluations.map((item) => item.assignmentId))];
-  const [assignmentId, setAssignmentId] = useState(assignmentIds[0] ?? null);
+  const [chosenAssignment, setAssignmentId] = useState(null);
+  const assignmentId = assignmentIds.includes(chosenAssignment) ? chosenAssignment : assignmentIds[0] ?? null;
 
   const periodsQuery = useQuery({
     queryKey: ['periods', assignmentId],
     queryFn: () => getPeriods(assignmentId),
-    enabled: assignmentId !== null,
+    enabled: !selectedPeriods && assignmentId !== null,
   });
-  const periods = (periodsQuery.data ?? []).filter(
-    (period) => period.sessionCount > 0
+  const periods = (selectedPeriods ?? periodsQuery.data ?? []).filter(
+    (period) => period.sessionCount > 0 && (!selectedPeriods || period.assignmentId === assignmentId)
   );
   const latestSeq = periods[periods.length - 1]?.seq ?? null;
   const [chosenSeq, setChosenSeq] = useState(null);
-  const seq = chosenSeq ?? latestSeq;
+  const seq = periods.some(p => p.seq === chosenSeq) ? chosenSeq : latestSeq;
   const period = periods.find((item) => item.seq === seq) ?? null;
 
   const rows =
     assignmentId !== null && period !== null
       ? periodView({
-          evaluations,
+          evaluations: comparisonEvaluations,
           assignmentId,
           seq,
           parameters,
@@ -84,8 +85,8 @@ function ByPeriodView({ evaluations, parameters, assignmentsById, dimension }) {
         </label>
       </div>
 
-      {periodsQuery.isPending && <p className="hint">{t('common:status.loading')}</p>}
-      {rows.length === 0 && !periodsQuery.isPending ? (
+      {!selectedPeriods && periodsQuery.isPending && <p className="hint">{t('common:status.loading')}</p>}
+      {rows.length === 0 && (selectedPeriods || !periodsQuery.isPending) ? (
         <p>{t('byPeriod.empty', { seq: seq ?? '…' })}</p>
       ) : (
         <div className="table-wrap">

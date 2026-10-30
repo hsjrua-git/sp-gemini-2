@@ -8,6 +8,8 @@
 // parameterView answers "how did ONE parameter evolve" — the student's cells
 // over session dates (member shadowing group), in the viewed dimension.
 
+import { dimensionRange } from './dimensions.js';
+
 function round(number) {
   return Math.round(number * 100) / 100;
 }
@@ -71,6 +73,7 @@ export function periodView({
       [...cellValue.keys()].some((key) => key.endsWith(`:${parameter.id}`))
     )
     .map((parameter) => {
+      const range = dimensionRange(parameter, dimension);
       const value = cellValue.get(`${seq}:${parameter.id}`)?.value ?? null;
       const previous =
         cellValue.get(`${seq - 1}:${parameter.id}`)?.value ?? null;
@@ -80,7 +83,7 @@ export function periodView({
         viaGroup: cellValue.get(`${seq}:${parameter.id}`)?.viaGroup ?? false,
         change:
           value !== null && previous !== null ? round(value - previous) : null,
-        percent: percentOfRange(value, parameter.minValue, parameter.maxValue),
+        percent: percentOfRange(value, range.minValue, range.maxValue),
       };
     });
 }

@@ -5,10 +5,7 @@ export async function listSessionTasks(sessionId) {
   return data.tasks;
 }
 
-export function createTask({ sessionId, title, description, sortOrder }) {
-  const body = { sessionId, title };
-  if (description !== undefined) body.description = description;
-  if (sortOrder !== undefined) body.sortOrder = sortOrder;
+export function createTask(body) {
   return request('/api/tasks', {
     method: 'POST',
     body: JSON.stringify(body),
@@ -26,10 +23,10 @@ export function deleteTask(id) {
   return request(`/api/tasks/${id}`, { method: 'DELETE' });
 }
 
-export function assignTaskTemplate({ templateId, sessionIds }) {
+export function assignTaskTemplate(body) {
   return request('/api/tasks/from-template', {
     method: 'POST',
-    body: JSON.stringify({ templateId, sessionIds }),
+    body: JSON.stringify(body),
   });
 }
 
@@ -39,10 +36,7 @@ export async function listTaskTemplates({ includeArchived = false } = {}) {
   return data.templates;
 }
 
-export function createTaskTemplate({ title, description, sortOrder }) {
-  const body = { title };
-  if (description !== undefined) body.description = description;
-  if (sortOrder !== undefined) body.sortOrder = sortOrder;
+export function createTaskTemplate(body) {
   return request('/api/task-templates', {
     method: 'POST',
     body: JSON.stringify(body),
@@ -58,4 +52,12 @@ export function updateTaskTemplate(id, fields) {
 
 export function archiveTaskTemplate(id) {
   return request(`/api/task-templates/${id}`, { method: 'DELETE' });
+}
+
+export function updateTaskProgress(id, fields) {
+  return request(`/api/tasks/${id}/progress`, { method: 'PATCH', body: JSON.stringify(fields) });
+}
+
+export function listTaskTargets(sessionIds) {
+  return request(`/api/tasks/targets?${new URLSearchParams({ sessionIds: sessionIds.join(',') })}`);
 }

@@ -66,10 +66,10 @@ function ResultsTable({
                 onSort={onSort}
                 label={
                   <>
-                    {parameter.name}
+                    <span title={parameter.path}>{parameter.depth > 0 && '↳ '}{parameter.name}</span>
                     <span className="hint">
                       {' '}
-                      {formatParameterHint(parameter)}
+                      {formatParameterHint(parameter, dimension)}
                     </span>
                   </>
                 }

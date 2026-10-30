@@ -12,6 +12,8 @@ import {
 import { useAuth } from '../auth/AuthContext.jsx';
 import { errorMessage } from '../i18n/errors.js';
 import { toLatinDigits } from '../lib/locale.js';
+import HierarchySelect from '../components/HierarchySelect.jsx';
+import { branchIds } from '../lib/hierarchy.js';
 
 const TYPES = ['asset', 'liability', 'equity', 'income', 'expense'];
 
@@ -88,21 +90,14 @@ function AccountForm({ initial, onDone, accounts }) {
       <label htmlFor={`account-parent-${initial ? initial.id : 'new'}`}>
         {t('accounts.parent')}
       </label>
-      <select
+      <HierarchySelect
         id={`account-parent-${initial ? initial.id : 'new'}`}
+        items={accounts.filter(account => !initial || !branchIds(accounts, [initial.id]).includes(account.id)).map(account => ({ ...account, name: `${account.code} · ${account.name}` }))}
         value={parentId}
-        onChange={(event) => setParentId(event.target.value)}
+        onChange={setParentId}
+        emptyLabel={t('accounts.noParent')}
         disabled={save.isPending}
-      >
-        <option value="">{t('accounts.noParent')}</option>
-        {accounts
-          .filter((account) => account.id !== initial?.id)
-          .map((account) => (
-            <option key={account.id} value={account.id}>
-              {account.code} · {account.name}
-            </option>
-          ))}
-      </select>
+      />
       <div className="row">
         <button
           type="submit"

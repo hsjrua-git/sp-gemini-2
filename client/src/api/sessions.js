@@ -20,9 +20,7 @@ export async function listSessions({
   return { sessions: data.sessions, truncated: data.truncated };
 }
 
-export function generateSessions({ until, assignmentId = null }) {
-  const body = { until };
-  if (assignmentId) body.assignmentId = assignmentId;
+export function generateSessions(body) {
   return request('/api/sessions/generate', {
     method: 'POST',
     body: JSON.stringify(body),

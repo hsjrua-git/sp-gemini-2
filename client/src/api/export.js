@@ -8,6 +8,7 @@ import { request } from './http.js';
 //     groupId?: string|null, studentIds?: string[], parameterIds?: string[] }
 export async function fetchCube(scope) {
   const body = {};
+  if (scope.periodIds) body.periodIds = scope.periodIds;
   if (scope.assignmentId) body.assignmentId = scope.assignmentId;
   if (scope.periods?.length) body.periods = scope.periods;
   if (scope.from) body.from = scope.from;

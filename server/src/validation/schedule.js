@@ -1,5 +1,6 @@
 import { isValidIsoDate } from '../lib/periods.js';
 import { normalizeFullName } from './student.js';
+import { parseChecklist } from '../lib/taskChecklist.js';
 
 // Intervals are described structurally ({ everyDays } or { everyMonths }) and
 // converted to a Postgres interval string here — a raw interval string from
@@ -77,6 +78,11 @@ export function parseTaskFields(rawBody, { partial = false } = {}) {
       ? rawBody
       : {};
   const updates = {};
+  if ('checklist' in body) {
+    const parsed = parseChecklist(body.checklist);
+    if (parsed.error) return parsed;
+    updates.checklist = parsed.value;
+  }
 
   if (!partial || 'title' in body) {
     if (typeof body?.title !== 'string') {

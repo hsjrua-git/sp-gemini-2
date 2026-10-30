@@ -13,7 +13,9 @@ import ByPeriodView from '../components/ByPeriodView.jsx';
 import EmptyState from '../components/EmptyState.jsx';
 import HistoryGrid from '../components/HistoryGrid.jsx';
 import { formatStudentCode } from '../lib/format.js';
-import { DIMENSIONS } from '../lib/resultsView.js';
+import ReportScopePicker from '../components/ReportScopePicker.jsx';
+import { useReportScope } from '../lib/useReportScope.js';
+import { scopedHistory } from '../lib/reportResults.js';
 import { visibleParameters } from '../lib/prefs.js';
 import { usePreferences } from '../preferences/PreferencesContext.jsx';
 import ExportButton from '../components/ExportButton.jsx';
@@ -38,7 +40,6 @@ function StudentDetailPage() {
   const { can } = useAuth();
   const { preferences } = usePreferences();
   const [tab, setTab] = useState(preferences.studentDefaultTab);
-  const [dimension, setDimension] = useState('quality');
 
   // The score history (all three tabs, plus the CSV export) is evaluations
   // labelled by parameters, so it needs BOTH scores.view and parameters.view.
@@ -50,6 +51,7 @@ function StudentDetailPage() {
   const canViewScores = can('scores.view');
   const canViewParameters = can('parameters.view');
   const canViewHistory = canViewScores && canViewParameters;
+  const report = useReportScope({ enabled: canViewHistory });
 
   const studentQuery = useQuery({
     queryKey: ['student', id],
@@ -104,7 +106,7 @@ function StudentDetailPage() {
   const queries = [studentQuery];
   if (canViewScores) queries.push(evaluationsQuery);
   if (canViewParameters) queries.push(parametersQuery);
-  if (canViewHistory) queries.push(assignmentsQuery);
+  if (canViewHistory) queries.push(assignmentsQuery, { isPending: report.isPending, isError: Boolean(report.error), error: report.error });
   const failed = queries.find((query) => query.isError);
   if (failed) {
     return (
@@ -131,25 +133,27 @@ function StudentDetailPage() {
   }
 
   const student = studentQuery.data;
-  const evaluations = evaluationsQuery.data;
+  const evaluations = canViewHistory ? scopedHistory(evaluationsQuery.data ?? [], report.selectedPeriods) : [];
   const parameters = parametersQuery.data;
 
   let content = null;
   if (canViewHistory) {
     const shown = visibleParameters(parameters, preferences.hiddenParameterIds);
-    const viewProps = {
-      evaluations,
-      parameters: shown,
-      dimension,
-    };
+    const viewProps = { evaluations, parameters: shown };
     if (evaluations.length === 0) {
       content = <p>{t('detail.noCellsYet')}</p>;
     } else if (tab === 'period') {
       content = (
-        <ByPeriodView {...viewProps} assignmentsById={assignmentsById} />
+        report.scope.dimensions.map(dimension => <section key={dimension}>
+          <h3>{t(`workflows:scope.${dimension}`)}</h3>
+          <ByPeriodView {...viewProps} dimension={dimension} assignmentsById={assignmentsById}
+            selectedPeriods={report.selectedPeriods} comparisonEvaluations={evaluationsQuery.data} />
+        </section>)
       );
     } else if (tab === 'parameter') {
-      content = <ByParameterView {...viewProps} />;
+      content = report.scope.dimensions.map(dimension => <section key={dimension}>
+        <h3>{t(`workflows:scope.${dimension}`)}</h3><ByParameterView {...viewProps} dimension={dimension} />
+      </section>);
     } else {
       content = (
         <>
@@ -158,6 +162,7 @@ function StudentDetailPage() {
             parameters={shown}
             assignmentsById={assignmentsById}
             initialShowAll={preferences.studentShowAllPeriods}
+            dimensions={report.scope.dimensions}
           />
           {shown.length < parameters.length && (
             <p className="hint">
@@ -194,7 +199,8 @@ function StudentDetailPage() {
                   historyCsvRows({
                     evaluations,
                     parameters,
-                    assignmentsById,
+                     assignmentsById,
+                     dimensions: report.scope.dimensions,
                   })
                 }
               />
@@ -215,27 +221,8 @@ function StudentDetailPage() {
         <section className="section-card">
           <div className="page-head">
             <h2>{t('detail.history')}</h2>
-            <div className="page-head-actions">
-              <div
-                className="segmented"
-                role="group"
-                aria-label={t('detail.dimensionLabel')}
-              >
-                {DIMENSIONS.map((value) => (
-                  <label key={value}>
-                    <input
-                      type="radio"
-                      name="history-dimension"
-                      value={value}
-                      checked={dimension === value}
-                      onChange={() => setDimension(value)}
-                    />
-                    {t(`detail.${value}`)}
-                  </label>
-                ))}
-              </div>
-            </div>
           </div>
+          <ReportScopePicker report={report} />
           <div className="tabs" role="tablist" aria-label={t('detail.historyViews')}>
             {TABS.map((item) => (
               <button

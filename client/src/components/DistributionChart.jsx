@@ -13,6 +13,7 @@ import { cubeValues } from '../lib/cube.js';
 import { distribution } from '../lib/dashboard.js';
 import { CHART_TOOLTIP } from '../lib/chartTheme.js';
 import { useLocale } from '../lib/locale.js';
+import { dimensionRange } from '../lib/dimensions.js';
 
 // How many students scored in each band of a parameter's range, for one period.
 // Single-series, so it keeps the base brand bar colour (no series class). Bins
@@ -32,7 +33,7 @@ function DistributionChart({ cube, parameterId, periodKey }) {
 
   const bins = useMemo(() => {
     if (!parameter || period === null) return [];
-    return distribution(cubeValues(cube, parameter.id, period), parameter);
+    return distribution(cubeValues(cube, parameter.id, period), dimensionRange(parameter, cube.dimension));
   }, [cube, parameter, period]);
 
   if (!parameter) {

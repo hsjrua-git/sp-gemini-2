@@ -108,7 +108,7 @@ test('accepts valid cells, including the range limits and the group row', () => 
       entry({
         membershipId: M2,
         parameterId: OPEN,
-        qualityValue: 12345,
+        qualityValue: 100,
         quantityValue: -7,
       }),
       entry({ membershipId: null, parameterId: OPEN, quantityValue: 3 }),
@@ -122,12 +122,12 @@ test('null values skip the range checks', () => {
 });
 
 test('flags values outside a parameter range, per dimension', () => {
-  const problems = check([entry({ qualityValue: 11, quantityValue: -1 })]);
+  const problems = check([entry({ qualityValue: 101, quantityValue: -1 })]);
   assert.deepEqual(
     problems.map((p) => [p.index, p.message]),
     [
-      [0, 'Speed must be at most 10.'],
-      [0, 'Speed must be at least 0.'],
+      [0, 'Speed qualityValue must be at most 100.'],
+      [0, 'Speed quantityValue must be at least 0.'],
     ]
   );
 });

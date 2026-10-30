@@ -58,7 +58,7 @@ function ComparisonChart({ cube, parameterIds, shape = 'bar' }) {
           <RadarChart data-chart-root data={data} margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
             <PolarGrid />
             <PolarAngleAxis dataKey="label" tick={{ fill: 'currentColor', fontSize: 12 }} />
-            <PolarRadiusAxis tick={{ fill: 'currentColor', fontSize: 11 }} />
+            <PolarRadiusAxis domain={cube.dimension === 'quality' ? [0, 100] : undefined} tick={{ fill: 'currentColor', fontSize: 11 }} />
             <Tooltip {...CHART_TOOLTIP} />
             <Legend />
             {params.map((parameter, index) => (
@@ -66,7 +66,7 @@ function ComparisonChart({ cube, parameterIds, shape = 'bar' }) {
                 key={parameter.id}
                 className={seriesClass(index)}
                 dataKey={parameter.id}
-                name={parameter.name}
+                name={parameter.path || parameter.name}
                 fillOpacity={0.15}
                 isAnimationActive={false}
               />
@@ -88,6 +88,7 @@ function ComparisonChart({ cube, parameterIds, shape = 'bar' }) {
             reversed={isRtl}
           />
           <YAxis
+            domain={cube.dimension === 'quality' ? [0, 100] : undefined}
             tick={{ fill: 'currentColor', fontSize: 12 }}
             width={40}
             orientation={isRtl ? 'right' : 'left'}
@@ -99,7 +100,7 @@ function ComparisonChart({ cube, parameterIds, shape = 'bar' }) {
               key={parameter.id}
               className={seriesClass(index)}
               dataKey={parameter.id}
-              name={parameter.name}
+              name={parameter.path || parameter.name}
               isAnimationActive={false}
             />
           ))}

@@ -5,6 +5,6 @@ import { request } from './http.js';
 // persisted and maintained by the server. Callers without scores.view get the
 // periods without answered-cell counts.
 export async function getPeriods(assignmentId) {
-  const data = await request(`/api/periods?assignmentId=${assignmentId}`);
+  const data = await request(`/api/periods${assignmentId ? `?assignmentId=${assignmentId}` : ''}`);
   return data.periods;
 }

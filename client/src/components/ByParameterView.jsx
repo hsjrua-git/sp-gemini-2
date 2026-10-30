@@ -14,6 +14,8 @@ import { formatChange, formatShortIsoDate } from '../lib/format.js';
 import { buildHistory } from '../lib/history.js';
 import { useLocale } from '../lib/locale.js';
 import { parameterView } from '../lib/views.js';
+import { dimensionRange } from '../lib/dimensions.js';
+import HierarchySelect from './HierarchySelect.jsx';
 
 // "By parameter": one parameter's evolution over the student's sessions, in
 // the viewed dimension. Whole-group values (where the student has no cell of
@@ -39,6 +41,7 @@ function ByParameterView({ evaluations, parameters, dimension }) {
     ? chosenId
     : defaultId;
   const parameter = columns.find((c) => c.id === parameterId);
+  const range = dimensionRange(parameter, dimension);
 
   const { points, stats } = parameterView({
     evaluations,
@@ -54,16 +57,7 @@ function ByParameterView({ evaluations, parameters, dimension }) {
     <>
       <label className="inline">
         {t('shared.parameter')}
-        <select
-          value={parameterId}
-          onChange={(event) => setChosenId(event.target.value)}
-        >
-          {columns.map((column) => (
-            <option key={column.id} value={column.id}>
-              {column.name}
-            </option>
-          ))}
-        </select>
+        <HierarchySelect items={columns} value={parameterId} onChange={setChosenId} />
       </label>
 
       {!stats ? (
@@ -111,7 +105,7 @@ function ByParameterView({ evaluations, parameters, dimension }) {
                   reversed={isRtl}
                 />
                 <YAxis
-                  domain={[parameter.minValue ?? 'auto', parameter.maxValue ?? 'auto']}
+                  domain={[range.minValue ?? 'auto', range.maxValue ?? 'auto']}
                   tick={{ fill: 'currentColor', fontSize: 12 }}
                   width={40}
                   orientation={isRtl ? 'right' : 'left'}

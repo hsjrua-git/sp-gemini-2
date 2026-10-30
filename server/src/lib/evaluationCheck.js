@@ -117,10 +117,12 @@ export function findProblems({ entries, parameters, memberships }) {
       ['quantityValue', entry.quantityValue],
     ]) {
       if (value === null) continue;
-      if (parameter.minValue !== null && value < parameter.minValue) {
-        report(`${parameter.name} must be at least ${parameter.minValue}.`);
-      } else if (parameter.maxValue !== null && value > parameter.maxValue) {
-        report(`${parameter.name} must be at most ${parameter.maxValue}.`);
+      const min = field === 'qualityValue' ? 0 : parameter.minValue;
+      const max = field === 'qualityValue' ? 100 : parameter.maxValue;
+      if (min != null && value < min) {
+        report(`${parameter.name} ${field} must be at least ${min}.`);
+      } else if (max != null && value > max) {
+        report(`${parameter.name} ${field} must be at most ${max}.`);
       }
     }
   });

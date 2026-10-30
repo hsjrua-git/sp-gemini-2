@@ -154,7 +154,7 @@ export function buildImport({
       } else {
         for (const [dimension] of dimensions) {
           if (texts[dimension] === '') continue;
-          const result = parseDimension(texts[dimension], parameter);
+          const result = parseDimension(texts[dimension], parameter, dimension);
           if (result.error) {
             cellProblem = `${dimension === 'quality' ? 'Quality' : 'Quantity'}: ${result.error}`;
           } else {

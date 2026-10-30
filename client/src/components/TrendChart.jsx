@@ -58,6 +58,7 @@ function TrendChart({ cube, parameterIds }) {
             reversed={isRtl}
           />
           <YAxis
+            domain={cube.dimension === 'quality' ? [0, 100] : undefined}
             tick={{ fill: 'currentColor', fontSize: 12 }}
             width={40}
             orientation={isRtl ? 'right' : 'left'}
@@ -70,7 +71,7 @@ function TrendChart({ cube, parameterIds }) {
               className={seriesClass(index)}
               type="linear"
               dataKey={parameter.id}
-              name={parameter.name}
+              name={parameter.path || parameter.name}
               strokeWidth={2}
               dot={{ r: 3 }}
               activeDot={{ r: 5 }}

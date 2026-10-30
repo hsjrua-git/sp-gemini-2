@@ -6,6 +6,7 @@
 // with no values just means "not answered yet".
 
 import { toLatinDigits } from './locale.js';
+import { dimensionRange } from './dimensions.js';
 
 export function cellKey(membershipId, parameterId) {
   return `${membershipId ?? 'group'}:${parameterId}`;
@@ -25,18 +26,20 @@ export function savedText(value) {
 
 const INTEGER_PATTERN = /^[+-]?\d+$/;
 
-// One dimension's value: a whole number inside the parameter's own range.
+// Quality is a percentage; quantity uses the parameter's own bounds.
 // An empty input means "no value" (null), not zero.
-export function parseDimension(text, parameter) {
+export function parseDimension(text, parameter, dimension = 'quantity') {
   const trimmed = toLatinDigits(text).trim();
   if (trimmed === '') return { value: null };
   if (!INTEGER_PATTERN.test(trimmed)) return { error: 'Enter a whole number.' };
   const value = Number(trimmed);
-  if (parameter.minValue !== null && value < parameter.minValue) {
-    return { error: `At least ${parameter.minValue}.` };
+  if (!Number.isSafeInteger(value) || Math.abs(value) > 1_000_000_000) return { error: 'Outside the supported range.' };
+  const { minValue, maxValue } = dimensionRange(parameter, dimension);
+  if (minValue !== null && value < minValue) {
+    return { error: `At least ${minValue}.` };
   }
-  if (parameter.maxValue !== null && value > parameter.maxValue) {
-    return { error: `At most ${parameter.maxValue}.` };
+  if (maxValue !== null && value > maxValue) {
+    return { error: `At most ${maxValue}.` };
   }
   return { value };
 }
@@ -66,7 +69,7 @@ export function resolveCellState({ draft, saved, parameter }) {
   const errors = {};
   let qualityValue;
   if ('qualityText' in draft) {
-    const result = parseDimension(draft.qualityText, parameter);
+    const result = parseDimension(draft.qualityText, parameter, 'quality');
     if (result.error) errors.quality = result.error;
     else qualityValue = result.value;
   } else {
@@ -74,7 +77,7 @@ export function resolveCellState({ draft, saved, parameter }) {
   }
   let quantityValue;
   if ('quantityText' in draft) {
-    const result = parseDimension(draft.quantityText, parameter);
+    const result = parseDimension(draft.quantityText, parameter, 'quantity');
     if (result.error) errors.quantity = result.error;
     else quantityValue = result.value;
   } else {

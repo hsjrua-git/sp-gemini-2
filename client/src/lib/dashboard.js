@@ -39,6 +39,10 @@ function inUseParameters(results) {
   );
 }
 
+function forRow(parameters, row) {
+  return row.expectedParameterIds ? parameters.filter(p => row.expectedParameterIds.includes(p.id)) : parameters;
+}
+
 // Keep an explicit saved choice when it still exists. Otherwise prefer the
 // newest period that actually contains answers, so a generated future period
 // does not make the dashboard/constellation look empty by default.
@@ -52,18 +56,19 @@ export function summarize(results, options = {}) {
   const { dimension, basis } = normalize(options);
   const inUse = inUseParameters(results);
   const students = results.rows.filter((row) => !row.isGroup);
-  const expected = students.length * inUse.length;
+  const expected = students.reduce((total, row) => total + forRow(inUse, row).length, 0);
   let measured = 0;
   let complete = 0;
   let partial = 0;
   let none = 0;
 
   for (const row of students) {
-    const have = inUse.filter((parameter) =>
+    const applicable = forRow(inUse, row);
+    const have = applicable.filter((parameter) =>
       answered(row.cells[parameter.id], basis, dimension)
     ).length;
     measured += have;
-    if (inUse.length > 0 && have === inUse.length) complete++;
+    if (applicable.length > 0 && have === applicable.length) complete++;
     else if (have > 0) partial++;
     else none++;
   }
@@ -88,11 +93,12 @@ export function cohortField(results, options = {}) {
   return results.rows
     .filter((row) => !row.isGroup)
     .map((row) => {
-      const measured = inUse.filter((parameter) =>
+      const applicable = forRow(inUse, row);
+      const measured = applicable.filter((parameter) =>
         answered(row.cells[parameter.id], basis, dimension)
       ).length;
       let state;
-      if (inUse.length > 0 && measured === inUse.length) state = 'full';
+      if (applicable.length > 0 && measured === applicable.length) state = 'full';
       else if (measured > 0) state = 'partial';
       else state = 'none';
       return {
@@ -100,7 +106,7 @@ export function cohortField(results, options = {}) {
         fullName: row.fullName,
         studentCode: row.studentCode,
         measured,
-        inUse: inUse.length,
+        inUse: applicable.length,
         state,
       };
     });
@@ -134,6 +140,7 @@ export function parameterStats(results, options = {}) {
       }
     }
     return {
+      dimension,
       parameter: { ...parameter, inUse: selected > 0 },
       values,
       count: values.length,
@@ -214,7 +221,7 @@ export function studentBreakdown(results, studentId, options = {}) {
   const row =
     results.rows.find((item) => item.studentId === studentId && !item.isGroup) ??
     null;
-  const rows = inUse.map((parameter) => {
+  const rows = (row ? forRow(inUse, row) : inUse).map((parameter) => {
     const cell = row?.cells[parameter.id];
     const value = cell?.[dimension] ?? null;
     const before = row?.previous[parameter.id]?.[dimension];
@@ -230,10 +237,11 @@ export function studentBreakdown(results, studentId, options = {}) {
   });
   return {
     id: studentId,
+    dimension,
     fullName: row?.fullName ?? '',
     studentCode: row?.studentCode ?? null,
     measured: rows.filter((entry) => entry.answered).length,
-    inUse: inUse.length,
+    inUse: rows.length,
     rows,
   };
 }
@@ -251,7 +259,7 @@ export function unmeasuredStudents(results, options = {}) {
       id: row.studentId,
       fullName: row.fullName,
       studentCode: row.studentCode,
-      missing: inUse
+      missing: forRow(inUse, row)
         .filter((parameter) => !answered(row.cells[parameter.id], basis, dimension))
         .map((parameter) => parameter.name),
     }))

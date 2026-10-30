@@ -338,7 +338,6 @@ test('a signed-in viewer never gets a 401, and privileged routes stay closed to 
     'POST /api/teachers',
     'GET /api/intervals',
     'POST /api/sessions/generate',
-    'GET /api/tasks',
     'POST /api/tasks',
     'POST /api/tasks/from-template',
     'GET /api/task-templates',

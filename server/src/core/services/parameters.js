@@ -2,7 +2,7 @@
 //
 // PGlite test mirror of routes/parameters.js under the schema-4 model: a
 // parameter is identified by a NOT NULL unique code, its bounds are integers
-// (both dimensions share the range), and there is no change log — the
+// (quantity only; quality is always 0–100%), and there is no change log — the
 // period-scoped add/remove changes and their impact math are gone. One
 // guardrail survives: narrowing a range that recorded evaluations sit outside
 // is refused (the route checks explicitly before the write; the DB trigger
@@ -22,6 +22,7 @@ const PARAMETER_COLUMNS = `
   id,
   code,
   name,
+  parent_id    AS "parentId",
   min_value    AS "minValue",
   max_value    AS "maxValue",
   sort_order   AS "sortOrder",
@@ -30,6 +31,12 @@ const PARAMETER_COLUMNS = `
 
 // Map the two DB constraint violations the route special-cased to ServiceError.
 function mapParameterError(err) {
+  if (err.code === '23503' || err.constraint?.startsWith('parameters_hierarchy')) {
+    return ServiceError.validation('Choose an active parent without a cycle; move active children before archiving.', { code: 'PARAMETERS_HIERARCHY_INVALID' });
+  }
+  if (err.constraint === 'parameters_quantity_range_locked') {
+    return ServiceError.conflict('Recorded quantities are outside the new range.', { code: 'PARAMETERS_RANGE_LOCKED' });
+  }
   if (err && err.code === '23505') {
     return ServiceError.conflict(
       'A parameter with that name or code already exists.',
@@ -67,15 +74,15 @@ export async function createParameter(input = {}) {
       params: parsed.params,
     });
   }
-  const { code, name, minValue = null, maxValue = null } = parsed.values;
+  const { code, name, minValue = null, maxValue = null, parentId = null } = parsed.values;
 
   try {
     const created = await db.query(
-      `INSERT INTO parameters (code, name, min_value, max_value, sort_order)
-       VALUES ($1, $2, $3, $4,
+      `INSERT INTO parameters (code, name, min_value, max_value, parent_id, sort_order)
+       VALUES ($1, $2, $3, $4, $5,
                (SELECT COALESCE(MAX(sort_order), 0) + 1 FROM parameters))
        RETURNING ${PARAMETER_COLUMNS}`,
-      [code, name, minValue, maxValue]
+      [code, name, minValue, maxValue, parentId]
     );
     const actor = getLocalActor();
     await recordAudit(db, {
@@ -117,6 +124,7 @@ export async function updateParameter(id, changes = {}) {
     minValue: 'min_value',
     maxValue: 'max_value',
     sortOrder: 'sort_order',
+    parentId: 'parent_id',
   };
   const entries = Object.entries(parsed.values);
   if (entries.length === 0 && !('archived' in changes)) {
@@ -133,8 +141,8 @@ export async function updateParameter(id, changes = {}) {
   }
 
   if ('minValue' in parsed.values || 'maxValue' in parsed.values) {
-    const minValue = parsed.values.minValue ?? before.minValue;
-    const maxValue = parsed.values.maxValue ?? before.maxValue;
+    const minValue = 'minValue' in parsed.values ? parsed.values.minValue : before.minValue;
+    const maxValue = 'maxValue' in parsed.values ? parsed.values.maxValue : before.maxValue;
     if (
       (minValue !== before.minValue || maxValue !== before.maxValue) &&
       (before.minValue !== null || before.maxValue !== null ||
@@ -143,10 +151,8 @@ export async function updateParameter(id, changes = {}) {
       const outside = await db.query(
         `SELECT 1 FROM evaluations
          WHERE parameter_id = $1 AND archived_at IS NULL
-           AND ((quality_value IS NOT NULL AND ($2::int IS NOT NULL AND quality_value < $2
-                 OR $3::int IS NOT NULL AND quality_value > $3))
-             OR (quantity_value IS NOT NULL AND ($2::int IS NOT NULL AND quantity_value < $2
-                 OR $3::int IS NOT NULL AND quantity_value > $3)))
+           AND (($2::int IS NOT NULL AND quantity_value < $2)
+             OR ($3::int IS NOT NULL AND quantity_value > $3))
          LIMIT 1`,
         [id, minValue, maxValue]
       );

@@ -13,7 +13,7 @@ const router = Router();
 // answered-cell count is stripped for callers without scores.view.
 router.get('/periods', async (req, res) => {
   const { assignmentId } = req.query;
-  if (!isUuid(assignmentId)) {
+  if (assignmentId !== undefined && !isUuid(assignmentId)) {
     return res.status(400).json({
       error: 'assignmentId must be a valid ID.',
       code: 'VALIDATION_INVALID_FORMAT',
@@ -21,7 +21,7 @@ router.get('/periods', async (req, res) => {
     });
   }
 
-  const assignment = await pool.query(
+  const assignment = assignmentId === undefined ? { rowCount: 1 } : await pool.query(
     'SELECT id FROM assignments WHERE id = $1',
     [assignmentId]
   );

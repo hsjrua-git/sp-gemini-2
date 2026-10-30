@@ -3,8 +3,26 @@ import pool from '../db/pool.js';
 import { isUuid } from '../lib/ids.js';
 import { listAssignmentPeriods } from '../lib/periods.js';
 import { buildResults } from '../lib/results.js';
+import { readReportResults } from '../lib/reportResults.js';
 
 const router = Router();
+
+router.get('/scope', async (req, res) => {
+  const ids = typeof req.query.periodIds === 'string' ? [...new Set(req.query.periodIds.split(','))] : [];
+  if (ids.length === 0 || ids.length > 200 || !ids.every(isUuid)) {
+    return res.status(400).json({ error: 'Choose between 1 and 200 valid periods.', code: 'REPORT_SCOPE_INVALID' });
+  }
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
+    const result = await readReportResults(client, ids);
+    await client.query('COMMIT');
+    res.json(result);
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally { client.release(); }
+});
 
 // The results grid of one assignment period. Rows = the assignment's targets
 // (whole-group row first, then members; an individual assignment has exactly

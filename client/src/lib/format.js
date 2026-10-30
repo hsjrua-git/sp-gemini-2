@@ -54,7 +54,9 @@ export function formatRange({ minValue, maxValue }) {
   return `${minValue ?? '…'} ${i18n.t('changes.to')} ${maxValue ?? '…'}`;
 }
 
-export function formatParameterHint(parameter) {
+export function formatParameterHint(parameter, dimension) {
+  if (dimension === 'quality') return '0–100%';
+  if (dimension === 'both') return `${i18n.t('workflows:quality')} · ${i18n.t('workflows:quantityRange')}: ${formatRange(parameter)}`;
   const range = formatRange(parameter);
   return [range === '—' ? null : range, parameter.unit]
     .filter(Boolean)

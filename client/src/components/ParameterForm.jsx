@@ -1,15 +1,16 @@
 import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { createParameter } from '../api/parameters.js';
+import { createParameter, listParameters } from '../api/parameters.js';
 import { errorMessage } from '../i18n/errors.js';
 import { parseOptionalNumber } from '../lib/numbers.js';
+import HierarchySelect from './HierarchySelect.jsx';
 
 // A parameter is identified by a unique code and carries the integer range
-// both dimensions share. There is no unit and no per-period activation
+// for quantity. Quality is always a percentage. There is no per-period activation
 // anymore — applicability is the evaluator's cell selection.
 function ParameterForm() {
-  const { t } = useTranslation(['students', 'common']);
+  const { t } = useTranslation(['students', 'common', 'workflows']);
   const queryClient = useQueryClient();
 
   const [code, setCode] = useState('');
@@ -17,6 +18,8 @@ function ParameterForm() {
   const [minText, setMinText] = useState('');
   const [maxText, setMaxText] = useState('');
   const [problem, setProblem] = useState(null);
+  const [parentId, setParentId] = useState('');
+  const parameters = useQuery({ queryKey: ['parameters'], queryFn: listParameters });
 
   const mutation = useMutation({
     mutationFn: createParameter,
@@ -25,6 +28,7 @@ function ParameterForm() {
       setName('');
       setMinText('');
       setMaxText('');
+      setParentId('');
       queryClient.invalidateQueries({ queryKey: ['parameters'] });
     },
   });
@@ -55,6 +59,7 @@ function ParameterForm() {
       name,
       minValue: min.value,
       maxValue: max.value,
+      parentId: parentId || null,
     });
   }
 
@@ -82,7 +87,7 @@ function ParameterForm() {
           />
         </label>
         <label>
-          {t('parameters.minLabel')}
+          {t('workflows:quantityMin')}
           <input
             type="number"
             step="1"
@@ -91,7 +96,7 @@ function ParameterForm() {
           />
         </label>
         <label>
-          {t('parameters.maxLabel')}
+          {t('workflows:quantityMax')}
           <input
             type="number"
             step="1"
@@ -100,6 +105,10 @@ function ParameterForm() {
           />
         </label>
       </div>
+      <label>{t('workflows:tree.parent')}
+        <HierarchySelect items={parameters.data ?? []} value={parentId} onChange={setParentId} emptyLabel={t('workflows:tree.root')} />
+      </label>
+      <p className="hint">{t('workflows:quality')}</p>
 
       <button type="submit" disabled={mutation.isPending}>
         {mutation.isPending ? t('forms.adding') : t('parameters.addBtn')}

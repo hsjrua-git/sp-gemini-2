@@ -8,6 +8,7 @@ import {
 } from '../api/groups.js';
 import { useAuth } from '../auth/AuthContext.jsx';
 import { errorMessage } from '../i18n/errors.js';
+import { hierarchy, hierarchyLabel } from '../lib/hierarchy.js';
 
 function StudentGroupsSection({ student }) {
   const { t } = useTranslation(['students', 'common']);
@@ -23,12 +24,12 @@ function StudentGroupsSection({ student }) {
   const allGroupsQuery = useQuery({
     queryKey: ['groups'],
     queryFn: () => listGroups(),
-    enabled: canAssign,
   });
 
-  const memberOf = memberOfQuery.data ?? [];
+  const ordered = hierarchy(allGroupsQuery.data ?? memberOfQuery.data ?? []);
+  const memberOf = (memberOfQuery.data ?? []).map(group => ordered.find(item => item.id === group.id) ?? group);
   const memberIds = new Set(memberOf.map((group) => group.id));
-  const available = (allGroupsQuery.data ?? []).filter(
+  const available = ordered.filter(
     (group) => !memberIds.has(group.id)
   );
 
@@ -69,7 +70,7 @@ function StudentGroupsSection({ student }) {
         <span className="chip-row">
           {memberOf.map((group) => (
             <span key={group.id} className="chip brand">
-              {group.name}
+              {group.path || group.name}
               {canAssign && (
                 <button
                   type="button"
@@ -100,7 +101,7 @@ function StudentGroupsSection({ student }) {
             <option value="">{t('detail.addToGroupPlaceholder')}</option>
             {available.map((group) => (
               <option key={group.id} value={group.id}>
-                {group.name}
+                {hierarchyLabel(group)}
               </option>
             ))}
           </select>

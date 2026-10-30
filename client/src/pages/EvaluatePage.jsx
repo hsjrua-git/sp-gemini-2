@@ -4,7 +4,7 @@ import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { listEvaluations, saveEvaluations } from '../api/evaluations.js';
 import { listParameters } from '../api/parameters.js';
-import { listGroupMembers } from '../api/groups.js';
+import { listGroupMembers, listGroups } from '../api/groups.js';
 import { listAssignments } from '../api/schedule.js';
 import { listSessions } from '../api/sessions.js';
 import { useAuth } from '../auth/AuthContext.jsx';
@@ -20,6 +20,9 @@ import {
   splitCellKey,
 } from '../lib/cells.js';
 import { formatIsoDate, toIsoDate } from '../lib/format.js';
+import HierarchySelect from '../components/HierarchySelect.jsx';
+import EvaluationTasks from '../components/EvaluationTasks.jsx';
+import { assignmentTree } from '../lib/hierarchy.js';
 
 function EvaluatePage() {
   const queryClient = useQueryClient();
@@ -29,6 +32,7 @@ function EvaluatePage() {
   const [assignmentId, setAssignmentId] = useState(null);
   const [sessionId, setSessionId] = useState(null);
   const [drafts, setDrafts] = useState({});
+  const [overrideReason, setOverrideReason] = useState('');
 
   const canViewScores = can('scores.view');
 
@@ -37,6 +41,7 @@ function EvaluatePage() {
     queryFn: listAssignments,
   });
   const assignments = assignmentsQuery.data ?? [];
+  const groups = useQuery({ queryKey: ['groups'], queryFn: listGroups });
 
   // The assignment the grid shows: the user's pick, else the first one —
   // derived (not an effect) so the picker always has a coherent selection.
@@ -166,6 +171,7 @@ function EvaluatePage() {
         queryClient.invalidateQueries({ queryKey: ['periods'] }),
       ]);
       setDrafts({});
+      setOverrideReason('');
     },
   });
   // Read the mutation through a ref so the cell change handler can stay
@@ -184,9 +190,9 @@ function EvaluatePage() {
       if (!parameter) continue;
       if (
         ('qualityText' in draft &&
-          parseDimension(draft.qualityText, parameter).error) ||
+          parseDimension(draft.qualityText, parameter, 'quality').error) ||
         ('quantityText' in draft &&
-          parseDimension(draft.quantityText, parameter).error)
+          parseDimension(draft.quantityText, parameter, 'quantity').error)
       ) {
         return true;
       }
@@ -214,11 +220,11 @@ function EvaluatePage() {
       if (!parameter) continue;
       const forCell = {};
       if ('qualityText' in draft) {
-        const result = parseDimension(draft.qualityText, parameter);
+        const result = parseDimension(draft.qualityText, parameter, 'quality');
         if (result.error) forCell.quality = result.error;
       }
       if ('quantityText' in draft) {
-        const result = parseDimension(draft.quantityText, parameter);
+        const result = parseDimension(draft.quantityText, parameter, 'quantity');
         if (result.error) forCell.quantity = result.error;
       }
       if (Object.keys(forCell).length > 0) errors[key] = forCell;
@@ -249,6 +255,7 @@ function EvaluatePage() {
 
   function clearDrafts() {
     setDrafts({});
+    setOverrideReason('');
     mutation.reset();
   }
 
@@ -277,15 +284,9 @@ function EvaluatePage() {
     });
     if (Object.keys(errors).length > 0 || entries.length === 0) return;
 
-    let overrideReason;
-    if (lockedCount > 0) {
-      const answer = window.prompt(
-        t('evaluate.overridePrompt', { count: lockedCount })
-      );
-      if (answer === null) return;
-      overrideReason = answer;
-    }
-    mutation.mutate({ sessionId: effectiveSessionId, entries, overrideReason });
+    if (lockedCount > 0 && overrideReason.trim().length < 5) return;
+    mutation.mutate({ sessionId: effectiveSessionId, entries,
+      overrideReason: lockedCount > 0 ? overrideReason.trim() : undefined });
   }
 
   useEffect(() => {
@@ -381,16 +382,7 @@ function EvaluatePage() {
       <div className="control-bar">
         <label className="field">
           <span>{t('evaluate.assignmentLabel')}</span>
-          <select
-            value={effectiveAssignmentId ?? ''}
-            onChange={(event) => handleSwitch(event.target.value || null, null)}
-          >
-            {assignments.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.name ?? item.code}
-              </option>
-            ))}
-          </select>
+          <HierarchySelect items={assignmentTree(assignments, groups.data ?? [])} value={effectiveAssignmentId ?? ''} onChange={id => handleSwitch(id || null, null)} />
         </label>
         <label className="field">
           <span>{t('evaluate.sessionLabel')}</span>
@@ -418,7 +410,7 @@ function EvaluatePage() {
           type="button"
           className="primary"
           onClick={handleSave}
-          disabled={draftCount === 0 || hasLiveErrors || mutation.isPending}
+          disabled={draftCount === 0 || hasLiveErrors || mutation.isPending || (lockedCount > 0 && overrideReason.trim().length < 5)}
         >
           {saveLabel}
         </button>
@@ -431,7 +423,12 @@ function EvaluatePage() {
         </button>
       </div>
 
+      {lockedCount > 0 && <label className="field section-card">
+        <span>{t('evaluate.overridePrompt', { count: lockedCount })}</span>
+        <textarea value={overrideReason} onChange={event => setOverrideReason(event.target.value)} minLength={5} maxLength={300} rows={2} disabled={mutation.isPending} />
+      </label>}
       {!canViewScores && <p className="hint">{t('evaluate.blindHint')}</p>}
+      {effectiveSession && <EvaluationTasks key={effectiveSession.id} session={effectiveSession} sessions={sessions} />}
       <p className="hint">
         {t('evaluate.lockHint')}
         {can('scores.override')

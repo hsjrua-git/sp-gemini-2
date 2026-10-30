@@ -4,10 +4,21 @@ import {
   nodeAppearance,
   satelliteAppearance,
   satelliteRing,
+  orbitLayout,
+  ORBITS_PER_PAGE,
 } from './constellation.js';
 
 const isUnit = (p) =>
   Math.abs(Math.hypot(p.x, p.y, p.z) - 1) < 1e-9;
+
+test('orbit pages retain distinct pick bands and a clear outer student shell', () => {
+  for (const count of [0, 1, 2, 6, 100]) {
+    const { radii, shell } = orbitLayout(count);
+    expect(radii).toHaveLength(Math.min(count, ORBITS_PER_PAGE));
+    for (let i = 1; i < radii.length; i++) expect(radii[i] - radii[i - 1]).toBeGreaterThan(0.18);
+    if (radii.length) expect(shell - radii.at(-1)).toBeGreaterThanOrEqual(0.44);
+  }
+});
 
 describe('spherePoints', () => {
   it('returns nothing for a non-positive count', () => {

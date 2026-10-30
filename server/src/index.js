@@ -313,9 +313,9 @@ app.use(
 app.use(
   '/api/tasks',
   authorize({
-    GET: 'schedule.view',
+    GET: ['schedule.view', 'scores.enter', 'scores.view'],
     POST: 'schedule.manage',
-    PATCH: 'schedule.manage',
+    PATCH: ['schedule.manage', 'scores.enter'],
     DELETE: 'schedule.manage',
   }),
   tasksRouter

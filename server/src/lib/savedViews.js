@@ -1,4 +1,5 @@
 import { isUuid } from './ids.js';
+import { validReportScope } from './reportScope.js';
 
 export const MAX_VIEWS_PER_USER = 50;
 export const OPERATORS = ['lt', 'lte', 'gt', 'gte', 'eq', 'missing', 'present'];
@@ -74,7 +75,10 @@ export function parseViewConfig(input) {
     };
   }
 
-  if (!isUuid(input.assignmentId)) {
+  if (input.reportScope !== undefined && !validReportScope(input.reportScope)) {
+    return { error: 'Invalid report scope.', code: 'REPORT_SCOPE_INVALID' };
+  }
+  if (input.reportScope === undefined && !isUuid(input.assignmentId)) {
     return {
       error: 'A view needs a valid assignmentId.',
       code: 'VALIDATION_INVALID_FORMAT',
@@ -166,6 +170,7 @@ export function parseViewConfig(input) {
 
   return {
     value: {
+      ...(input.reportScope ? { reportScope: input.reportScope } : {}),
       assignmentId: input.assignmentId,
       seq,
       dimension,

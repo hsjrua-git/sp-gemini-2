@@ -4,7 +4,7 @@ import { recordAudit } from '../lib/audit.js';
 import { isUuid } from '../lib/ids.js';
 import { isValidIsoDate, todayIso } from '../lib/periods.js';
 import { locksAtFor } from '../lib/locks.js';
-import { generateSessions } from '../lib/sessions.js';
+import { parseSessionPlan, planSessions, applySessionPlan } from '../lib/sessionPlan.js';
 
 const router = Router();
 const MAX_LISTED = 500;
@@ -128,38 +128,31 @@ router.get('/', async (req, res) => {
 // Generate the missing planned sessions for active assignments, up to a
 // horizon date. Idempotent: existing planned dates are skipped.
 router.post('/generate', async (req, res) => {
-  const until = req.body?.until;
-  if (!isValidIsoDate(until)) {
-    return res.status(400).json({
-      error: 'until must be a real date written as YYYY-MM-DD.',
-      code: 'VALIDATION_INVALID_DATE',
-      params: { field: 'until' },
-    });
-  }
-  const assignmentId = req.body?.assignmentId ?? null;
-  if (assignmentId !== null && !isUuid(assignmentId)) {
-    return res.status(400).json({
-      error: 'assignmentId must be a valid ID.',
-      code: 'VALIDATION_INVALID_FORMAT',
-      params: { field: 'assignmentId' },
-    });
-  }
+  const parsed = parseSessionPlan(req.body);
+  if (parsed.error) return res.status(400).json(parsed);
 
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    const created = await generateSessions(client, { until, assignmentId });
+    const plan = await planSessions(client, parsed.value);
+    if (plan.error) { await client.query('ROLLBACK'); return res.status(400).json(plan); }
+    if (req.body.dryRun === true) { await client.query('ROLLBACK'); return res.json(plan); }
+    if (req.body.previewToken !== plan.token) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: 'Preview this plan again before confirming.', code: 'SESSION_PLAN_STALE' });
+    }
+    const created = await applySessionPlan(client, plan.rows);
     if (created > 0) {
       await recordAudit(client, {
         userId: req.user.id,
         actor: req.user.username,
         action: 'session.generate',
         entityType: 'session',
-        details: { until, assignmentId, created },
+        details: { ...parsed.value, created },
       });
     }
     await client.query('COMMIT');
-    res.status(201).json({ created, until });
+    res.status(201).json({ created });
   } catch (err) {
     await client.query('ROLLBACK');
     throw err;

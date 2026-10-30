@@ -42,6 +42,17 @@ test('partial dashboard settings are filled from nested defaults', () => {
   });
 });
 
+test('dashboard parameters distinguish all, none and explicit validated selections', () => {
+  for (const parameterIds of [null, [], [ID1, ID2]]) {
+    const dashboardConstellation = { parameterIds };
+    assert.deepEqual(parsePreferencesUpdate({ dashboardConstellation }), { values: { dashboardConstellation } });
+    assert.deepEqual(mergePreferences({ dashboardConstellation }).dashboardConstellation.parameterIds, parameterIds);
+  }
+  for (const parameterIds of ['all', ['nope'], [ID1, ID1]]) {
+    assert.ok(parsePreferencesUpdate({ dashboardConstellation: { parameterIds } }).error);
+  }
+});
+
 test('the defaults object is never shared or changed', () => {
   const merged = mergePreferences({});
   merged.hiddenParameterIds.push(ID1);

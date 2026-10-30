@@ -3,6 +3,7 @@ import { locksAtFor } from '../lib/locks.js';
 import { todayIso } from '../lib/periods.js';
 import { generateSessions } from '../lib/sessions.js';
 import { generateStudentCode, generateTeacherCode } from '../lib/studentCode.js';
+import { seedWorkflowDetails } from './workflowSample.js';
 import {
   removeConnectedSample,
   SAMPLE_PASSWORD,
@@ -566,10 +567,10 @@ async function addSample() {
             // only; a comment rides along about a fifth of the time.
             const shape = rand();
             if (shape < 0.7) {
-              qualityValue = valueFor(rand, target.ability, parameter);
+              qualityValue = valueFor(rand, target.ability, { minValue: 0, maxValue: 100 });
               quantityValue = valueFor(rand, target.ability, parameter);
             } else if (shape < 0.85) {
-              qualityValue = valueFor(rand, target.ability, parameter);
+              qualityValue = valueFor(rand, target.ability, { minValue: 0, maxValue: 100 });
             } else {
               quantityValue = valueFor(rand, target.ability, parameter);
             }
@@ -635,12 +636,13 @@ async function addSample() {
       rosterByAssignment,
       users,
     });
+    await seedWorkflowDetails(client, { groupIds, studentIds });
 
     await client.query('COMMIT');
     console.log(
       `Seeded sample data (today: ${today}):\n` +
         `  parameters:           ${parametersResult.rows.length}\n` +
-        `  groups:               ${GROUPS.length} (${STUDENT_COUNT} students)\n` +
+        `  groups:               ${GROUPS.length + 2} (${STUDENT_COUNT} students; nested hierarchy)\n` +
         `  teachers:             ${TEACHERS.length}\n` +
         `  intervals seeded:     ${seededIntervals}\n` +
         `  assignments:          ${ASSIGNMENTS.length}\n` +
@@ -648,7 +650,7 @@ async function addSample() {
         `  answered periods:     ${periodCount}\n` +
         `  evaluation cells:     ${cells.sessions.length} (${answered} answered)\n` +
         `  custom fields:        ${connected.fields}\n` +
-        `  tasks / alerts:       ${connected.tasks} / ${connected.alerts}\n` +
+        `  tasks / alerts:       ${connected.tasks + 4} / ${connected.alerts}\n` +
         `  cafe products:        ${connected.products}\n` +
         `  voice transcripts:    ${connected.transcripts}\n` +
         `  sample logins:        sample-admin/staff/viewer/accountant/kiosk\n` +

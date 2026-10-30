@@ -69,17 +69,14 @@ export function resultsCsvRows({ period, columns, rows, dimension, showChange })
 
 // The student's session timeline: one row per session, one quality/quantity
 // pair per parameter (the student's own cell, else the whole-group cell).
-export function historyCsvRows({ evaluations, parameters, assignmentsById }) {
+export function historyCsvRows({ evaluations, parameters, assignmentsById, dimensions = ['quality', 'quantity'] }) {
   const history = buildHistory({ evaluations, parameters });
   const rows = visibleRows(history.rows, false);
 
   const header = [
     'Session date',
     'Assignment',
-    ...history.columns.flatMap((column) => [
-      `${column.name} (quality)`,
-      `${column.name} (quantity)`,
-    ]),
+    ...history.columns.flatMap(column => dimensions.map(dimension => `${column.path || column.name} (${dimension})`)),
   ];
   const body = rows.map((row) => [
     row.sessionDate,
@@ -88,8 +85,8 @@ export function historyCsvRows({ evaluations, parameters, assignmentsById }) {
       row.sessionCode,
     ...history.columns.flatMap((column) => {
       const cell = row.cells[column.id];
-      if (cell.state !== 'value' || !cell.answered) return [null, null];
-      return [cell.quality, cell.quantity];
+      if (cell.state !== 'value' || !cell.answered) return dimensions.map(() => null);
+      return dimensions.map(dimension => cell[dimension]);
     }),
   ]);
   return [header, ...body];
@@ -127,16 +124,17 @@ export function cubeLongRows(cube, { includeDelta = false } = {}) {
   const body = [];
   for (const period of cube.periods) {
     for (const student of cube.students) {
+      if (cube.includesStudent && !cube.includesStudent(student.id, period.key)) continue;
       for (const parameter of cube.parameters) {
         const cell = cube.cellAt(student.id, parameter.id, period.key);
-        if (cell.value === null) continue;
+        if (cell.value === null && !cube.includesStudent) continue;
         body.push([
           period.label,
           period.startDate,
           period.endDate,
           student.studentCode,
           student.fullName,
-          parameter.name,
+          parameter.path || parameter.name,
           cell.value,
           ...(includeDelta ? [cell.delta] : []),
         ]);
@@ -157,15 +155,16 @@ function cubeMatrixRows(cube, valueFor) {
     'End date',
     'Student code',
     'Full name',
-    ...cube.parameters.map((parameter) => parameter.name),
+    ...cube.parameters.map((parameter) => parameter.path || parameter.name),
   ];
   const body = [];
   for (const period of cube.periods) {
     for (const student of cube.students) {
+      if (cube.includesStudent && !cube.includesStudent(student.id, period.key)) continue;
       const values = cube.parameters.map((parameter) =>
         valueFor(student.id, parameter.id, period.key)
       );
-      if (values.every((value) => value === null)) continue;
+      if (values.every((value) => value === null) && !cube.includesStudent) continue;
       body.push([
         period.label,
         period.startDate,

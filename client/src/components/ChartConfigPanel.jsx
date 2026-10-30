@@ -6,6 +6,7 @@ import {
   IMAGE_FORMATS,
   MAX_CHARTS,
 } from '../lib/exportConfig.js';
+import TreePicker from './TreePicker.jsx';
 
 function newChart(kind = 'trend') {
   return {
@@ -21,28 +22,7 @@ function newChart(kind = 'trend') {
 // A compact multi-select for parameters, used by the trend/comparison charts.
 function ParameterChecklist({ chosen, parameters, onChange }) {
   const { t } = useTranslation(['reports', 'common']);
-  const selected = new Set(chosen);
-  function toggle(id, on) {
-    const ids = on ? [...selected, id] : chosen.filter((item) => item !== id);
-    onChange([...new Set(ids)]);
-  }
-  return (
-    <div className="columns-list scroll-list small">
-      {parameters.map((parameter) => (
-        <label key={parameter.id} className="inline">
-          <input
-            type="checkbox"
-            checked={selected.has(parameter.id)}
-            onChange={(event) => toggle(parameter.id, event.target.checked)}
-          />
-          {parameter.name}
-        </label>
-      ))}
-      {parameters.length === 0 && (
-        <p className="hint">{t('charts.noParametersAvailable')}</p>
-      )}
-    </div>
-  );
+  return <TreePicker label={t('shared.parameter')} items={parameters} value={chosen} onChange={onChange} includeBranch />;
 }
 
 function ChartEditor({ chart, parameters, periodOptions, onChange, onRemove }) {
@@ -120,7 +100,7 @@ function ChartEditor({ chart, parameters, periodOptions, onChange, onRemove }) {
               <option value="">{t('charts.chooseParameterPlaceholder')}</option>
               {parameters.map((parameter) => (
                 <option key={parameter.id} value={parameter.id}>
-                  {parameter.name}
+                  {parameter.path || parameter.name}
                 </option>
               ))}
             </select>
@@ -166,7 +146,7 @@ function ChartEditor({ chart, parameters, periodOptions, onChange, onRemove }) {
                 <option value="">{t('charts.firstAvailable')}</option>
                 {parameters.map((parameter) => (
                   <option key={parameter.id} value={parameter.id}>
-                    {parameter.name}
+                    {parameter.path || parameter.name}
                   </option>
                 ))}
               </select>

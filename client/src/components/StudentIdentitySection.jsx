@@ -6,12 +6,13 @@ import { useAuth } from '../auth/AuthContext.jsx';
 import { errorMessage } from '../i18n/errors.js';
 import { formatIsoDate } from '../lib/format.js';
 import JalaliDatePicker from './JalaliDatePicker.jsx';
+import { toLatinDigits } from '../lib/locale.js';
 
 // The built-in identity fields (gender, birth date, father name, national ID)
 // live on the students table itself, unlike the admin-defined custom fields
 // below them. Display + edit mirror StudentFieldsSection.
 function StudentIdentitySection({ student }) {
-  const { t } = useTranslation(['students', 'common']);
+  const { t } = useTranslation(['students', 'common', 'workflows']);
   const queryClient = useQueryClient();
   const { can } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
@@ -53,6 +54,7 @@ function StudentIdentitySection({ student }) {
   return (
     <section className="section-card">
       <h2>{t('detail.identityTitle')}</h2>
+      {['gender', 'birthDate', 'fatherName', 'nationalId'].some(key => !student[key]) && <p className="hint">{t('workflows:identity.incomplete')}</p>}
       {isEditing ? (
         <form onSubmit={handleSubmit}>
           <label htmlFor="student-gender">{t('detail.gender')}</label>
@@ -89,7 +91,7 @@ function StudentIdentitySection({ student }) {
           <input
             id="student-national-id"
             value={nationalId}
-            onChange={(event) => setNationalId(event.target.value)}
+            onChange={(event) => setNationalId(toLatinDigits(event.target.value))}
             inputMode="numeric"
             pattern="[0-9]{10}"
             maxLength={10}

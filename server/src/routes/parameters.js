@@ -12,6 +12,7 @@ const PARAMETER_COLUMNS = `
   id,
   code,
   name,
+  parent_id    AS "parentId",
   min_value    AS "minValue",
   max_value    AS "maxValue",
   sort_order   AS "sortOrder",
@@ -28,6 +29,14 @@ router.param('id', (req, res, next, value) => {
 });
 
 function handleParameterError(err, res) {
+  if (err.code === '23503' || err.constraint?.startsWith('parameters_hierarchy')) {
+    res.status(400).json({ error: 'Choose an active parent without creating a cycle; move active children before archiving.', code: 'PARAMETERS_HIERARCHY_INVALID' });
+    return true;
+  }
+  if (err.constraint === 'parameters_quantity_range_locked') {
+    res.status(409).json({ error: 'Recorded quantities are outside the new range.', code: 'PARAMETERS_RANGE_LOCKED' });
+    return true;
+  }
   if (err.code === UNIQUE_VIOLATION) {
     res.status(409).json({
       error: 'A parameter with that name or code already exists.',
@@ -64,15 +73,15 @@ router.post('/parameters', async (req, res) => {
       .json({ error: parsed.error, code: parsed.code, params: parsed.params });
   }
 
-  const { code, name, minValue = null, maxValue = null } = parsed.values;
+  const { code, name, minValue = null, maxValue = null, parentId = null } = parsed.values;
 
   try {
     const created = await pool.query(
-      `INSERT INTO parameters (code, name, min_value, max_value, sort_order)
-       VALUES ($1, $2, $3, $4,
+      `INSERT INTO parameters (code, name, min_value, max_value, parent_id, sort_order)
+       VALUES ($1, $2, $3, $4, $5,
                (SELECT COALESCE(MAX(sort_order), 0) + 1 FROM parameters))
        RETURNING ${PARAMETER_COLUMNS}`,
-      [code, name, minValue, maxValue]
+      [code, name, minValue, maxValue, parentId]
     );
     await recordAudit(pool, {
       userId: req.user.id,
@@ -104,6 +113,7 @@ router.patch('/parameters/:id', async (req, res) => {
     minValue: 'min_value',
     maxValue: 'max_value',
     sortOrder: 'sort_order',
+    parentId: 'parent_id',
   };
   const entries = Object.entries(parsed.values);
   if (entries.length === 0 && !('archived' in (req.body ?? {}))) {
@@ -129,8 +139,8 @@ router.patch('/parameters/:id', async (req, res) => {
   // range-narrowing trigger; the explicit check here gives the friendlier
   // message before the write even happens.
   if ('minValue' in parsed.values || 'maxValue' in parsed.values) {
-    const minValue = parsed.values.minValue ?? before.minValue;
-    const maxValue = parsed.values.maxValue ?? before.maxValue;
+    const minValue = 'minValue' in parsed.values ? parsed.values.minValue : before.minValue;
+    const maxValue = 'maxValue' in parsed.values ? parsed.values.maxValue : before.maxValue;
     if (
       (minValue !== before.minValue || maxValue !== before.maxValue) &&
       (before.minValue !== null || before.maxValue !== null ||
@@ -139,10 +149,8 @@ router.patch('/parameters/:id', async (req, res) => {
       const outside = await pool.query(
         `SELECT 1 FROM evaluations
          WHERE parameter_id = $1 AND archived_at IS NULL
-           AND ((quality_value IS NOT NULL AND ($2::int IS NOT NULL AND quality_value < $2
-                 OR $3::int IS NOT NULL AND quality_value > $3))
-             OR (quantity_value IS NOT NULL AND ($2::int IS NOT NULL AND quantity_value < $2
-                 OR $3::int IS NOT NULL AND quantity_value > $3)))
+           AND (($2::int IS NOT NULL AND quantity_value < $2)
+             OR ($3::int IS NOT NULL AND quantity_value > $3))
          LIMIT 1`,
         [req.params.id, minValue, maxValue]
       );

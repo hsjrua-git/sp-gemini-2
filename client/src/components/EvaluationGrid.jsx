@@ -1,14 +1,9 @@
 import { memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cellAccess, cellKey, savedText } from '../lib/cells.js';
-import { formatDateTime, formatStudentCode } from '../lib/format.js';
+import { formatDateTime, formatStudentCode, formatParameterHint } from '../lib/format.js';
+import { hierarchyLabel } from '../lib/hierarchy.js';
 import { LockIcon, NoteFilledIcon, NoteIcon } from './icons.jsx';
-
-function rangeHint(parameter) {
-  return `${savedText(parameter.minValue) || '…'} – ${
-    savedText(parameter.maxValue) || '…'
-  }`;
-}
 
 function lockTitle(t, saved, access) {
   if (!saved) return undefined;
@@ -302,8 +297,8 @@ function EvaluationGrid({
             <th>{t('evaluate.colStudent')}</th>
             {parameters.map((parameter) => (
               <th key={parameter.id}>
-                {parameter.name}
-                <div className="hint">{rangeHint(parameter)}</div>
+                <span title={parameter.path}>{hierarchyLabel(parameter)}</span>
+                <div className="hint">{formatParameterHint(parameter, 'both')}</div>
               </th>
             ))}
           </tr>

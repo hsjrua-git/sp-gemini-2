@@ -99,7 +99,7 @@ async function evaluationRangeRace() {
     await first.query('UPDATE parameters SET min_value = 50 WHERE id = $1', [parameter.id]);
     const competing = second.query(
       `INSERT INTO evaluations
-         (session_id, parameter_id, membership_id, quality_value, locks_at)
+         (session_id, parameter_id, membership_id, quantity_value, locks_at)
        VALUES ($1, $2, NULL, 40, now() + interval '1 day')`,
       [session.id, parameter.id]
     );

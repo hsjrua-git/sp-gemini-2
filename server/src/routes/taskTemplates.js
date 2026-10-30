@@ -12,6 +12,7 @@ const TEMPLATE_COLUMNS = `
   description,
   parameter_id AS "parameterId",
   extra,
+  checklist,
   sort_order   AS "sortOrder",
   archived_at  AS "archivedAt"
 `;
@@ -48,8 +49,8 @@ router.post('/', async (req, res) => {
   }
   try {
     const result = await pool.query(
-      `INSERT INTO task_templates (title, description, parameter_id, extra, sort_order)
-       VALUES ($1, $2, $3, $4::jsonb, $5)
+      `INSERT INTO task_templates (title, description, parameter_id, extra, sort_order, checklist)
+       VALUES ($1, $2, $3, $4::jsonb, $5, $6::jsonb)
        RETURNING ${TEMPLATE_COLUMNS}`,
       [
         parsed.value.title,
@@ -57,6 +58,7 @@ router.post('/', async (req, res) => {
         parsed.value.parameterId ?? null,
         JSON.stringify(parsed.value.extra ?? {}),
         parsed.value.sortOrder ?? 0,
+        JSON.stringify(parsed.value.checklist ?? []),
       ]
     );
     res.status(201).json({ template: result.rows[0] });
@@ -91,6 +93,10 @@ router.patch('/:id', async (req, res) => {
 
   const sets = [];
   const values = [];
+  if ('checklist' in parsed.value) {
+    values.push(JSON.stringify(parsed.value.checklist));
+    sets.push(`checklist = $${values.length}::jsonb`);
+  }
   if ('title' in parsed.value) {
     values.push(parsed.value.title);
     sets.push(`title = $${values.length}`);

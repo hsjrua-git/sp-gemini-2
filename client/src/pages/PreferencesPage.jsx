@@ -349,7 +349,7 @@ function PreferencesPage() {
                       })
                     }
                   />
-                  {parameter.name}
+                  {parameter.path || parameter.name}
                 </label>
               ))}
             </div>

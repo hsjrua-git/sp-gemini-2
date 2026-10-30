@@ -1,4 +1,5 @@
 import { isUuid } from './ids.js';
+import { DEFAULT_REPORT_SCOPE, validReportScope } from './reportScope.js';
 
 export const THEMES = ['system', 'light', 'dark'];
 export const PALETTES = [
@@ -30,6 +31,7 @@ export const DEFAULT_PREFERENCES = {
   studentShowAllPeriods: false,
   hiddenParameterIds: [],
   csvDelimiter: ',',
+  reportScope: DEFAULT_REPORT_SCOPE,
   dashboardConstellation: {
     dimension: 'quality',
     basis: 'value',
@@ -38,10 +40,12 @@ export const DEFAULT_PREFERENCES = {
     groupId: null,
     mode: 'auto',
     autoRotate: true,
+    parameterIds: null,
   },
 };
 
 const CHECKS = {
+  reportScope: validReportScope,
   theme: (value) => THEMES.includes(value),
   palette: (value) => PALETTES.includes(value),
   language: (value) => LANGUAGES.includes(value),
@@ -80,11 +84,16 @@ const CHECKS = {
       isUuid(value.groupId);
     const mode = value.mode === undefined ? 'auto' : value.mode;
     const rotateOk = value.autoRotate === undefined || typeof value.autoRotate === 'boolean';
+    const parametersOk = value.parameterIds == null || (
+      Array.isArray(value.parameterIds) && value.parameterIds.length <= 200 &&
+      value.parameterIds.every(isUuid) && new Set(value.parameterIds).size === value.parameterIds.length
+    );
     return (
       assignmentOk &&
       seqOk &&
       groupOk &&
       rotateOk &&
+      parametersOk &&
       ['auto', '3d', '2d'].includes(mode) &&
       (dimension === 'quality' || dimension === 'quantity') &&
       (basis === 'value' || basis === 'valueOrComment')

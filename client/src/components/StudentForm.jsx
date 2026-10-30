@@ -7,12 +7,14 @@ import { errorMessage } from '../i18n/errors.js';
 import { formatStudentCode } from '../lib/format.js';
 import StudentFieldInputs from './StudentFieldInputs.jsx';
 import { cleanExtra } from '../lib/studentFields.js';
+import StudentIdentityInputs from './StudentIdentityInputs.jsx';
 
 function StudentForm() {
-  const { t } = useTranslation(['students', 'common']);
+  const { t } = useTranslation(['students', 'common', 'workflows']);
   const queryClient = useQueryClient();
   const [fullName, setFullName] = useState('');
   const [fieldValues, setFieldValues] = useState({});
+  const [identity, setIdentity] = useState({});
   const [problem, setProblem] = useState(null);
 
   const fieldsQuery = useQuery({
@@ -22,10 +24,11 @@ function StudentForm() {
   const definitions = fieldsQuery.data ?? [];
 
   const mutation = useMutation({
-    mutationFn: ({ name, extra }) => createStudent(name, extra),
+    mutationFn: ({ name, extra }) => createStudent({ fullName: name, extra, ...identity }),
     onSuccess: () => {
       setFullName('');
       setFieldValues({});
+      setIdentity({});
       queryClient.invalidateQueries({ queryKey: ['students'] });
     },
   });
@@ -38,6 +41,10 @@ function StudentForm() {
   function handleSubmit(event) {
     event.preventDefault();
     const name = fullName.trim().replace(/\s+/g, ' ');
+    if (!identity.gender || !identity.birthDate || !identity.fatherName?.trim() || !identity.nationalId) {
+      setProblem(t('workflows:identity.required'));
+      return;
+    }
     if (name.length < 2 || name.length > 100) {
       mutation.reset();
       setProblem(t('forms.nameProblem'));
@@ -58,14 +65,13 @@ function StudentForm() {
           onChange={(event) => setFullName(event.target.value)}
           placeholder={t('forms.namePlaceholder')}
           maxLength={200}
+          required
+          disabled={mutation.isPending}
           autoComplete="off"
         />
-        {definitions.length === 0 && (
-          <button type="submit" disabled={mutation.isPending}>
-            {mutation.isPending ? t('forms.adding') : t('forms.addBtn')}
-          </button>
-        )}
       </div>
+
+      <StudentIdentityInputs value={identity} onChange={setIdentity} disabled={mutation.isPending} idPrefix="new-student" />
 
       <StudentFieldInputs
         definitions={definitions}
@@ -75,7 +81,7 @@ function StudentForm() {
         idPrefix="new-student"
       />
 
-      {definitions.length > 0 && (
+      {(
         <div className="row">
           <button type="submit" disabled={mutation.isPending}>
             {mutation.isPending ? t('forms.adding') : t('forms.addBtn')}

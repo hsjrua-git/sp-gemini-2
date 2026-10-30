@@ -12,7 +12,7 @@ import Drawer from './Drawer.jsx';
 // nodes each open a matching drawer; this is the node's.
 function StudentBody({ breakdown, titleId, onClose }) {
   const { t } = useTranslation(['reports', 'common']);
-  const { fullName, studentCode, measured, inUse, rows } = breakdown;
+  const { fullName, studentCode, measured, inUse, rows, dimension } = breakdown;
 
   return (
     <>
@@ -45,7 +45,7 @@ function StudentBody({ breakdown, titleId, onClose }) {
           <thead>
             <tr>
               <th scope="col">{t('shared.parameter')}</th>
-              <th scope="col">{t('shared.score')}</th>
+               <th scope="col">{t('shared.score')}{dimension === 'quality' ? ' (%)' : ''}</th>
               <th scope="col">{t('studentDrawer.change')}</th>
             </tr>
           </thead>

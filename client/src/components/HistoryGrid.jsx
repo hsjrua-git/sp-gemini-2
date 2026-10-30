@@ -6,7 +6,7 @@ import { buildHistory, visibleRows } from '../lib/history.js';
 // One timeline cell: the student's two dimensions for that session ×
 // parameter. A member cell shadows the group cell; a group-sourced value is
 // marked. Selected-but-unanswered cells read as a small dot.
-function Cell({ cell }) {
+function Cell({ cell, dimensions }) {
   const { t } = useTranslation(['reports', 'common']);
   if (cell.state === 'none') {
     return (
@@ -22,10 +22,10 @@ function Cell({ cell }) {
       </td>
     );
   }
-  const value = [cell.quality, cell.quantity]
-    .map((value) => (value === null ? '·' : value))
+  const value = dimensions
+    .map(dimension => (cell[dimension] === null ? '·' : `${cell[dimension]}${dimension === 'quality' ? '%' : ''}`))
     .join(' / ');
-  const comment = [cell.qualityComment, cell.quantityComment]
+  const comment = dimensions.map(dimension => cell[`${dimension}Comment`])
     .filter(Boolean)
     .join(' — ');
   return (
@@ -40,7 +40,7 @@ function Cell({ cell }) {
 }
 
 // The overview tab: the student's evaluation timeline by session date.
-function HistoryGrid({ evaluations, parameters, assignmentsById, initialShowAll = false }) {
+function HistoryGrid({ evaluations, parameters, assignmentsById, initialShowAll = false, dimensions = ['quality', 'quantity'] }) {
   const { t } = useTranslation(['reports', 'common']);
   const [showAll, setShowAll] = useState(initialShowAll);
 
@@ -68,7 +68,7 @@ function HistoryGrid({ evaluations, parameters, assignmentsById, initialShowAll 
         />
         {t('history.showAll')}
       </label>
-      <p className="hint">{t('history.legend')}</p>
+      <p className="hint">{dimensions.map(dimension => t(`workflows:scope.${dimension}`)).join(' / ')} · {t('history.legend')}</p>
 
       <div className="table-wrap">
         <table className="history">
@@ -77,8 +77,8 @@ function HistoryGrid({ evaluations, parameters, assignmentsById, initialShowAll 
               <th>{t('history.sessionCol')}</th>
               {history.columns.map((parameter) => (
                 <th key={parameter.id} className="num">
-                  {parameter.name}
-                  <div className="hint">{formatParameterHint(parameter)}</div>
+                  <span title={parameter.path}>{parameter.depth > 0 && '↳ '}{parameter.name}</span>
+                  <div className="hint">{formatParameterHint(parameter, dimensions.length === 2 ? 'both' : dimensions[0])}</div>
                 </th>
               ))}
             </tr>
@@ -95,7 +95,7 @@ function HistoryGrid({ evaluations, parameters, assignmentsById, initialShowAll 
                   </div>
                 </th>
                 {history.columns.map((parameter) => (
-                  <Cell key={parameter.id} cell={row.cells[parameter.id]} />
+                  <Cell key={parameter.id} cell={row.cells[parameter.id]} dimensions={dimensions} />
                 ))}
               </tr>
             ))}

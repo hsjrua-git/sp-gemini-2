@@ -3,6 +3,8 @@ import pool from '../db/pool.js';
 import { recordAudit } from '../lib/audit.js';
 import { isUuid } from '../lib/ids.js';
 import { parseTaskFields } from '../validation/schedule.js';
+import { checklistSnapshot, taskProgress } from '../lib/taskChecklist.js';
+import { requirePermission } from '../middleware/auth.js';
 
 const router = Router();
 const MAX_SESSIONS_PER_ASSIGN = 200;
@@ -29,6 +31,8 @@ const TASK_COLUMNS = `
   title,
   description,
   extra,
+  checklist,
+  note,
   done,
   done_at       AS "doneAt",
   sort_order    AS "sortOrder",
@@ -44,6 +48,21 @@ router.param('id', (req, res, next, value) => {
     });
   }
   next();
+});
+
+router.get('/targets', async (req, res) => {
+  const ids = typeof req.query.sessionIds === 'string' ? req.query.sessionIds.split(',') : [];
+  if (!ids.length || ids.length > 200 || !ids.every(isUuid)) return res.status(400).json({ error: 'Choose 1–200 sessions.', code: 'WORKFLOW_TARGETS_INVALID' });
+  const result = await pool.query(
+    `SELECT s.id AS "sessionId", m.id AS "membershipId", st.full_name AS "fullName", st.student_code AS "studentCode"
+     FROM sessions s JOIN assignments a ON a.id = s.assignment_id
+     JOIN student_group_members m ON (a.group_id = m.group_id OR a.membership_id = m.id)
+     JOIN students st ON st.id = m.student_id
+     WHERE s.id = ANY($1::uuid[]) AND s.archived_at IS NULL AND s.canceled_at IS NULL
+       AND a.archived_at IS NULL AND st.deleted_at IS NULL
+       AND m.added_at::date <= s.session_date AND (m.left_on IS NULL OR m.left_on >= s.session_date)
+     ORDER BY st.full_name LIMIT 5001`, [ids]);
+  res.json({ targets: result.rows.slice(0, 5000), truncated: result.rowCount > 5000 });
 });
 
 router.get('/', async (req, res) => {
@@ -100,8 +119,8 @@ router.post('/', async (req, res) => {
 
   try {
     const result = await pool.query(
-      `INSERT INTO tasks (session_id, parameter_id, membership_id, title, description, extra, sort_order)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `INSERT INTO tasks (session_id, parameter_id, membership_id, title, description, extra, sort_order, checklist)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8::jsonb)
        RETURNING ${TASK_COLUMNS}`,
       [
         sessionId,
@@ -111,6 +130,7 @@ router.post('/', async (req, res) => {
         parsed.value.description ?? null,
         JSON.stringify(parsed.value.extra ?? {}),
         parsed.value.sortOrder ?? 0,
+        JSON.stringify(checklistSnapshot(parsed.value.checklist)),
       ]
     );
     res.status(201).json({ task: result.rows[0] });
@@ -124,7 +144,7 @@ router.post('/', async (req, res) => {
 // later template edits never change them.
 router.post('/from-template', async (req, res) => {
   const { templateId } = req.body ?? {};
-  const sessionIds = Array.isArray(req.body?.sessionIds) ? req.body.sessionIds : [];
+  const targets = req.body?.targets ?? (Array.isArray(req.body?.sessionIds) ? req.body.sessionIds.map(sessionId => ({ sessionId, membershipId: null })) : []);
   if (!isUuid(templateId)) {
     return res.status(400).json({
       error: 'templateId must be a valid ID.',
@@ -133,9 +153,9 @@ router.post('/from-template', async (req, res) => {
     });
   }
   if (
-    sessionIds.length === 0 ||
-    sessionIds.length > MAX_SESSIONS_PER_ASSIGN ||
-    !sessionIds.every((id) => isUuid(id))
+    !Array.isArray(targets) || targets.length === 0 ||
+    targets.length > MAX_SESSIONS_PER_ASSIGN ||
+    !targets.every(target => target && isUuid(target.sessionId) && (target.membershipId == null || isUuid(target.membershipId)))
   ) {
     return res.status(400).json({
       error: `sessionIds must be 1 to ${MAX_SESSIONS_PER_ASSIGN} valid IDs.`,
@@ -149,9 +169,9 @@ router.post('/from-template', async (req, res) => {
     await client.query('BEGIN');
     const template = await client.query(
       `SELECT id, title, description, parameter_id AS "parameterId",
-              extra, sort_order AS "sortOrder"
+              extra, checklist, sort_order AS "sortOrder"
        FROM task_templates
-       WHERE id = $1 AND archived_at IS NULL`,
+        WHERE id = $1 AND archived_at IS NULL FOR SHARE`,
       [templateId]
     );
     if (template.rowCount === 0) {
@@ -162,11 +182,11 @@ router.post('/from-template', async (req, res) => {
       });
     }
 
+    const uniqueTargets = [...new Map(targets.map(target => [`${target.sessionId}:${target.membershipId ?? 'group'}`, { sessionId: target.sessionId, membershipId: target.membershipId ?? null }])).values()];
     const result = await client.query(
-      `INSERT INTO tasks (session_id, template_id, parameter_id, membership_id, title, description, extra, sort_order)
-       SELECT s.id, $1, $2, NULL, $3, $4, $5, $6
-       FROM sessions s
-       WHERE s.id = ANY($7::uuid[]) AND s.archived_at IS NULL
+      `INSERT INTO tasks (session_id, template_id, parameter_id, membership_id, title, description, extra, sort_order, checklist)
+       SELECT x."sessionId", $1, $2, x."membershipId", $3, $4, $5, $6, $8::jsonb
+       FROM jsonb_to_recordset($7::jsonb) AS x("sessionId" uuid, "membershipId" uuid)
        RETURNING id`,
       [
         templateId,
@@ -175,7 +195,8 @@ router.post('/from-template', async (req, res) => {
         template.rows[0].description,
         template.rows[0].extra,
         template.rows[0].sortOrder,
-        sessionIds,
+        JSON.stringify(uniqueTargets),
+        JSON.stringify(checklistSnapshot(template.rows[0].checklist)),
       ]
     );
 
@@ -187,7 +208,7 @@ router.post('/from-template', async (req, res) => {
         entityType: 'task',
         details: {
           templateId,
-          requested: sessionIds.length,
+          requested: uniqueTargets.length,
           created: result.rowCount,
         },
       });
@@ -203,7 +224,27 @@ router.post('/from-template', async (req, res) => {
   }
 });
 
-router.patch('/:id', async (req, res) => {
+async function updateProgress(req, res) {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const result = await client.query(`SELECT ${TASK_COLUMNS} FROM tasks WHERE id = $1 FOR UPDATE`, [req.params.id]);
+    if (!result.rowCount) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'Task not found.', code: 'NOT_FOUND' }); }
+    const parsed = taskProgress(result.rows[0], req.body);
+    if (parsed.error) { await client.query('ROLLBACK'); return res.status(400).json(parsed); }
+    const next = parsed.value;
+    const updated = await client.query(`UPDATE tasks SET checklist = $2::jsonb, done = $3, done_at = $4, note = $5 WHERE id = $1 RETURNING ${TASK_COLUMNS}`,
+      [req.params.id, JSON.stringify(next.checklist), next.done, next.doneAt, next.note]);
+    await client.query('COMMIT');
+    res.json({ task: updated.rows[0] });
+  } catch (error) { await client.query('ROLLBACK'); throw error; }
+  finally { client.release(); }
+}
+router.patch('/:id/progress', updateProgress);
+
+router.patch('/:id', requirePermission('schedule.manage'), async (req, res) => {
+  if (req.body && Object.keys(req.body).every(key => ['done', 'note', 'itemId'].includes(key))) return updateProgress(req, res);
+  if (req.body && ['done', 'checklist', 'note'].some(key => key in req.body)) return res.status(400).json({ error: 'Update progress separately. Checklist snapshots are fixed at assignment.', code: 'TASK_CHECKLIST_INVALID' });
   const body =
     req.body && typeof req.body === 'object' && !Array.isArray(req.body)
       ? req.body
@@ -268,7 +309,7 @@ router.patch('/:id', async (req, res) => {
     const result = await pool.query(
       `UPDATE tasks
        SET ${sets.join(', ')}
-       WHERE id = $${values.length}
+        WHERE id = $${values.length}
        RETURNING ${TASK_COLUMNS}`,
       values
     );

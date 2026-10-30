@@ -20,6 +20,16 @@ export function startOfJalaliMonth(date) {
 const PERSIAN_DIGITS = '۰۱۲۳۴۵۶۷۸۹';
 const ARABIC_DIGITS = '٠١٢٣٤٥٦٧٨٩';
 
+// Reuse the expensive ICU formatters across table/picker rows and rerenders.
+const bothDateFormats = {
+  en: new Intl.DateTimeFormat('en', { day: 'numeric', month: 'short', year: 'numeric' }),
+  fa: new Intl.DateTimeFormat('fa-IR-u-ca-persian', { day: 'numeric', month: 'long', year: 'numeric' }),
+};
+const numberFormats = {
+  en: new Intl.NumberFormat('en'),
+  fa: new Intl.NumberFormat('fa-IR'),
+};
+
 export function toPersianDigits(text) {
   return String(text).replace(/[0-9]/g, (digit) => PERSIAN_DIGITS[Number(digit)]);
 }
@@ -51,7 +61,7 @@ function localDateFromIso(isoDate) {
 }
 
 function isoFromLocalDate(date) {
-  const year = date.getFullYear();
+  const year = String(date.getFullYear()).padStart(4, '0');
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
@@ -75,7 +85,7 @@ export function formatLocaleShortDate(isoDate, language) {
 }
 
 export function formatLocaleNumber(value, language) {
-  return new Intl.NumberFormat(language === 'en' ? 'en' : 'fa-IR').format(value);
+  return numberFormats[language === 'en' ? 'en' : 'fa'].format(value);
 }
 
 // Both calendars side by side (the institution runs on Jalali, the data on
@@ -84,16 +94,8 @@ export function formatLocaleNumber(value, language) {
 export function formatBothDates(isoDate, language) {
   const date = localDateFromIso(isoDate);
   if (!date) return '—';
-  const gregorian = new Intl.DateTimeFormat('en', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  }).format(date);
-  const jalali = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  }).format(date);
+  const gregorian = bothDateFormats.en.format(date);
+  const jalali = bothDateFormats.fa.format(date);
   return language === 'en' ? `${gregorian} (${jalali})` : `${jalali} (${gregorian})`;
 }
 
@@ -102,7 +104,9 @@ export function formatBothDates(isoDate, language) {
 export function jalaliTextFromIso(isoDate) {
   const date = localDateFromIso(isoDate);
   if (!date) return '';
-  const { jy, jm, jd } = toJalaali(date);
+  let parts;
+  try { parts = toJalaali(date); } catch { return ''; }
+  const { jy, jm, jd } = parts;
   const pad = (n) => String(n).padStart(2, '0');
   return toPersianDigits(`${jy}/${pad(jm)}/${pad(jd)}`);
 }
@@ -111,7 +115,7 @@ export function jalaliTextFromIso(isoDate) {
 // '۱۴۰۵/۰۸/۰۳' or '1405-8-3'. Returns an ISO date, or null when the text is
 // not a real Jalali date.
 export function isoFromJalaliText(text) {
-  const match = toLatinDigits(text).trim().match(/^(\d{3,4})\D(\d{1,2})\D(\d{1,2})$/);
+  const match = toLatinDigits(text).trim().match(/^(\d{1,4})[/ .-](\d{1,2})[/ .-](\d{1,2})$/);
   if (!match) return null;
   const [jy, jm, jd] = match.slice(1).map(Number);
   if (!isValidJalaaliDate(jy, jm, jd)) return null;

@@ -4,6 +4,7 @@ import { isValidIsoDate } from '../lib/periods.js';
 import { descendantGroupIds } from '../lib/groups.js';
 import { isUuid } from '../lib/ids.js';
 import { MAX_EXPORT_STUDENTS, buildCube } from '../lib/exportCube.js';
+import { readReportExport } from '../lib/reportExport.js';
 
 const router = Router();
 
@@ -99,6 +100,23 @@ async function handleCube(req, res) {
       code: 'VALIDATION_INVALID_DATE',
       params: { field: 'to' },
     });
+  }
+
+  if (source.periodIds !== undefined) {
+    const periodIds = normalizeList(source.periodIds);
+    if (!periodIds.length || periodIds.length > 200 || !periodIds.every(isUuid)) {
+      return res.status(400).json({ error: 'Choose between 1 and 200 valid periods.', code: 'REPORT_SCOPE_INVALID' });
+    }
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
+      const result = await readReportExport(client, periodIds, { studentIds, parameterIds, from, to });
+      await client.query('COMMIT');
+      return res.json(result);
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally { client.release(); }
   }
 
   // Period narrowing (per assignment seq) only makes sense with one assignment.

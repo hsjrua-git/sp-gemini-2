@@ -1,9 +1,10 @@
 import { request } from './http.js';
+import { hierarchy } from '../lib/hierarchy.js';
 
 export async function listGroups({ includeArchived = false } = {}) {
   const query = includeArchived ? '?includeArchived=1' : '';
   const data = await request(`/api/groups${query}`);
-  return data.groups;
+  return hierarchy(data.groups);
 }
 
 export async function listStudentGroups(studentId) {

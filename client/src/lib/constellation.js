@@ -5,6 +5,15 @@
 
 const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5)); // ≈137.5°
 
+// Page large selections rather than compressing arbitrarily many bands into one
+// scene. Fixed centre-to-centre spacing also keeps the hover bands disjoint.
+export const ORBITS_PER_PAGE = 6;
+export function orbitLayout(count) {
+  const radii = Array.from({ length: Math.min(ORBITS_PER_PAGE, Math.max(0, count)) }, (_, i) => 0.52 + i * 0.2);
+  const outer = radii.at(-1) ?? 0.52;
+  return { radii, outer, shell: Math.max(1.5, outer + 0.45) };
+}
+
 // Even points on a unit sphere (Fibonacci / golden-spiral lattice). Each student
 // becomes one node on this shell around the core, so a roster of any size spreads
 // without clumping. Returns unit vectors {x,y,z}; the component scales them to the

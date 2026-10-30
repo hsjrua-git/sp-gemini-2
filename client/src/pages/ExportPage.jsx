@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useReducer, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
@@ -15,7 +15,11 @@ import { errorMessage } from '../i18n/errors.js';
 import FilterEditor from '../components/FilterEditor.jsx';
 import ExportStudentPicker from '../components/ExportStudentPicker.jsx';
 import ExportParameterPicker from '../components/ExportParameterPicker.jsx';
-import ExportScopePicker from '../components/ExportScopePicker.jsx';
+import ReportScopePicker from '../components/ReportScopePicker.jsx';
+import JalaliDatePicker from '../components/JalaliDatePicker.jsx';
+import { useReportScope } from '../lib/useReportScope.js';
+import { hierarchy } from '../lib/hierarchy.js';
+import { exportReportScope } from '../lib/reportPrefill.js';
 import IncludePicker from '../components/IncludePicker.jsx';
 import FormatPicker from '../components/FormatPicker.jsx';
 import ChartConfigPanel from '../components/ChartConfigPanel.jsx';
@@ -34,14 +38,24 @@ function reducer(state, patch) {
 // The Export Center: one scope (students × parameters × assignment-periods or
 // a session-date range), one dimension, filters, and any mix of tabular data,
 // deltas, the audit trail and charts — all cut from the /api/export/cube.
-function ExportPage() {
+function ExportPage({ prefill }) {
   const { t } = useTranslation(['reports', 'common']);
-  const location = useLocation();
+  const report = useReportScope();
+  const legacy = prefill?.students?.mode === 'group' || prefill?.scope?.assignmentId || prefill?.dimension;
+  const [prefillApplied, setPrefillApplied] = useState(!legacy);
+  const applyingPrefill = useRef(false);
+  const resolvedPrefill = useMemo(() => exportReportScope(prefill, report.scope, report.periods), [prefill, report.scope, report.periods]);
+  useEffect(() => {
+    if (prefillApplied || applyingPrefill.current || report.isPending || report.error || !resolvedPrefill) return;
+    applyingPrefill.current = true;
+    report.change(resolvedPrefill, { onSuccess: () => setPrefillApplied(true) });
+  }, [prefillApplied, report, resolvedPrefill]);
 
   const [config, dispatch] = useReducer(
     reducer,
-    location.state?.export,
-    (prefill) => mergePrefill(prefill)
+    prefill,
+    (prefill) => ({ ...mergePrefill(prefill), students: prefill?.students?.mode === 'group' ? { mode: 'all', ids: [] } : mergePrefill(prefill).students,
+      search: typeof prefill?.search === 'string' ? prefill.search : '' })
   );
 
   const parametersQuery = useQuery({ queryKey: ['parameters'], queryFn: listParameters });
@@ -51,42 +65,39 @@ function ExportPage() {
   // "All" with a pinned assignment still names that assignment so the cube
   // covers its whole calendar; unpinned "all" spans every assignment.
   const scope = useMemo(() => {
-    const { assignmentId, mode, from, to, seqs } = config.scope;
+    const { mode, from, to } = config.scope;
     const resolved = {
-      assignmentId,
-      groupId: config.students.mode === 'group' ? config.students.groupId : null,
+      periodIds: report.selectedPeriods.map(p => p.id),
       studentIds: config.students.mode === 'selection' ? config.students.ids : [],
-      parameterIds: config.parameters.mode === 'selection' ? config.parameters.ids : [],
+      parameterIds: config.parameters.mode === 'selection' ? [...new Set([...config.parameters.ids, ...config.filters.map(f => f.parameterId)])] : [],
     };
     if (mode === 'range') {
       resolved.from = from;
       resolved.to = to;
     }
-    if (mode === 'selection') {
-      resolved.periods = seqs;
-    }
     return resolved;
-  }, [config.scope, config.students, config.parameters]);
+  }, [config.scope, config.students, config.parameters, config.filters, report.selectedPeriods]);
 
   const scopeReady =
     config.scope.mode !== 'range' ||
-    (config.scope.from !== null && config.scope.to !== null);
-  const seqsReady =
-    config.scope.mode !== 'selection' ||
-    (config.scope.assignmentId !== null && config.scope.seqs.length > 0);
+    Boolean(config.scope.from && config.scope.to && config.scope.from <= config.scope.to);
+  const seqsReady = !report.isPending && report.selectedPeriods.length > 0 && report.selectedPeriods.length <= 200;
 
   const cubeQuery = useQuery({
     queryKey: ['export-cube', scope],
     queryFn: () => fetchCube(scope),
-    enabled: scopeReady && seqsReady,
+    enabled: prefillApplied && scopeReady && seqsReady && !report.error,
   });
-  const cube = useMemo(
+  const cubes = useMemo(
     () =>
       cubeQuery.data
-        ? buildCube({ ...cubeQuery.data, filters: config.filters, dimension: config.dimension })
-        : null,
-    [cubeQuery.data, config.filters, config.dimension]
+        ? report.scope.dimensions.map(dimension => buildCube({ ...cubeQuery.data,
+          students: cubeQuery.data.students.filter(s => !config.search.trim() || `${s.fullName} ${s.studentCode}`.toLowerCase().includes(config.search.trim().toLowerCase())),
+          parameters: hierarchy(cubeQuery.data.parameters).filter(p => config.parameters.mode !== 'selection' || config.parameters.ids.includes(p.id)), filters: config.filters, dimension }))
+        : [],
+    [cubeQuery.data, config.filters, config.parameters, config.search, report.scope.dimensions]
   );
+  const cube = cubes[0] ?? null;
 
   // The audit trail, fetched only when its content type is selected.
   const auditQuery = useQuery({
@@ -104,17 +115,22 @@ function ExportPage() {
 
   const errors = exportConfigErrors(config);
   const auditLoading = config.include.auditTrail && auditQuery.isPending;
-  const runDisabled = errors.length > 0 || !cube || auditLoading;
+  const runDisabled = !prefillApplied || errors.length > 0 || !cube || auditLoading || !scopeReady || !seqsReady || Boolean(report.error || cubeQuery.error || auditQuery.error);
   const truncated = cubeQuery.data?.truncated;
 
   return (
     <main className="wide export-center">
       <h1>{t('export.title')}</h1>
       <p className="hint">{t('export.subtitle')}</p>
+      <ReportScopePicker report={{ ...report, change: changes => { setPrefillApplied(true); report.change(changes); } }} />
+      {!prefillApplied && !report.isPending && !resolvedPrefill && <p role="alert" className="error">{t('workflows:scopeUnavailable')}</p>}
+      {report.error && <p className="error">{errorMessage(report.error)}</p>}
 
       <div className="export-layout">
         <div className="export-config">
+          <label>{t('results.searchLabel')}<input type="search" value={config.search} onChange={event => dispatch({ search: event.target.value })} /></label>
           <ExportStudentPicker
+            allowGroup={false}
             value={config.students}
             onChange={(students) => dispatch({ students })}
           />
@@ -123,27 +139,13 @@ function ExportPage() {
             parameters={parameters}
             onChange={(next) => dispatch({ parameters: next })}
           />
-          <ExportScopePicker
-            value={config.scope}
-            onChange={(scope) => dispatch({ scope })}
-          />
-          <section className="section-card">
-            <h2 className="group-title">{t('export.dimensionTitle')}</h2>
-            <div className="include-list">
-              {['quality', 'quantity'].map((value) => (
-                <label key={value} className="inline include-item">
-                  <input
-                    type="radio"
-                    name="export-dimension"
-                    value={value}
-                    checked={config.dimension === value}
-                    onChange={() => dispatch({ dimension: value })}
-                  />
-                  <span>{t(`results.${value}`)}</span>
-                </label>
-              ))}
-            </div>
-          </section>
+          <fieldset><legend>{t('scopePicker.legend')}</legend>
+            <label className="inline"><input type="checkbox" checked={config.scope.mode === 'range'} onChange={event => dispatch({ scope: { ...config.scope, mode: event.target.checked ? 'range' : 'all' } })} />{t('scopePicker.rangeLabel')}</label>
+            {config.scope.mode === 'range' && <>
+              <label>{t('scopePicker.from')}<JalaliDatePicker value={config.scope.from ?? ''} onChange={from => dispatch({ scope: { ...config.scope, from } })} /></label>
+              <label>{t('scopePicker.to')}<JalaliDatePicker value={config.scope.to ?? ''} onChange={to => dispatch({ scope: { ...config.scope, to } })} /></label>
+            </>}
+          </fieldset>
           <section className="section-card">
             <h2 className="group-title">{t('filter.title')}</h2>
             <FilterEditor
@@ -164,7 +166,7 @@ function ExportPage() {
           />
           <ChartConfigPanel
             value={config.charts}
-            parameters={parameters}
+            parameters={cube?.parameters ?? parameters}
             periodOptions={cube?.periods ?? EMPTY}
             onChange={(charts) => dispatch({ charts })}
           />
@@ -175,6 +177,7 @@ function ExportPage() {
             <ExportRunButton
               config={config}
               cube={cube}
+              cubes={cubes}
               scope={scope}
               auditEntries={auditQuery.data?.entries ?? EMPTY}
               chartNodes={chartNodes}
@@ -193,7 +196,7 @@ function ExportPage() {
 
           {!scopeReady && <p className="hint">{t('export.pickDates')}</p>}
           {!seqsReady && <p className="hint">{t('export.pickPeriods')}</p>}
-          {scopeReady && seqsReady && cubeQuery.isPending && (
+          {prefillApplied && scopeReady && seqsReady && cubeQuery.isPending && (
             <p className="hint">{t('export.loadingData')}</p>
           )}
           {cubeQuery.isError && (
@@ -210,7 +213,9 @@ function ExportPage() {
 
           {cube &&
             (includesTabular(config) || config.charts.length > 0 ? (
-              <ExportPreview config={config} cube={cube} registerChart={registerChart} />
+              cubes.map(item => <section key={item.dimension}><h2>{t(`workflows:scope.${item.dimension}`)}</h2>
+                <ExportPreview config={config} cube={item} registerChart={(index, node) => registerChart(`${item.dimension}:${index}`, node)} />
+              </section>)
             ) : (
               <p className="hint">{t('export.chooseSomething')}</p>
             ))}
@@ -220,4 +225,7 @@ function ExportPage() {
   );
 }
 
-export default ExportPage;
+export default function ExportEntry() {
+  const location = useLocation();
+  return <ExportPage key={location.key} prefill={location.state?.export} />;
+}

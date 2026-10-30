@@ -172,7 +172,7 @@ test('updateParameter: guards, snapshots, and the range lock', async () => {
       )
     ).rows[0].id;
     await pool.query(
-      `INSERT INTO evaluations (session_id, parameter_id, membership_id, quality_value, locks_at)
+      `INSERT INTO evaluations (session_id, parameter_id, membership_id, quantity_value, locks_at)
        VALUES ($1, $2, NULL, 9, now() + interval '7 days')`,
       [session, p.id]
     );

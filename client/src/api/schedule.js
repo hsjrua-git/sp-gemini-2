@@ -1,5 +1,8 @@
 import { request } from './http.js';
 
+export function listAssignmentTargets() { return request('/api/assignments/targets'); }
+export function createAssignments(input) { return request('/api/assignments/bulk', { method: 'POST', body: JSON.stringify(input) }); }
+
 export async function listIntervals({ includeArchived = false } = {}) {
   const query = includeArchived ? '?includeArchived=1' : '';
   const data = await request(`/api/intervals${query}`);

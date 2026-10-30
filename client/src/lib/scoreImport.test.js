@@ -123,7 +123,7 @@ describe('buildImport', () => {
     ]);
     expect(dup.rows[1].rowProblem).toMatch(/Same student as row/);
 
-    const bad = run([['S1', 'Ada Lovelace', '99', '']]);
+    const bad = run([['S1', 'Ada Lovelace', '101', '']]);
     expect(bad.rows[0].cells[0].problem).toMatch(/Quality: at most/i);
     expect(bad.localProblemCount).toBe(1);
     expect(bad.entries).toEqual([]);

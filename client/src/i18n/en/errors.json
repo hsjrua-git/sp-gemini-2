@@ -1,4 +1,11 @@
 {
+  "TASK_CHECKLIST_INVALID": "Use up to 50 checklist items (1–200 characters each) and notes up to 2,000 characters. Update progress separately from task definitions.",
+  "SESSION_PLAN_INVALID": "Choose active schedules and a valid date range, 1–200 sessions or 1–50 periods per schedule.",
+  "SESSION_PLAN_LIMIT": "This plan exceeds 1,000 sessions. Choose fewer targets or dates.",
+  "SESSION_PLAN_STALE": "The schedule changed or the preview is missing. Preview again before confirming.",
+  "WORKFLOW_TARGETS_INVALID": "Choose 1–200 valid active group or student targets and valid scheduling references.",
+  "REPORT_SCOPE_INVALID": "Choose between 1 and 200 periods for this report.",
+  "PARAMETERS_HIERARCHY_INVALID": "Choose an active parent without creating a cycle. Move or archive active children before archiving a parent.",
   "AUTH_SIGNIN_REQUIRED": "Please sign in.",
   "AUTH_FORBIDDEN": "You do not have permission to do that.",
   "AUTH_CREDENTIALS_REQUIRED": "Enter your username and password.",

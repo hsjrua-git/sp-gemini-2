@@ -5,9 +5,9 @@ import {
   spherePoints,
   nodeAppearance,
   satelliteAppearance,
+  orbitLayout,
 } from '../lib/constellation.js';
 
-const SHELL = 1.5; // student-node shell radius, well outside the core
 const CORE_R = 0.20; // core sphere radius — a tiny nucleus the rings encircle
 const CORE_OPACITY = 0.5; // soft, semi-translucent nucleus (still dims its far side)
 const CAGE_R = 0.32; // wireframe cage, hugging the core just above its surface
@@ -20,9 +20,7 @@ const CAGE_R = 0.32; // wireframe cage, hugging the core just above its surface
 // progress reads as a different colour over an arc — never as the track's opacity.
 // Radius is just position in the fan, not a magnitude. All rings share two fixed
 // blues that stay blue whatever the palette --brand is.
-const RING_INNER = 0.5; // radius of the innermost flat ring, just outside the cage
-const RING_MAX = 1.2; // radius of the outermost ring, still inside the node shell
-const RING_WORLD_THICK = 0.07; // ~constant world thickness of a ring's soft stroke
+const RING_WORLD_THICK = 0.035; // thin bands separated by a fixed 0.2 world-unit gap
 const RING_HALF = RING_WORLD_THICK / 2; // half-thickness, for the analytic hover pick
 const RING_FACE_FRAC = 0.38; // ring radius as a fraction of its square texture (blur margin)
 const RING_TRACK_COLOR = '#4f93f7'; // faded full-circle track (fixed blue-ish)
@@ -30,7 +28,7 @@ const RING_ARC_COLOR = '#79c0ff'; // arc that sweeps the coverage amount (fixed 
 const RING_TRACK_ALPHA = 0.22; // track alpha baked into the texture, relative to the arc
 const RING_REST_OPACITY = 0.5; // whole-ring material opacity at rest (arc ≈ this)
 const RING_HOVER_OPACITY = 0.82; // whole-ring material opacity while hovered
-const RING_PICK_PAD = 0.06; // world padding round the band, for forgiving hover
+const RING_PICK_PAD = 0.045; // forgiving hover without overlapping adjacent bands
 
 // Ripples: a few faint, camera-facing wavefronts that expand from the core out to
 // the outermost ring and fade as they travel, so the rings sit inside a slow-moving
@@ -38,7 +36,6 @@ const RING_PICK_PAD = 0.06; // world padding round the band, for forgiving hover
 // and keep moving even while a hover holds the spin. Very, very nearly transparent.
 const RIPPLE_COUNT = 3; // overlapping wavefronts in flight at once
 const RIPPLE_MIN_R = 0.12; // born just inside the core surface
-const RIPPLE_MAX_R = RING_MAX; // die at the outermost ring
 const RIPPLE_PERIOD = 6; // seconds for one wavefront to travel out (slow)
 const RIPPLE_FACE_FRAC = 0.36; // ripple radius as a fraction of its texture
 const RIPPLE_OPACITY = 0.05; // peak opacity — almost transparent
@@ -107,7 +104,7 @@ function makeParamRingTexture(coverage, radius) {
   const scale = radius / RING_FACE_FRAC; // world units the plane is scaled to
   const lw = Math.max(2, (RING_WORLD_THICK / scale) * size);
   ctx.lineCap = 'round';
-  ctx.shadowBlur = lw * 1.2; // soft, blurry edges
+  ctx.shadowBlur = lw * 0.7;
   // Faded full-circle track, baked at a low relative alpha.
   ctx.strokeStyle = RING_TRACK_COLOR;
   ctx.shadowColor = RING_TRACK_COLOR;
@@ -313,7 +310,7 @@ export default function CohortConstellation({
     const cageVerts = uniqueVertices(cageGeo);
     const tetherMat = new THREE.LineBasicMaterial({
       transparent: true,
-      opacity: 0.16,
+      opacity: 0.08,
       depthWrite: false,
     });
 
@@ -400,6 +397,7 @@ export default function CohortConstellation({
       hoverPoint: null,
       paused: false,
       dragging: false,
+      layout: orbitLayout(0),
     };
     sceneRef.current = bag;
 
@@ -452,8 +450,13 @@ export default function CohortConstellation({
       size.h = host.clientHeight || 1;
       renderer.setSize(size.w, size.h, false);
       camera.aspect = size.w / size.h;
+      const halfFov = Math.atan(Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * Math.min(1, camera.aspect));
+      camera.position.z = (bag.layout.shell + 0.16) / Math.sin(halfFov);
       camera.updateProjectionMatrix();
+      camera.updateMatrixWorld();
+      bag.syncLoop?.();
     };
+    bag.resize = resize;
     resize();
     const ro = new ResizeObserver(resize);
     ro.observe(host);
@@ -470,7 +473,8 @@ export default function CohortConstellation({
     const ORIGIN = new THREE.Vector3(0, 0, 0);
     const ringPlane = new THREE.Plane();
     const fwd = new THREE.Vector3(); // camera forward, refreshed each frame
-    const clock = new THREE.Clock(); // drives the ripple wavefronts
+    const timer = new THREE.Timer(); // drives the ripple wavefronts
+    timer.connect(document);
 
     const el = renderer.domElement;
     el.style.cursor = 'grab';
@@ -608,7 +612,7 @@ export default function CohortConstellation({
     };
     const setRingHover = (r) => {
       r.mat.opacity = RING_HOVER_OPACITY;
-      r.mesh.scale.set(r.baseS * 1.03, r.baseS * 1.03, 1);
+      r.mesh.scale.set(r.baseS, r.baseS, 1);
     };
 
     // What the pointer is over, resolved in two ways and merged by depth:
@@ -730,8 +734,14 @@ export default function CohortConstellation({
       el.style.cursor = bag.hovered ? 'pointer' : 'grab';
     };
 
-    renderer.setAnimationLoop(() => {
-      if (autoRotateRef.current && !bag.paused && !bag.dragging) assembly.rotation.y += 0.0045; // hover/drag holds the spin
+    let lastFrame = -Infinity;
+    const renderFrame = timestamp => {
+      // The ambient scene needs only 30 fps. Hidden/offscreen scenes stop their
+      // loop entirely, especially important when both dimensions are displayed.
+      if (timestamp - lastFrame < 1000 / 30) return;
+      lastFrame = timestamp;
+      timer.update(timestamp);
+      if (autoRotateRef.current && !bag.paused && !bag.dragging) assembly.rotation.y += Math.min(timer.getDelta(), 0.05) * 0.27;
       assembly.updateMatrixWorld(true);
       // Keep the flat rings facing the camera (so they read as 2D circles) while
       // pinned at the origin — i.e. exactly at the core's centre depth. Because the
@@ -743,14 +753,14 @@ export default function CohortConstellation({
       // in-and-out over its trip (sin → zero at both ends, so it's invisible at the
       // core and as it reaches the edge). They keep moving even while a hover holds
       // the spin — ambient, not part of the assembly.
-      const rt = clock.getElapsedTime();
+      const rt = timer.getElapsed();
       for (let i = 0; i < bag.ripples.length; i += 1) {
         const rp = bag.ripples[i];
         const phase = ((rt / RIPPLE_PERIOD) + i / RIPPLE_COUNT) % 1;
-        const rad = RIPPLE_MIN_R + (RIPPLE_MAX_R - RIPPLE_MIN_R) * phase;
+        const rad = RIPPLE_MIN_R + (bag.layout.outer - RIPPLE_MIN_R) * phase;
         const sc = rad / RIPPLE_FACE_FRAC;
         rp.mesh.scale.set(sc, sc, 1);
-        rp.mat.opacity = RIPPLE_OPACITY * Math.sin(Math.PI * phase);
+        rp.mat.opacity = autoRotateRef.current ? RIPPLE_OPACITY * Math.sin(Math.PI * phase) : 0;
       }
       // Depth-fade + front/behind ordering. A node's signed distance along the view
       // axis from the ring plane (through the origin, normal = camera forward) tells
@@ -771,10 +781,29 @@ export default function CohortConstellation({
       }
       updateHover();
       renderer.render(scene, camera);
+    };
+    let inView = true;
+    const syncLoop = () => {
+      timer.reset();
+      lastFrame = -Infinity;
+      const active = inView && !document.hidden;
+      host.dataset.renderActive = String(active);
+      renderer.setAnimationLoop(active ? renderFrame : null);
+    };
+    bag.syncLoop = syncLoop;
+    const visibilityObserver = new IntersectionObserver(entries => {
+      inView = entries.at(-1).isIntersecting;
+      syncLoop();
     });
+    visibilityObserver.observe(host);
+    document.addEventListener('visibilitychange', syncLoop);
+    syncLoop();
 
     return () => {
       renderer.setAnimationLoop(null);
+      visibilityObserver.disconnect();
+      document.removeEventListener('visibilitychange', syncLoop);
+      timer.dispose();
       ro.disconnect();
       observer.disconnect();
       el.removeEventListener('pointermove', onMove);
@@ -823,6 +852,9 @@ export default function CohortConstellation({
     const bag = sceneRef.current;
     if (!bag) return undefined;
     const { assembly } = bag;
+    const params = stats.filter(stat => stat.parameter?.inUse);
+    bag.layout = orbitLayout(params.length);
+    bag.resize();
 
     for (const s of bag.sprites) {
       assembly.remove(s.sprite);
@@ -865,7 +897,7 @@ export default function CohortConstellation({
       });
       const sprite = new THREE.Sprite(material);
       const p = points[i];
-      nodePos.set(p.x * SHELL, p.y * SHELL, p.z * SHELL);
+      nodePos.set(p.x * bag.layout.shell, p.y * bag.layout.shell, p.z * bag.layout.shell);
       sprite.position.copy(nodePos);
       const baseScale =
         look.hollow ? 0.12 : student.state === 'full' ? 0.17 : 0.13;
@@ -877,7 +909,7 @@ export default function CohortConstellation({
         material,
         colorVar: look.colorVar,
         baseOpacity: look.hollow ? 0.5 : look.glow,
-        fadeR: SHELL,
+        fadeR: bag.layout.shell,
       });
 
       // Tether this node to its nearest cage corner — a thin line, fixed in
@@ -910,26 +942,14 @@ export default function CohortConstellation({
       assembly.add(bag.tethers);
     }
 
-    // Parameter rings: flat circles drawn concentrically around the core, one per
-    // in-use parameter, fanned by radius from RING_INNER out to RING_MAX. They live
-    // in the (billboarded) ring group so they always face the camera — flat 2D,
-    // never 3D hoops. Each ring is one soft-edged plane baked from a canvas: a faded
-    // full-circle track with a brighter arc swept over it from the top, the arc's
-    // length that parameter's coverage (share of the class measured this period), so
-    // progress reads as a different colour over an arc, not as opacity. The blurred
-    // stroke has no hard rim, so the rings blend into the moving ripples. Radius is
-    // just position in the fan (kept in the parameters' own order), not a magnitude.
-    // Every in-use parameter is represented; the 2D and accessible views expose
-    // the same complete set rather than silently truncating at twelve.
-    const params = stats.filter((s) => s.parameter?.inUse);
-    const n = params.length;
-    const span = n > 1 ? (RING_MAX - RING_INNER) / (n - 1) : 0;
+    // CohortHero pages the chosen parameters. Never shrink the spacing as the
+    // selection grows; grow the student shell and fit the camera instead.
     params.forEach((stat, i) => {
       const { coverage } = satelliteAppearance({
         count: stat.answeredCount ?? stat.count,
         total: field.length,
       });
-      const radius = RING_INNER + i * span;
+      const radius = bag.layout.radii[i];
 
       // Bake track + arc to a soft-edged texture on one plane; the material opacity
       // dials the whole ring (dimmed by RING_TRACK_ALPHA for the track) up on hover.

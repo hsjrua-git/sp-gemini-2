@@ -21,6 +21,7 @@ import JalaliDatePicker from '../components/JalaliDatePicker.jsx';
 import { formatIsoDate, toIsoDate } from '../lib/format.js';
 import { useDebouncedValue } from '../lib/useDebouncedValue.js';
 import { errorMessage } from '../i18n/errors.js';
+import MultiAssignmentForm from '../components/MultiAssignmentForm.jsx';
 
 // The schedule lists recurring assignments: a teacher meets a group (or one
 // student) on an interval from an anchor date. Sessions are generated from
@@ -270,7 +271,7 @@ function AssignmentForm({ assignment, teachers, intervals, groups, onDone }) {
                   .filter((group) => !group.archivedAt)
                   .map((group) => (
                     <option key={group.id} value={group.id}>
-                      {group.name}
+                      {group.path || group.name}
                     </option>
                   ))}
               </select>
@@ -570,7 +571,7 @@ function SchedulePage() {
       {canUseForm && editingId === null && (
         <section className="section-card">
           <h2>{t('schedule.addTitle')}</h2>
-          <AssignmentForm
+          <MultiAssignmentForm
             assignment={null}
             teachers={teachersQuery.data ?? []}
             intervals={intervals}

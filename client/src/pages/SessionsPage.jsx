@@ -1,22 +1,16 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { listAlerts, resolveAlert, scanAlerts } from '../api/alerts.js';
 import {
-  generateSessions,
   listSessions,
   updateSession,
 } from '../api/sessions.js';
 import {
   assignTaskTemplate,
-  archiveTaskTemplate,
   createTask,
-  createTaskTemplate,
-  deleteTask,
-  listSessionTasks,
   listTaskTemplates,
-  updateTask,
-  updateTaskTemplate,
 } from '../api/tasks.js';
 import { listTeachers } from '../api/teachers.js';
 import { useAuth } from '../auth/AuthContext.jsx';
@@ -24,6 +18,9 @@ import EmptyState from '../components/EmptyState.jsx';
 import JalaliDatePicker from '../components/JalaliDatePicker.jsx';
 import { formatIsoDate, toIsoDate } from '../lib/format.js';
 import { errorMessage } from '../i18n/errors.js';
+import SessionGenerator from '../components/SessionGenerator.jsx';
+import TaskList from '../components/TaskList.jsx';
+import TaskAssignment from '../components/TaskAssignment.jsx';
 
 // The generated occurrences of the schedule: each row is one planned session
 // (anchor + n * interval) that can be moved, canceled or annotated. The
@@ -113,36 +110,25 @@ function SessionEditRow({ session, onDone }) {
 }
 
 function SessionTasksPanel({ session, templates }) {
-  const { t } = useTranslation(['admin', 'common']);
+  const { t } = useTranslation(['admin', 'common', 'workflows']);
   const queryClient = useQueryClient();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [templateId, setTemplateId] = useState('');
-
-  const tasksQuery = useQuery({
-    queryKey: ['session-tasks', session.id],
-    queryFn: () => listSessionTasks(session.id),
-  });
+  const [checklist, setChecklist] = useState('');
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ['session-tasks', session.id] });
     queryClient.invalidateQueries({ queryKey: ['sessions'] });
   };
   const add = useMutation({
-    mutationFn: () => createTask({ sessionId: session.id, title, description }),
+    mutationFn: () => createTask({ sessionId: session.id, title, description, checklist: checklist.split('\n').filter(line => line.trim()).map(label => ({ label })) }),
     onSuccess: () => {
       invalidate();
       setTitle('');
       setDescription('');
+      setChecklist('');
     },
-  });
-  const toggle = useMutation({
-    mutationFn: (task) => updateTask(task.id, { done: !task.done }),
-    onSuccess: invalidate,
-  });
-  const remove = useMutation({
-    mutationFn: (task) => deleteTask(task.id),
-    onSuccess: invalidate,
   });
   const fromTemplate = useMutation({
     mutationFn: () =>
@@ -155,10 +141,6 @@ function SessionTasksPanel({ session, templates }) {
     if (title.trim() !== '') add.mutate();
   }
 
-  const busy =
-    add.isPending || toggle.isPending || remove.isPending || fromTemplate.isPending;
-  const tasks = tasksQuery.data ?? [];
-
   return (
     <div>
       <h3>
@@ -167,45 +149,7 @@ function SessionTasksPanel({ session, templates }) {
           code: session.code,
         })}
       </h3>
-      {tasksQuery.isPending && (
-        <p className="hint">{t('common:status.loading')}</p>
-      )}
-      {tasksQuery.isError && (
-        <p className="error" role="alert">{errorMessage(tasksQuery.error)}</p>
-      )}
-      {tasks.length === 0 && !tasksQuery.isPending && (
-        <p className="hint">{t('sessions.tasksPanel.empty')}</p>
-      )}
-      {tasks.length > 0 && (
-        <ul className="plain-list">
-          {tasks.map((task) => (
-            <li key={task.id}>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={task.done}
-                  disabled={busy}
-                  onChange={() => toggle.mutate(task)}
-                />{' '}
-                <span className={task.done ? 'hint' : undefined}>
-                  {task.title}
-                </span>
-              </label>
-              {task.description && (
-                <p className="hint">{task.description}</p>
-              )}
-              <button
-                type="button"
-                className="quiet"
-                onClick={() => remove.mutate(task)}
-                disabled={busy}
-              >
-                {t('common:actions.delete')}
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+      <TaskList sessionId={session.id} />
 
       <form onSubmit={handleAdd} className="edit-form">
         <label htmlFor={`task-title-${session.id}`}>
@@ -231,14 +175,15 @@ function SessionTasksPanel({ session, templates }) {
           rows={2}
           disabled={add.isPending}
         />
+        <label>{t('workflows:tasks.checklist')}<textarea rows={3} value={checklist} onChange={event => setChecklist(event.target.value)} /></label>
         <button type="submit" disabled={add.isPending || title.trim() === ''}>
           {add.isPending
             ? t('sessions.tasksPanel.adding')
             : t('sessions.tasksPanel.add')}
         </button>
-        {(add.isError || remove.isError || toggle.isError) && (
+        {add.isError && (
           <p className="error" role="alert">
-            {errorMessage(add.error ?? remove.error ?? toggle.error)}
+            {errorMessage(add.error)}
           </p>
         )}
       </form>
@@ -280,123 +225,6 @@ function SessionTasksPanel({ session, templates }) {
   );
 }
 
-function TaskTemplatesManager({ templates }) {
-  const { t } = useTranslation(['admin', 'common']);
-  const queryClient = useQueryClient();
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-
-  const invalidate = () =>
-    queryClient.invalidateQueries({ queryKey: ['task-templates'] });
-  const add = useMutation({
-    mutationFn: () => createTaskTemplate({ title, description }),
-    onSuccess: () => {
-      invalidate();
-      setTitle('');
-      setDescription('');
-    },
-  });
-  const archive = useMutation({
-    mutationFn: (id) => archiveTaskTemplate(id),
-    onSuccess: invalidate,
-  });
-  const restore = useMutation({
-    mutationFn: (id) => updateTaskTemplate(id, { archived: false }),
-    onSuccess: invalidate,
-  });
-
-  function handleSubmit(event) {
-    event.preventDefault();
-    if (title.trim() !== '') add.mutate();
-  }
-
-  return (
-    <section className="section-card">
-      <h2>{t('sessions.templates.title')}</h2>
-      {templates.length === 0 && (
-        <p className="hint">{t('sessions.templates.empty')}</p>
-      )}
-      {templates.length > 0 && (
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th scope="col">{t('sessions.templates.colTitle')}</th>
-                <th scope="col">{t('sessions.templates.colDescription')}</th>
-                <th scope="col">{t('common:table.actions')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {templates.map((template) => (
-                <tr
-                  key={template.id}
-                  className={template.archivedAt ? 'stale' : undefined}
-                >
-                  <th scope="row">{template.title}</th>
-                  <td>{template.description ?? '—'}</td>
-                  <td>
-                    {template.archivedAt ? (
-                      <button
-                        type="button"
-                        className="quiet"
-                        onClick={() => restore.mutate(template.id)}
-                        disabled={archive.isPending || restore.isPending}
-                      >
-                        {t('common:actions.restore')}
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        className="quiet"
-                        onClick={() => archive.mutate(template.id)}
-                        disabled={archive.isPending || restore.isPending}
-                      >
-                        {t('common:actions.archive')}
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="edit-form">
-        <label htmlFor="template-title">
-          {t('sessions.templates.newTemplate')}
-        </label>
-        <input
-          id="template-title"
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
-          maxLength={120}
-          placeholder={t('sessions.templates.titlePlaceholder')}
-          autoComplete="off"
-          disabled={add.isPending}
-        />
-        <label htmlFor="template-desc">
-          {t('sessions.templates.descOptional')}
-        </label>
-        <textarea
-          id="template-desc"
-          value={description}
-          onChange={(event) => setDescription(event.target.value)}
-          maxLength={2000}
-          rows={2}
-          disabled={add.isPending}
-        />
-        <button type="submit" disabled={add.isPending || title.trim() === ''}>
-          {add.isPending
-            ? t('sessions.templates.adding')
-            : t('sessions.templates.add')}
-        </button>
-        {add.isError && <p className="error">{errorMessage(add.error)}</p>}
-      </form>
-    </section>
-  );
-}
-
 function SessionsPage() {
   const { t } = useTranslation(['admin', 'common']);
   const { can } = useAuth();
@@ -411,7 +239,6 @@ function SessionsPage() {
   const [editingId, setEditingId] = useState(null);
   const [tasksForId, setTasksForId] = useState(null);
 
-  const [generateUntil, setGenerateUntil] = useState(toIsoDate(addDays(today, 60)));
   const canManage = can('schedule.manage');
   const canPickTeachers = can('teachers.view');
 
@@ -436,8 +263,8 @@ function SessionsPage() {
     enabled: canPickTeachers,
   });
   const templatesQuery = useQuery({
-    queryKey: ['task-templates', { includeArchived: true }],
-    queryFn: () => listTaskTemplates({ includeArchived: true }),
+    queryKey: ['task-templates', { includeArchived: false }],
+    queryFn: () => listTaskTemplates({ includeArchived: false }),
     enabled: canManage,
   });
   const alertsQuery = useQuery({
@@ -459,10 +286,6 @@ function SessionsPage() {
   const invalidate = () =>
     queryClient.invalidateQueries({ queryKey: ['sessions'] });
 
-  const generate = useMutation({
-    mutationFn: () => generateSessions({ until: generateUntil }),
-    onSuccess: invalidate,
-  });
   const scan = useMutation({
     mutationFn: scanAlerts,
     onSuccess: () =>
@@ -505,44 +328,12 @@ function SessionsPage() {
           <h1>{t('sessions.title')}</h1>
           <p className="hint">{t('sessions.hint')}</p>
         </div>
+        {canManage && <Link className="btn" to="/task-templates">{t('sessions.templates.title')}</Link>}
       </div>
 
       {canManage && (
         <section className="section-card">
-          <h2>{t('sessions.generate.title')}</h2>
-          <div className="row">
-            <label htmlFor="generate-until">
-              {t('sessions.generate.untilLabel')}
-            </label>
-            <JalaliDatePicker
-              id="generate-until"
-              value={generateUntil}
-              onChange={setGenerateUntil}
-            />
-            <button
-              type="button"
-              onClick={() => generate.mutate()}
-              disabled={generate.isPending}
-            >
-              {generate.isPending
-                ? t('sessions.generate.generating')
-                : t('sessions.generate.button')}
-            </button>
-          </div>
-          {generate.isError && (
-            <p className="error" role="alert">
-              {errorMessage(generate.error)}
-            </p>
-          )}
-          {generate.isSuccess && (
-            <p className="success" role="status">
-              {generate.data.created === 0
-                ? t('sessions.generate.allExist')
-                : t('sessions.generate.created', {
-                    count: generate.data.created,
-                  })}
-            </p>
-          )}
+          <SessionGenerator />
           <div className="row">
             <button
               type="button"
@@ -648,9 +439,7 @@ function SessionsPage() {
                 <th scope="col">{t('sessions.colTarget')}</th>
                 <th scope="col">{t('sessions.colPeriod')}</th>
                 <th scope="col">{t('sessions.colNote')}</th>
-                {canManage && (
-                  <th scope="col">{t('common:table.actions')}</th>
-                )}
+                <th scope="col">{t('common:table.actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -662,7 +451,7 @@ function SessionsPage() {
                 if (editingId === session.id) {
                   return (
                     <tr key={session.id}>
-                      <td colSpan={canManage ? 7 : 6}>
+                      <td colSpan={7}>
                         <SessionEditRow
                           session={session}
                           onDone={() => setEditingId(null)}
@@ -712,7 +501,6 @@ function SessionsPage() {
                         : '—'}
                     </td>
                     <td>{session.note ?? '—'}</td>
-                    {canManage && (
                       <td>
                         <button
                           type="button"
@@ -725,7 +513,7 @@ function SessionsPage() {
                             count: session.taskCount,
                           })}
                         </button>{' '}
-                        <button
+                        {canManage && <><button
                           type="button"
                           className="quiet"
                           onClick={() => setEditingId(session.id)}
@@ -784,19 +572,18 @@ function SessionsPage() {
                           >
                             {t('sessions.resolveAlert')}
                           </button>
-                        )}
+                        )}</>}
                       </td>
-                    )}
                   </tr>,
                 ];
                 if (tasksForId === session.id) {
                   rows.push(
                     <tr key={`${session.id}-tasks`}>
-                      <td colSpan={canManage ? 7 : 6}>
-                        <SessionTasksPanel
+                      <td colSpan={7}>
+                        {canManage ? <SessionTasksPanel
                           session={session}
                           templates={templatesQuery.data ?? []}
-                        />
+                        /> : <TaskList sessionId={session.id} />}
                       </td>
                     </tr>,
                   );
@@ -809,7 +596,8 @@ function SessionsPage() {
         )}
       </section>
 
-      {canManage && <TaskTemplatesManager templates={templatesQuery.data ?? []} />}
+      {templatesQuery.isError && <p className="error" role="alert">{errorMessage(templatesQuery.error)}</p>}
+      {canManage && <TaskAssignment sessions={sessionsQuery.data?.sessions ?? []} templates={templatesQuery.data ?? []} />}
     </main>
   );
 }

@@ -31,7 +31,7 @@ export function todayIso(now = new Date()) {
 // Active periods for one assignment. Membership and date spans come from the
 // database-maintained period_summary view. `answeredCount` is score-derived,
 // so the HTTP route strips it for callers without scores.view.
-export async function listAssignmentPeriods(db, assignmentId) {
+export async function listAssignmentPeriods(db, assignmentId = null) {
   const result = await db.query(
     `WITH answered AS (
        SELECT s.period_id, count(e.id)::int AS answered
@@ -45,13 +45,14 @@ export async function listAssignmentPeriods(db, assignmentId) {
           e.quality_comment,
           e.quantity_comment
         )
-       WHERE s.assignment_id = $1
+       WHERE ($1::uuid IS NULL OR s.assignment_id = $1)
          AND s.period_id IS NOT NULL
          AND s.canceled_at IS NULL
          AND s.archived_at IS NULL
        GROUP BY s.period_id
      )
-     SELECT ps.period_id AS id,
+      SELECT ps.period_id AS id,
+             ps.assignment_id AS "assignmentId",
             ps.seq,
             NULL::timestamptz AS "archivedAt",
             ps.sessions_count::int AS "sessionCount",
@@ -61,8 +62,8 @@ export async function listAssignmentPeriods(db, assignmentId) {
             COALESCE(a.answered, 0) AS "answeredCount"
      FROM period_summary ps
      LEFT JOIN answered a ON a.period_id = ps.period_id
-     WHERE ps.assignment_id = $1
-     ORDER BY ps.seq`,
+      WHERE ($1::uuid IS NULL OR ps.assignment_id = $1)
+      ORDER BY ps.assignment_id, ps.seq`,
     [assignmentId]
   );
   return result.rows;

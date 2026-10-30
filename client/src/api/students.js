@@ -18,7 +18,7 @@ export function listStudents({
 }
 
 export function createStudent(fullName, extra) {
-  const body = extra ? { fullName, extra } : { fullName };
+  const body = typeof fullName === 'object' ? fullName : extra ? { fullName, extra } : { fullName };
   return request('/api/students', {
     method: 'POST',
     body: JSON.stringify(body),

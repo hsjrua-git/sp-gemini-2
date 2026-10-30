@@ -1,8 +1,9 @@
 import { request } from './http.js';
+import { hierarchy } from '../lib/hierarchy.js';
 
 export async function listParameters() {
   const data = await request('/api/parameters');
-  return data.parameters;
+  return hierarchy(data.parameters);
 }
 
 export function createParameter(input) {
