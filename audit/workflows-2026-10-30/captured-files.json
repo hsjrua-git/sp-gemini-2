@@ -1,0 +1,158 @@
+[
+  {
+    "file": "student-history.csv",
+    "source": "/tmp/opencode-browser-krhELY/0/history-PS7VR5MB.csv",
+    "bytes": 939,
+    "sha256": "2b894bb3edc8a6a9874f4d177e9a680fdac21285c5aa641b56d14189aa81584a"
+  },
+  {
+    "file": "export-json.zip",
+    "source": "/tmp/opencode-browser-KR33t2/0/export.zip",
+    "bytes": 4447,
+    "sha256": "645918c6f4a709e1bdd08a1ee25634f2dafece3932aac79ec4ecc5d477a33aba"
+  },
+  {
+    "file": "export-json-png.zip",
+    "source": "/tmp/opencode-browser-NzNfAS/0/export.zip",
+    "bytes": 237378,
+    "sha256": "b74ef9db054491d82e201ed6740da04ebe8d3690a0f9aab5f4aa0c09661c530a"
+  },
+  {
+    "file": "export-csv-svg.zip",
+    "source": "/tmp/opencode-browser-57RMUz/0/export.zip",
+    "bytes": 5328,
+    "sha256": "fef2aa35fb551808daca40fa457869c0e6ce83051fd55bbc1795a2da3feec8f7"
+  },
+  {
+    "file": "export-xlsx-svg.zip",
+    "source": "/tmp/opencode-browser-3F29EM/0/export.zip",
+    "bytes": 7884,
+    "sha256": "b4510d2dd95a3faeec657033854a4510a6f0917a04e4b216bf8c5ac924c4de56"
+  },
+  {
+    "file": "evaluation-checklists.jpeg",
+    "source": "/tmp/opencode-browser-6NwrkW/0/screenshot.jpeg",
+    "bytes": 83537,
+    "sha256": "2578b1326270425515bd08a340e3f7b38e5a96809058d000addbe91d37af421b"
+  },
+  {
+    "file": "six-orbits.jpeg",
+    "source": "/tmp/opencode-browser-lqMU1s/0/screenshot.jpeg",
+    "bytes": 62637,
+    "sha256": "b416592f3cdc30fe6d1a860001ab5ce627d88abb7a3759dd3f79ac5ff325848f"
+  },
+  {
+    "file": "hierarchy-picker.jpeg",
+    "source": "/tmp/opencode-browser-FtA1ET/0/screenshot.jpeg",
+    "bytes": 56398,
+    "sha256": "f93bb5f8993c6f2fb4f23324459b00a12c3a417e107ce51ad8cd6a80b0ef4161"
+  },
+  {
+    "file": "task-templates.jpeg",
+    "source": "/tmp/opencode-browser-4lDx9I/0/screenshot.jpeg",
+    "bytes": 77071,
+    "sha256": "35b1e7aea97428bf5d09fa753024f99bf45a14f9565c6227f2d02d6e75de1e7a"
+  },
+  {
+    "file": "before-camera-correction.jpeg",
+    "source": "/tmp/opencode-browser-P236Xm/0/screenshot.jpeg",
+    "bytes": 42570,
+    "sha256": "45999f63dac82274acd8895ac2656de6ec4102187e0ff9cefd49a12270b0d376"
+  },
+  {
+    "file": "one-orbit.jpeg",
+    "source": "/tmp/opencode-browser-Npi7mZ/0/screenshot.jpeg",
+    "bytes": 35239,
+    "sha256": "ff0885e6eb375d93d9ca3e7b7c2426947072e51278c3e0673e2af421d501929b"
+  },
+  {
+    "file": "one-orbit-narrow-container.jpeg",
+    "source": "/tmp/opencode-browser-TRKPao/0/screenshot.jpeg",
+    "bytes": 32868,
+    "sha256": "ab60f22dcad3c39ca63d307daece9ad3d98571e0640a75d8e66457ed55e5ddbd"
+  },
+  {
+    "file": "six-orbits-narrow-container.jpeg",
+    "source": "/tmp/opencode-browser-3oPdaV/0/screenshot.jpeg",
+    "bytes": 57185,
+    "sha256": "88b74e609c082dedbc22ab5211eb6bee2bffa94c1c3702dadce38209bbfa1ee5"
+  },
+  {
+    "file": "earlier-narrow-trace.json.gz",
+    "source": "/tmp/opencode-browser-i1lH8V/0/trace.json.gz",
+    "bytes": 226335,
+    "sha256": "4f07f4aec199bbb47c037d516424a151af56652db59266c05244c313cac484bc"
+  },
+  {
+    "file": "earlier-desktop-trace.json.gz",
+    "source": "/tmp/opencode-browser-jjrb2s/0/trace.json.gz",
+    "bytes": 200406,
+    "sha256": "be1911e50f60e18842a92a38edc9b32dc183da99a74e61094c9f1c3e87f42552"
+  },
+  {
+    "file": "before-lazy-charts-trace.json.gz",
+    "source": "/tmp/opencode-browser-NWE9Ce/0/trace.json.gz",
+    "bytes": 243346,
+    "sha256": "695b0bc0126dccf2499ad0be09d8fb214174560d12079b6ade88faf75ed3242b"
+  },
+  {
+    "file": "cold-a-trace.json.gz",
+    "source": "/tmp/opencode-browser-GrY6D6/0/trace.json.gz",
+    "bytes": 204500,
+    "sha256": "5950374da1c17bd62eac88ead7e9c4f6883cbce5bf9295c288f1bc7851cf7657"
+  },
+  {
+    "file": "cold-b-trace.json.gz",
+    "source": "/tmp/opencode-browser-e8AtTI/0/trace.json.gz",
+    "bytes": 205302,
+    "sha256": "6f3b93df8dcd9e0004ed2b4495a055385793964207f3447c8a5a0d0b435e6ceb"
+  },
+  {
+    "file": "cold-a-metrics.json",
+    "source": "/tmp/opencode-browser-SiS7O5/0/cold-a-metrics.json",
+    "bytes": 4427,
+    "sha256": "aacfb74ebfce8e8d3b7887e111cc12b70a3d698c08ef78aa618e59764a96693b"
+  },
+  {
+    "file": "cold-b-metrics.json",
+    "source": "/tmp/opencode-browser-YClf5F/0/cold-b-metrics.json",
+    "bytes": 4488,
+    "sha256": "05af064727bea4c5df80a9b23e8be1945fc0a1a6a1dbe58c0753d39a0732a6f8"
+  },
+  {
+    "file": "client-lint-tests-build.txt",
+    "source": "/home/hsjrua/.local/share/opencode/shell/592025cb7880b4e42e3fb7301389f1a1c285e06b/sh_18c4eeb4c001npd8PEDMoscVyp.out",
+    "bytes": 8139,
+    "sha256": "7a20cc4b95707a3d94f52e59b965978730eb04aa7068e0e77a81ef38da757459"
+  },
+  {
+    "file": "final-lint-build.txt",
+    "source": "/home/hsjrua/.local/share/opencode/shell/592025cb7880b4e42e3fb7301389f1a1c285e06b/sh_18c58d86b001u0aE4tijSQxdw2.out",
+    "bytes": 7828,
+    "sha256": "47f77b9f2b8f3c06125eb089dd02a9c4a9b2add42569878992bd87ccb1471fc0"
+  },
+  {
+    "file": "server-unit-tests.txt",
+    "source": "/home/hsjrua/.local/share/opencode/shell/592025cb7880b4e42e3fb7301389f1a1c285e06b/sh_18c42e9a9001vdKplXG07WqnRK.out",
+    "bytes": 12329,
+    "sha256": "a61d15d30ffac9ef2208206e7a6ab3ba523c27bee5a71b29baff7722ceeeffa9"
+  },
+  {
+    "file": "server-core-migrations.txt",
+    "source": "/home/hsjrua/.local/share/opencode/shell/592025cb7880b4e42e3fb7301389f1a1c285e06b/sh_18bb47950002ZtogKkhNL6gnJe.out",
+    "bytes": 21231,
+    "sha256": "ca1b684774309c3280ef0f78788b40a9fcdb92bdff73170455ed6570a3dca381"
+  },
+  {
+    "file": "permissions-integration.txt",
+    "source": "/home/hsjrua/.local/share/opencode/shell/592025cb7880b4e42e3fb7301389f1a1c285e06b/sh_18bd01804001A3KFxIgW1zdAeU.out",
+    "bytes": 754,
+    "sha256": "fc05e6ab8282fe410feac9b1d3bee10f200b566bbd694457354456bff864c5bc"
+  },
+  {
+    "file": "workflow-and-invariant-smokes.txt",
+    "source": "/home/hsjrua/.local/share/opencode/shell/592025cb7880b4e42e3fb7301389f1a1c285e06b/sh_18bd188cb001q4zBZuh5uzir9c.out",
+    "bytes": 1045,
+    "sha256": "9fff6f9995162345b16e0ac6a9c980ea0763c7c43b19cec8a6c5c4e087ab57a2"
+  }
+]

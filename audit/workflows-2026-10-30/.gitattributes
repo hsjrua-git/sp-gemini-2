@@ -1,0 +1,2 @@
+# Preserve the downloaded CSV bytes, including its BOM and CRLF line endings.
+student-history.csv -text whitespace=cr-at-eol

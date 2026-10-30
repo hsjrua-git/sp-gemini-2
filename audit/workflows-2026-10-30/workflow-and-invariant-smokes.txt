@@ -1,0 +1,15 @@
+PASS far-future start seeks directly and preserves long sequence codes
+PASS date previews accept exactly 1000 and reject 1001 sessions
+PASS two planned periods create eight sessions without answered periods
+PASS monthly previews preserve month-end anchors after a distant start
+PASS parameter cycles and archiving a parent with active children are refused
+PASS quality accepts 0/100 independently of quantity bounds and rejects overflow
+PASS generation requires preview and concurrent confirmation creates only once
+PASS committed session dates and codes exactly match the preview
+PASS multi-target assignment rolls back entirely on one invalid target
+PASS checklist snapshots are independent; concurrent evaluator progress is retained; viewer cannot mutate
+PASS scoped Results and Export agree for 880 cells, both dimensions and previous values
+Workflow smoke: 11 checks passed
+npm notice run server@1.0.0 smoke:invariants
+npm notice run node --env-file=.env src/scripts/invariantRaceSmoke.mjs
+runtime invariant race smoke: all 5 checks passed

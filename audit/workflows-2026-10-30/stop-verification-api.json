@@ -1,0 +1,12 @@
+{
+  "command": [
+    "python3",
+    "-c",
+    "import os, signal, select, subprocess; from pathlib import Path; pid=584823; assert Path(f\"/proc/{pid}/cwd\").resolve() == Path(\"server\").resolve(); cmd=Path(f\"/proc/{pid}/cmdline\").read_bytes().split(b\"\\0\"); assert b\"src/index.js\" in cmd; listeners=subprocess.check_output([\"ss\", \"-ltnp\", \"sport = :3302\"], text=True); assert f\"pid={pid},\" in listeners; handle=os.pidfd_open(pid); os.kill(pid, signal.SIGTERM); assert select.select([handle], [], [], 15)[0], \"API did not stop within 15 seconds\"; os.close(handle); remaining=subprocess.check_output([\"ss\", \"-ltnp\", \"sport = :3302\"], text=True); assert \"LISTEN\" not in remaining; print(\"PASS stopped verified workflow API PID 584823; port 3302 has no listener; databases retained\")"
+  ],
+  "directory": ".",
+  "started": "2026-10-30T10:39:10.907Z",
+  "ended": "2026-10-30T10:39:11.341Z",
+  "code": 0,
+  "signal": null
+}

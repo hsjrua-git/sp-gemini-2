@@ -1,0 +1,185 @@
+{
+  "observerStart": 860,
+  "firstCanvas": 3746.3999999910593,
+  "observations2d": 0,
+  "viewport": [
+    1233,
+    887
+  ],
+  "resources": [
+    {
+      "name": "/assets/index-BD9TWyB9.js",
+      "start": 93.20000000298023,
+      "duration": 151.29999999701977,
+      "transfer": 50709
+    },
+    {
+      "name": "/assets/rolldown-runtime-XKyaHtl9.js",
+      "start": 96.8999999910593,
+      "duration": 275.20000000298023,
+      "transfer": 1026
+    },
+    {
+      "name": "/assets/react-query-CeOdOLjs.js",
+      "start": 97.20000000298023,
+      "duration": 291.59999999403954,
+      "transfer": 43383
+    },
+    {
+      "name": "/assets/react-vendor-kV0N1Qz_.js",
+      "start": 97.29999999701977,
+      "duration": 375.5,
+      "transfer": 248250
+    },
+    {
+      "name": "/assets/useTranslation-B0izj2q9.js",
+      "start": 97.5,
+      "duration": 302.3999999910593,
+      "transfer": 49874
+    },
+    {
+      "name": "/assets/i18n-_a3iqX07.js",
+      "start": 97.70000000298023,
+      "duration": 495.19999998807907,
+      "transfer": 197415
+    },
+    {
+      "name": "/assets/index-zvSnaElQ.css",
+      "start": 98.09999999403954,
+      "duration": 186.40000000596046,
+      "transfer": 66998
+    },
+    {
+      "name": "/assets/vazirmatn-Regular-CtGL0YI-.woff2",
+      "start": 819.2000000029802,
+      "duration": 140.5,
+      "transfer": 50984
+    },
+    {
+      "name": "/api/auth/me",
+      "start": 875.2999999970198,
+      "duration": 124.29999999701977,
+      "transfer": 1199
+    },
+    {
+      "name": "/api/preferences",
+      "start": 1061.2999999970198,
+      "duration": 83.29999999701977,
+      "transfer": 816
+    },
+    {
+      "name": "/assets/DashboardPage-UTjyGO6Y.js",
+      "start": 1228.7000000029802,
+      "duration": 170.09999999403954,
+      "transfer": 20901
+    },
+    {
+      "name": "/assets/alerts-CAOlVrkq.js",
+      "start": 1229.5,
+      "duration": 285.70000000298023,
+      "transfer": 687
+    },
+    {
+      "name": "/assets/format-CzwDzG_f.js",
+      "start": 1230.2999999970198,
+      "duration": 288.09999999403954,
+      "transfer": 1329
+    },
+    {
+      "name": "/assets/locale-b7ZQgHeJ.js",
+      "start": 1231.2000000029802,
+      "duration": 290,
+      "transfer": 4647
+    },
+    {
+      "name": "/assets/useReportScope-ObDuDVsS.js",
+      "start": 1232.0999999940395,
+      "duration": 402.90000000596046,
+      "transfer": 3938
+    },
+    {
+      "name": "/assets/hierarchy-BlijvFqh.js",
+      "start": 1232.5,
+      "duration": 394.59999999403954,
+      "transfer": 1566
+    },
+    {
+      "name": "/assets/TreePicker-CzySGOtZ.js",
+      "start": 1232.7999999970198,
+      "duration": 580.2000000029802,
+      "transfer": 4328
+    },
+    {
+      "name": "/assets/groups-DHnu6hMk.js",
+      "start": 1237.3999999910593,
+      "duration": 590.2000000029802,
+      "transfer": 1057
+    },
+    {
+      "name": "/assets/schedule-CQJs88Bq.js",
+      "start": 1238.2000000029802,
+      "duration": 612.3999999910593,
+      "transfer": 1620
+    },
+    {
+      "name": "/assets/dashboard-CXy3pHZP.js",
+      "start": 1238.5999999940395,
+      "duration": 676.2999999970198,
+      "transfer": 3467
+    },
+    {
+      "name": "/assets/reportResults-DsuBiasP.js",
+      "start": 1239.0999999940395,
+      "duration": 683.2000000029802,
+      "transfer": 1537
+    },
+    {
+      "name": "/assets/manrope-variable-DHIcAJRg.woff2",
+      "start": 1309.7999999970198,
+      "duration": 369.5,
+      "transfer": 25136
+    },
+    {
+      "name": "/assets/CohortConstellation-B1xYEKdR.js",
+      "start": 2107.0999999940395,
+      "duration": 253.29999999701977,
+      "transfer": 14416
+    },
+    {
+      "name": "/assets/three-Dy6tDpf4.js",
+      "start": 2108.3999999910593,
+      "duration": 590.6000000089407,
+      "transfer": 546845
+    },
+    {
+      "name": "/api/alerts",
+      "start": 2111.7999999970198,
+      "duration": 297.20000000298023,
+      "transfer": 824
+    },
+    {
+      "name": "/api/groups",
+      "start": 2116.2999999970198,
+      "duration": 342.20000000298023,
+      "transfer": 1060
+    },
+    {
+      "name": "/api/assignments",
+      "start": 2122.7999999970198,
+      "duration": 394.40000000596046,
+      "transfer": 4556
+    },
+    {
+      "name": "/api/periods",
+      "start": 2128.7000000029802,
+      "duration": 415.19999998807907,
+      "transfer": 3279
+    },
+    {
+      "name": "/api/results/scope",
+      "start": 2585.5,
+      "duration": 272.20000000298023,
+      "transfer": 216426
+    }
+  ]
+}

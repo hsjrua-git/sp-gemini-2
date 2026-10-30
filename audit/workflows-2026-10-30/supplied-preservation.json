@@ -1,0 +1,13 @@
+{
+  "command": [
+    "node",
+    "--input-type=module",
+    "-e",
+    "import assert from \"node:assert/strict\"; import fs from \"node:fs\"; const previous=JSON.parse(fs.readFileSync(\"audit/stage2-final-local/preservation.txt\",\"utf8\")); const current=JSON.parse(fs.readFileSync(\"audit/workflows-2026-10-30/preservation.txt\",\"utf8\")); assert.deepEqual(current.suppliedCurrentHashes,previous.suppliedCurrentHashes); console.log(\"PASS all six supplied handoff/schema hashes match the Stage 2 closing receipt\");"
+  ],
+  "directory": ".",
+  "started": "2026-10-30T10:38:54.801Z",
+  "ended": "2026-10-30T10:38:54.993Z",
+  "code": 0,
+  "signal": null
+}

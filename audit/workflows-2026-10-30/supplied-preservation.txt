@@ -1,0 +1,1 @@
+PASS all six supplied handoff/schema hashes match the Stage 2 closing receipt
