@@ -6,13 +6,13 @@
   "scripts": {
     "test": "node --test test/*.test.js",
     "test:core": "node --test --test-concurrency=2 src/core/**/*.test.js",
-    "start": "node --env-file=.env src/index.js",
-    "dev": "node --watch --env-file=.env src/index.js",
-    "migrate": "node --env-file=.env src/db/migrate.js",
-    "create-user": "node --env-file=.env src/scripts/createUser.js",
-    "reset-data": "node --env-file=.env src/scripts/resetData.js",
+    "start": "node --env-file-if-exists=.env src/index.js",
+    "dev": "node --watch --env-file-if-exists=.env src/index.js",
+    "migrate": "node --env-file-if-exists=.env src/db/migrate.js",
+    "create-user": "node --env-file-if-exists=.env src/scripts/createUser.js",
+    "reset-data": "node --env-file-if-exists=.env src/scripts/resetData.js",
     "verify-pglite": "node src/db/verifyPglite.mjs",
-    "test-permissions": "RUN_INTEGRATION=1 node --env-file=.env --test test/permissions.test.js"
+    "test-permissions": "RUN_INTEGRATION=1 node --env-file-if-exists=.env --test test/permissions.test.js"
   },
   "keywords": [],
   "type": "module",
