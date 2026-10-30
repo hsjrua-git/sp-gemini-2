@@ -187,6 +187,21 @@ cd ../server && npm start
 
 Open `http://<this-machine>:3000`.
 
+### Updating an existing installation
+
+Back up the database, stop the running server, and update the code/dependencies.
+Run `npm run migrate` from `server/`, rebuild with `npm run build` from `client/`,
+then restart the server. Migrations use the same `DATABASE_URL` as normal startup.
+Migration 036 preserves existing quality values and requires them to be within
+0–100; it does not convert legacy score scales automatically.
+
+`GET /api/health` checks both database connectivity and required migrations.
+A missing migration returns HTTP 503 with `DATABASE_MIGRATIONS_PENDING`, and the
+API shows a translated upgrade message before attempting session or feature SQL.
+Run the migration command with the maintenance database credentials, then retry.
+Readiness refreshes within five seconds (immediately on a health check).
+`DATABASE_UNAVAILABLE` instead means the database connection needs attention.
+
 ### Android companion
 
 The Capacitor Android build uses the same server and database, so every module

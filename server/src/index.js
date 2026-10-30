@@ -5,6 +5,7 @@ import pool from './db/pool.js';
 import { attachUser, authorize, requireLogin, requirePermission } from './middleware/auth.js';
 import { auditRequests } from './middleware/audit.js';
 import { createCsrf } from './middleware/csrf.js';
+import { createDatabaseReadiness } from './middleware/databaseReady.js';
 import auditRouter from './routes/audit.js';
 import authRouter from './routes/auth.js';
 import evaluationsRouter from './routes/evaluations.js';
@@ -164,14 +165,13 @@ if (serveClient) {
   app.use(express.static(clientDist, { index: false, maxAge: '1h' }));
 }
 
-app.get('/api/health', async (req, res) => {
-  try {
-    await pool.query('SELECT 1');
-    res.json({ ok: true, database: 'ok' });
-  } catch {
-    res.status(503).json({ ok: false, database: 'unavailable' });
-  }
+const databaseReady = createDatabaseReadiness({
+  pool,
+  migrations: fs.readdirSync(path.join(import.meta.dirname, 'db/migrations'))
+    .filter(filename => filename.endsWith('.sql')).sort(),
 });
+app.get('/api/health', databaseReady.health);
+app.use('/api', databaseReady.requireReady);
 
 app.use(
   session({
@@ -509,6 +509,8 @@ const port = process.env.PORT || 3000;
 // Bind to all interfaces by default so other machines on the LAN can reach it.
 // Set HOST=127.0.0.1 in .env to keep it to this computer only.
 const host = process.env.HOST || '0.0.0.0';
+const readiness = await databaseReady.check();
+if (!readiness.ok) console.error(`${readiness.code}: ${readiness.error}`);
 app.listen(port, host, () => {
   const shown = host === '0.0.0.0' ? 'this machine on your network' : host;
   console.log(`Server running on port ${port} (${shown})`);

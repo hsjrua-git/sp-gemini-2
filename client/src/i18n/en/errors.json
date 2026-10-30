@@ -1,4 +1,6 @@
 {
+  "DATABASE_MIGRATIONS_PENDING": "The database needs an upgrade. Ask the administrator to run npm run migrate from server/, then retry.",
+  "DATABASE_UNAVAILABLE": "The database is unavailable. Ask the administrator to check the database service and server configuration.",
   "TASK_CHECKLIST_INVALID": "Use up to 50 checklist items (1–200 characters each) and notes up to 2,000 characters. Update progress separately from task definitions.",
   "SESSION_PLAN_INVALID": "Choose active schedules and a valid date range, 1–200 sessions or 1–50 periods per schedule.",
   "SESSION_PLAN_LIMIT": "This plan exceeds 1,000 sessions. Choose fewer targets or dates.",
