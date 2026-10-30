@@ -238,6 +238,7 @@ function SessionsPage() {
   const [includeArchived, setIncludeArchived] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [tasksForId, setTasksForId] = useState(null);
+  const [showGenerator, setShowGenerator] = useState(false);
 
   const canManage = can('schedule.manage');
   const canPickTeachers = can('teachers.view');
@@ -328,10 +329,26 @@ function SessionsPage() {
           <h1>{t('sessions.title')}</h1>
           <p className="hint">{t('sessions.hint')}</p>
         </div>
-        {canManage && <Link className="btn" to="/task-templates">{t('sessions.templates.title')}</Link>}
+        {canManage && (
+          <div className="page-head-actions">
+            <button
+              type="button"
+              className={showGenerator ? undefined : 'primary'}
+              aria-expanded={showGenerator}
+              onClick={() => setShowGenerator((open) => !open)}
+            >
+              {showGenerator
+                ? t('common:actions.close')
+                : `+ ${t('sessions.generate.button')}`}
+            </button>
+            <Link className="btn" to="/task-templates">
+              {t('sessions.templates.title')}
+            </Link>
+          </div>
+        )}
       </div>
 
-      {canManage && (
+      {canManage && showGenerator && (
         <section className="section-card">
           <SessionGenerator />
           <div className="row">
@@ -501,79 +518,78 @@ function SessionsPage() {
                         : '—'}
                     </td>
                     <td>{session.note ?? '—'}</td>
-                      <td>
-                        <button
-                          type="button"
-                          className="quiet"
-                          onClick={() =>
-                            setTasksForId(tasksForId === session.id ? null : session.id)
-                          }
-                        >
-                          {t('sessions.tasksButton', {
-                            count: session.taskCount,
-                          })}
-                        </button>{' '}
-                        {canManage && <><button
-                          type="button"
-                          className="quiet"
-                          onClick={() => setEditingId(session.id)}
-                          disabled={busy}
-                        >
-                          {t('common:actions.edit')}
-                        </button>{' '}
-                        {session.canceledAt ? (
+                    <td className="actions">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setTasksForId(tasksForId === session.id ? null : session.id)
+                        }
+                      >
+                        {t('sessions.tasksButton', {
+                          count: session.taskCount,
+                        })}
+                      </button>
+                      {canManage && (
+                        <>
                           <button
                             type="button"
-                            className="quiet"
-                            onClick={() =>
-                              runAction(quickCancel, { session, canceled: false })
-                            }
+                            onClick={() => setEditingId(session.id)}
                             disabled={busy}
                           >
-                            {t('common:actions.restore')}
+                            {t('common:actions.edit')}
                           </button>
-                        ) : (
-                          <button
-                            type="button"
-                            className="quiet"
-                            onClick={() =>
-                              runAction(quickCancel, { session, canceled: true })
-                            }
-                            disabled={busy}
-                          >
-                            {t('common:actions.cancel')}
-                          </button>
-                        )}{' '}
-                        {session.archivedAt ? (
-                          <button
-                            type="button"
-                            className="quiet"
-                            onClick={() => runAction(restore, session)}
-                            disabled={busy}
-                          >
-                            {t('common:actions.unarchive')}
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            className="quiet"
-                            onClick={() => runAction(archive, session)}
-                            disabled={busy}
-                          >
-                            {t('common:actions.archive')}
-                          </button>
-                        )}{' '}
-                        {openAlert && (
-                          <button
-                            type="button"
-                            className="quiet"
-                            onClick={() => resolve.mutate(openAlert)}
-                            disabled={busy || resolve.isPending}
-                          >
-                            {t('sessions.resolveAlert')}
-                          </button>
-                        )}</>}
-                      </td>
+                          {session.canceledAt ? (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                runAction(quickCancel, { session, canceled: false })
+                              }
+                              disabled={busy}
+                            >
+                              {t('common:actions.restore')}
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              className="danger"
+                              onClick={() =>
+                                runAction(quickCancel, { session, canceled: true })
+                              }
+                              disabled={busy}
+                            >
+                              {t('common:actions.cancel')}
+                            </button>
+                          )}
+                          {session.archivedAt ? (
+                            <button
+                              type="button"
+                              onClick={() => runAction(restore, session)}
+                              disabled={busy}
+                            >
+                              {t('common:actions.unarchive')}
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              className="danger"
+                              onClick={() => runAction(archive, session)}
+                              disabled={busy}
+                            >
+                              {t('common:actions.archive')}
+                            </button>
+                          )}
+                          {openAlert && (
+                            <button
+                              type="button"
+                              onClick={() => resolve.mutate(openAlert)}
+                              disabled={busy || resolve.isPending}
+                            >
+                              {t('sessions.resolveAlert')}
+                            </button>
+                          )}
+                        </>
+                      )}
+                    </td>
                   </tr>,
                 ];
                 if (tasksForId === session.id) {

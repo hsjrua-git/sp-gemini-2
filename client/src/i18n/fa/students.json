@@ -117,7 +117,12 @@
     "lockedTag": " (قفل‌شده)",
     "colStudent": "دانش‌آموز",
     "gridNoParameters": "هنوز شاخصی تعریف نشده است. آن را در صفحهٔ شاخص‌ها بسازید.",
-    "noteAriaLabel": "یادداشت برای {{dimension}}، {{parameter}}، {{student}}"
+    "noteAriaLabel": "یادداشت برای {{dimension}}، {{parameter}}، {{student}}",
+    "chooseParameters": "شاخص‌های قابل ارزیابی در جدول",
+    "showingParameters": "نمایش {{shown}} از {{total}} شاخص",
+    "selectAllParameters": "نمایش همه",
+    "clearParameters": "پنهان کردن همه",
+    "noParametersSelected": "هیچ شاخصی برای نمایش انتخاب نشده است. از نوار بالا یک یا چند شاخص را برای ارزیابی انتخاب کنید."
   },
   "parameters": {
     "title": "شاخص‌ها",

@@ -1,6 +1,0 @@
-{
-  "exit": 0,
-  "unrelatedFilePreserved": true,
-  "expiredDumpRemoved": true,
-  "remainingDumps": 1
-}

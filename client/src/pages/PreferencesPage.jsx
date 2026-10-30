@@ -79,6 +79,26 @@ const PALETTES = [
       brand: '#d21f3c',
     },
   },
+  {
+    value: 'aurum',
+    preview: {
+      paper: '#e9eaee',
+      surface: '#202227',
+      line: '#353841',
+      spine: '#141519',
+      brand: '#f5c518',
+    },
+  },
+  {
+    value: 'aurum-glass',
+    preview: {
+      paper: '#1b1d22',
+      surface: 'rgba(38, 41, 48, 0.78)',
+      line: 'rgba(245, 197, 24, 0.38)',
+      spine: '#101216',
+      brand: '#ffd43b',
+    },
+  },
 ];
 const PAGE_SIZES = [10, 25, 50, 100];
 const SORTS = ['newest', 'oldest', 'name', 'code'];
@@ -160,6 +180,7 @@ function PreferencesPage() {
                 <input
                   type="radio"
                   name="theme"
+                  value={value}
                   checked={preferences.theme === value}
                   onChange={() => change({ theme: value })}
                 />
@@ -176,6 +197,7 @@ function PreferencesPage() {
                 <input
                   type="radio"
                   name="palette"
+                  value={option.value}
                   checked={(preferences.palette ?? 'aurora') === option.value}
                   onChange={() => change({ palette: option.value })}
                 />
@@ -204,6 +226,34 @@ function PreferencesPage() {
             ))}
           </div>
           <p className="hint">{t('preferences.paletteHint')}</p>
+        </fieldset>
+        <fieldset className="pref-group">
+          <legend>{t('preferences.customCursor')}</legend>
+          <div
+            className="segmented"
+            role="radiogroup"
+            aria-label={t('preferences.customCursor')}
+          >
+            <label>
+              <input
+                type="radio"
+                name="customCursor"
+                checked={(preferences.customCursor ?? true) === true}
+                onChange={() => change({ customCursor: true })}
+              />
+              {t('preferences.cursorWave')}
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="customCursor"
+                checked={(preferences.customCursor ?? true) === false}
+                onChange={() => change({ customCursor: false })}
+              />
+              {t('preferences.cursorNative')}
+            </label>
+          </div>
+          <p className="hint">{t('preferences.customCursorHint')}</p>
         </fieldset>
       </section>
 

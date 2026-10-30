@@ -385,6 +385,7 @@ function IntervalsManager({ intervals }) {
   const [name, setName] = useState('');
   const [count, setCount] = useState(7);
   const [unit, setUnit] = useState('days');
+  const [showAddInterval, setShowAddInterval] = useState(false);
 
   const invalidate = () =>
     queryClient.invalidateQueries({ queryKey: ['intervals'] });
@@ -398,6 +399,7 @@ function IntervalsManager({ intervals }) {
     onSuccess: () => {
       invalidate();
       setName('');
+      setShowAddInterval(false);
     },
   });
   const archive = useMutation({
@@ -416,7 +418,68 @@ function IntervalsManager({ intervals }) {
 
   return (
     <section className="section-card">
-      <h2>{t('schedule.intervals.title')}</h2>
+      <div className="toolbar" style={{ justifyContent: 'space-between' }}>
+        <h2>{t('schedule.intervals.title')}</h2>
+        <button
+          type="button"
+          className={showAddInterval ? undefined : 'primary'}
+          aria-expanded={showAddInterval}
+          onClick={() => setShowAddInterval((open) => !open)}
+        >
+          {showAddInterval
+            ? t('common:actions.close')
+            : `+ ${t('schedule.intervals.add')}`}
+        </button>
+      </div>
+
+      {showAddInterval && (
+        <form onSubmit={handleSubmit} className="edit-form">
+          <label htmlFor="interval-name">
+            {t('schedule.intervals.newName')}
+          </label>
+          <input
+            id="interval-name"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            maxLength={60}
+            placeholder={t('schedule.intervals.namePlaceholder')}
+            autoComplete="off"
+            disabled={save.isPending}
+          />
+          <label htmlFor="interval-count">
+            {t('schedule.intervals.everyLabel')}
+          </label>
+          <div className="row">
+            <input
+              id="interval-count"
+              type="number"
+              min={1}
+              max={unit === 'months' ? 24 : 365}
+              value={count}
+              onChange={(event) => setCount(Number(event.target.value))}
+              disabled={save.isPending}
+            />
+            <select
+              aria-label={t('schedule.intervals.unitLabel')}
+              value={unit}
+              onChange={(event) => setUnit(event.target.value)}
+              disabled={save.isPending}
+            >
+              <option value="days">{t('schedule.intervals.unitDays')}</option>
+              <option value="months">{t('schedule.intervals.unitMonths')}</option>
+            </select>
+            <button type="submit" className="primary" disabled={save.isPending}>
+              {save.isPending
+                ? t('schedule.intervals.adding')
+                : t('schedule.intervals.add')}
+            </button>
+          </div>
+          {save.isError && (
+            <p className="error">{errorMessage(save.error)}</p>
+          )}
+        </form>
+      )}
+
       <div className="table-wrap">
         <table>
           <thead>
@@ -431,11 +494,10 @@ function IntervalsManager({ intervals }) {
               <tr key={interval.id} className={interval.archivedAt ? 'stale' : undefined}>
                 <th scope="row">{interval.name}</th>
                 <td>{formatEvery(interval.every, t)}</td>
-                <td>
+                <td className="actions">
                   {interval.archivedAt ? (
                     <button
                       type="button"
-                      className="quiet"
                       onClick={() => restore.mutate(interval.id)}
                       disabled={archive.isPending || restore.isPending}
                     >
@@ -444,7 +506,7 @@ function IntervalsManager({ intervals }) {
                   ) : (
                     <button
                       type="button"
-                      className="quiet"
+                      className="danger"
                       onClick={() => archive.mutate(interval.id)}
                       disabled={archive.isPending || restore.isPending}
                     >
@@ -457,52 +519,6 @@ function IntervalsManager({ intervals }) {
           </tbody>
         </table>
       </div>
-
-      <form onSubmit={handleSubmit} className="edit-form">
-        <label htmlFor="interval-name">
-          {t('schedule.intervals.newName')}
-        </label>
-        <input
-          id="interval-name"
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-          maxLength={60}
-          placeholder={t('schedule.intervals.namePlaceholder')}
-          autoComplete="off"
-          disabled={save.isPending}
-        />
-        <label htmlFor="interval-count">
-          {t('schedule.intervals.everyLabel')}
-        </label>
-        <div className="row">
-          <input
-            id="interval-count"
-            type="number"
-            min={1}
-            max={unit === 'months' ? 24 : 365}
-            value={count}
-            onChange={(event) => setCount(Number(event.target.value))}
-            disabled={save.isPending}
-          />
-          <select
-            aria-label={t('schedule.intervals.unitLabel')}
-            value={unit}
-            onChange={(event) => setUnit(event.target.value)}
-            disabled={save.isPending}
-          >
-            <option value="days">{t('schedule.intervals.unitDays')}</option>
-            <option value="months">{t('schedule.intervals.unitMonths')}</option>
-          </select>
-          <button type="submit" disabled={save.isPending}>
-            {save.isPending
-              ? t('schedule.intervals.adding')
-              : t('schedule.intervals.add')}
-          </button>
-        </div>
-        {save.isError && (
-          <p className="error">{errorMessage(save.error)}</p>
-        )}
-      </form>
     </section>
   );
 }
@@ -513,6 +529,7 @@ function SchedulePage() {
   const queryClient = useQueryClient();
   const [includeArchived, setIncludeArchived] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [showAdd, setShowAdd] = useState(false);
 
   const canManage = can('schedule.manage');
   const canPickTeachers = can('teachers.view');
@@ -566,9 +583,21 @@ function SchedulePage() {
           <h1>{t('schedule.title')}</h1>
           <p className="hint">{t('schedule.hint')}</p>
         </div>
+        {canUseForm && editingId === null && (
+          <div className="page-head-actions">
+            <button
+              type="button"
+              className={showAdd ? undefined : 'primary'}
+              aria-expanded={showAdd}
+              onClick={() => setShowAdd((open) => !open)}
+            >
+              {showAdd ? t('common:actions.close') : `+ ${t('schedule.addTitle')}`}
+            </button>
+          </div>
+        )}
       </div>
 
-      {canUseForm && editingId === null && (
+      {canUseForm && editingId === null && showAdd && (
         <section className="section-card">
           <h2>{t('schedule.addTitle')}</h2>
           <MultiAssignmentForm
@@ -576,7 +605,7 @@ function SchedulePage() {
             teachers={teachersQuery.data ?? []}
             intervals={intervals}
             groups={groupsQuery.data ?? []}
-            onDone={() => {}}
+            onDone={() => setShowAdd(false)}
           />
         </section>
       )}
@@ -671,11 +700,10 @@ function SchedulePage() {
                           : '—'}
                       </td>
                       {canManage && (
-                        <td>
+                        <td className="actions">
                           {assignment.archivedAt ? (
                             <button
                               type="button"
-                              className="quiet"
                               onClick={() => runAction(restore, assignment)}
                               disabled={archive.isPending || restore.isPending}
                             >
@@ -685,15 +713,14 @@ function SchedulePage() {
                             <>
                               <button
                                 type="button"
-                                className="quiet"
                                 onClick={() => setEditingId(assignment.id)}
                                 disabled={archive.isPending || restore.isPending}
                               >
                                 {t('common:actions.edit')}
-                              </button>{' '}
+                              </button>
                               <button
                                 type="button"
-                                className="quiet"
+                                className="danger"
                                 onClick={() => runAction(archive, assignment.id)}
                                 disabled={archive.isPending || restore.isPending}
                               >

@@ -1,5 +1,0 @@
-{"existing":false,"qty":1,"unitPrice":0,"cost":1000,"balance":0,"passed":true}
-{"existing":false,"qty":0.001,"unitPrice":1,"cost":1,"balance":0,"passed":true}
-{"existing":true,"qty":1,"unitPrice":0,"cost":1000,"balance":-37,"passed":true}
-{"existing":true,"qty":0.001,"unitPrice":1,"cost":1,"balance":-37,"passed":true}
-{"failures":[]}

@@ -604,8 +604,14 @@
       "ember": "Ember",
       "meadow": "Meadow",
       "cobalt": "Cobalt",
-      "crimson": "Crimson"
+      "crimson": "Crimson",
+      "aurum": "Grey-Yellow (Solid)",
+      "aurum-glass": "Grey-Yellow (Glass)"
     },
+    "customCursor": "Pointer style",
+    "cursorWave": "Wave dot cursor",
+    "cursorNative": "Standard system pointer",
+    "customCursorHint": "Use the glowing dot with a continuous rippling wave, or keep your computer's standard pointer.",
     "studentsList": "Students list",
     "rowsPerPage": "Rows per page",
     "sortBy": "Sort by",

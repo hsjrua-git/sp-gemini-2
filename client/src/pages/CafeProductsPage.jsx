@@ -248,6 +248,8 @@ function CafeProductsPage() {
   const [includeInactive, setIncludeInactive] = useState(false);
   const [editingProductId, setEditingProductId] = useState(null);
   const [editingSupplierId, setEditingSupplierId] = useState(null);
+  const [showAddProduct, setShowAddProduct] = useState(false);
+  const [showAddSupplier, setShowAddSupplier] = useState(false);
 
   const canManageProducts = can('cafe.manage');
   const canSupplies = can('cafe.supplies');
@@ -306,10 +308,22 @@ function CafeProductsPage() {
       </div>
 
       <section className="section-card">
-        <h2>{t('products.title')}</h2>
+        <div className="toolbar" style={{ justifyContent: 'space-between' }}>
+          <h2>{t('products.title')}</h2>
+          {canManageProducts && editingProductId === null && (
+            <button
+              type="button"
+              className={showAddProduct ? undefined : 'primary'}
+              aria-expanded={showAddProduct}
+              onClick={() => setShowAddProduct((open) => !open)}
+            >
+              {showAddProduct ? t('common:actions.close') : `+ ${t('products.addSubmit')}`}
+            </button>
+          )}
+        </div>
 
-        {canManageProducts && editingProductId === null && (
-          <ProductForm product={null} onDone={() => {}} />
+        {canManageProducts && editingProductId === null && showAddProduct && (
+          <ProductForm product={null} onDone={() => setShowAddProduct(false)} />
         )}
 
         {productsQuery.isPending && (
@@ -374,20 +388,19 @@ function CafeProductsPage() {
                     </td>
                     <td>{t(product.isActive ? 'status.active' : 'status.inactive')}</td>
                     {canManageProducts && (
-                      <td>
+                      <td className="actions">
                         {product.isActive ? (
                           <>
                             <button
                               type="button"
-                              className="quiet"
                               disabled={productChange}
                               onClick={() => setEditingProductId(product.id)}
                             >
                               {t('common:actions.edit')}
-                            </button>{' '}
+                            </button>
                             <button
                               type="button"
-                              className="quiet"
+                              className="danger"
                               disabled={productChange}
                               onClick={() => deactivateProduct.mutate(product.id)}
                             >
@@ -397,7 +410,6 @@ function CafeProductsPage() {
                         ) : (
                           <button
                             type="button"
-                            className="quiet"
                             disabled={productChange}
                             onClick={() => reactivateProduct.mutate(product.id)}
                           >
@@ -424,10 +436,22 @@ function CafeProductsPage() {
 
       {canSupplies && (
         <section className="section-card">
-          <h2>{t('suppliers.title')}</h2>
+          <div className="toolbar" style={{ justifyContent: 'space-between' }}>
+            <h2>{t('suppliers.title')}</h2>
+            {editingSupplierId === null && (
+              <button
+                type="button"
+                className={showAddSupplier ? undefined : 'primary'}
+                aria-expanded={showAddSupplier}
+                onClick={() => setShowAddSupplier((open) => !open)}
+              >
+                {showAddSupplier ? t('common:actions.close') : `+ ${t('suppliers.addSubmit')}`}
+              </button>
+            )}
+          </div>
 
-          {editingSupplierId === null && (
-            <SupplierForm supplier={null} onDone={() => {}} />
+          {editingSupplierId === null && showAddSupplier && (
+            <SupplierForm supplier={null} onDone={() => setShowAddSupplier(false)} />
           )}
 
           {suppliersQuery.isPending && (
@@ -479,20 +503,19 @@ function CafeProductsPage() {
                       <td>
                         {t(supplier.isActive ? 'status.active' : 'status.inactive')}
                       </td>
-                      <td>
+                      <td className="actions">
                         {supplier.isActive ? (
                           <>
                             <button
                               type="button"
-                              className="quiet"
                               disabled={supplierChange}
                               onClick={() => setEditingSupplierId(supplier.id)}
                             >
                               {t('common:actions.edit')}
-                            </button>{' '}
+                            </button>
                             <button
                               type="button"
-                              className="quiet"
+                              className="danger"
                               disabled={supplierChange}
                               onClick={() =>
                                 deactivateSupplier.mutate(supplier.id)
@@ -504,7 +527,6 @@ function CafeProductsPage() {
                         ) : (
                           <button
                             type="button"
-                            className="quiet"
                             disabled={supplierChange}
                             onClick={() => reactivateSupplier.mutate(supplier.id)}
                           >

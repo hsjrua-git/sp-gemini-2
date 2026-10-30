@@ -1,1 +1,0 @@
-{"mode": "typed", "zipCrcs": "pass", "xmlAndRelationships": "pass", "sheetRows": {"Typed cells": 4, "Second sheet": 2}, "typedValues": "pass", "formulas": 0, "sha256": "aec09af5b03c2382c6e3888a9c955c1b3abbfb8e76bf1e9fbe07a46b4d84dd2c"}

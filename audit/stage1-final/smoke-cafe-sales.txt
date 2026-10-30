@@ -1,2 +1,0 @@
-cafe sales smoke: all 8 checks passed
-cafe reports smoke: all 5 checks passed

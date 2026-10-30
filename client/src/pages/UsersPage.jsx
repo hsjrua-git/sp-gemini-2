@@ -13,6 +13,7 @@ function UsersPage() {
   const { t } = useTranslation(['admin', 'common']);
   const { user: me, can } = useAuth();
   const [notice, setNotice] = useState(null);
+  const [showAdd, setShowAdd] = useState(false);
 
   const query = useQuery({
     queryKey: ['users'],
@@ -33,8 +34,22 @@ function UsersPage() {
 
   return (
     <main className="wide">
-      <h1>{t('users.title')}</h1>
-      <p className="hint">{t('users.hint')}</p>
+      <div className="page-head">
+        <div>
+          <h1>{t('users.title')}</h1>
+          <p className="hint">{t('users.hint')}</p>
+        </div>
+        <div className="page-head-actions">
+          <button
+            type="button"
+            className={showAdd ? undefined : 'primary'}
+            aria-expanded={showAdd}
+            onClick={() => setShowAdd((open) => !open)}
+          >
+            {showAdd ? t('common:actions.close') : `+ ${t('users.addTitle')}`}
+          </button>
+        </div>
+      </div>
 
       {notice && (
         <TemporaryPasswordNotice
@@ -43,10 +58,12 @@ function UsersPage() {
         />
       )}
 
-      <section className="section-card">
-        <h2>{t('users.addTitle')}</h2>
-        <UserForm onNotice={setNotice} />
-      </section>
+      {showAdd && (
+        <section className="section-card">
+          <h2>{t('users.addTitle')}</h2>
+          <UserForm onNotice={setNotice} />
+        </section>
+      )}
 
       <section className="section-card">
         <h2>{t('users.allTitle')}</h2>

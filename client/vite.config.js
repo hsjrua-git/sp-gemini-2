@@ -1,3 +1,4 @@
+import tailwindcss from '@tailwindcss/postcss'
 import react from '@vitejs/plugin-react'
 import process from 'node:process'
 import { defineConfig } from 'vite'
@@ -23,10 +24,19 @@ export default defineConfig(async () => {
 
    return {
       plugins,
+      css: {
+         postcss: {
+            plugins: [tailwindcss()],
+         },
+      },
        server: {
+          allowedHosts: true,
           proxy: {
             '/api': 'http://localhost:3000',
        },
+      },
+      preview: {
+         allowedHosts: true,
       },
       // Vitest configuration. Component tests need a DOM, so they run in
       // jsdom; the setup file wires up jest-dom matchers and auto-cleanup.

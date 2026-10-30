@@ -1,6 +1,0 @@
-PASS all 26 copied captures/logs match their recorded hashes
-PASS history CSV: eight exact sessions, one assignment, both dimensions
-PASS JSON/PNG: matching data, quality range, previous values, 1120x840 images
-PASS numeric equality fixture: quality 12 students, quantity 0 students
-PASS CSV/SVG and XLSX/SVG bundles contain both dimensions and valid XML
-PASS cold captures: matching viewport, no observed 2D flash, deferred chart bundle

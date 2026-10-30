@@ -117,7 +117,12 @@
     "lockedTag": " (locked)",
     "colStudent": "Student",
     "gridNoParameters": "No parameters are defined yet. Create them on the Parameters page.",
-    "noteAriaLabel": "Note for {{dimension}}, {{parameter}}, {{student}}"
+    "noteAriaLabel": "Note for {{dimension}}, {{parameter}}, {{student}}",
+    "chooseParameters": "Parameters to evaluate",
+    "showingParameters": "Showing {{shown}} of {{total}} parameters",
+    "selectAllParameters": "Show all",
+    "clearParameters": "Hide all",
+    "noParametersSelected": "No parameters are selected to display. Pick one or more parameters above to evaluate."
   },
   "parameters": {
     "title": "Parameters",

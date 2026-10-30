@@ -21,10 +21,16 @@ npm-debug.log*
 
 # Local agent-session artifacts (plans, scratch)
 .zcode/
+.aistudio/
+.playwright-cli/
 
 # Stray root stubs — the real manifests live in client/ and server/
 /package.json
 /package-lock.json
+/metadata.json
+
+# Embedded PGlite data directory
+server/.pglite-data/
 
 # Scratch / working notes (not part of the project)
 /project.txt

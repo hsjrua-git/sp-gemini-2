@@ -47,7 +47,35 @@
       "3d": "3D constellation",
       "2d": "2D overview"
     },
-    "autoRotate": "Rotate the constellation automatically"
+    "autoRotate": "Rotate the constellation automatically",
+    "chartOptions": "Chart options",
+    "closeOptions": "Close chart options",
+    "setupGuide": {
+      "title": "Getting Started — 5-Step Setup Guide",
+      "subtitle": "Follow these 5 steps in order to set up your classes and start evaluating students.",
+      "progress": "{{done}} of 5 steps ready",
+      "allReady": "All 5 setup steps are complete! You are ready to evaluate sessions.",
+      "show": "Setup guide",
+      "hide": "Hide guide",
+      "doneBadge": "Ready",
+      "pendingBadge": "Needed",
+      "step1Title": "1. Academic Intervals",
+      "step1Desc": "Define how often classes meet (e.g. Weekly, Monthly) on the Schedule page.",
+      "step1Action": "Manage intervals",
+      "step2Title": "2. Teachers",
+      "step2Desc": "Add at least one teacher to your roster.",
+      "step2Action": "Go to Teachers",
+      "step3Title": "3. Parameters",
+      "step3Desc": "Create the evaluation criteria (e.g. Speed, Rhythm, Focus) you will score.",
+      "step3Action": "Go to Parameters",
+      "step4Title": "4. Students & Groups",
+      "step4Desc": "Add students and organize them into a class group.",
+      "step4Action": "Go to Students",
+      "step5Title": "5. Schedule & Sessions",
+      "step5Desc": "Assign a teacher + interval + group on Schedule, then generate session dates.",
+      "step5Action": "Go to Schedule",
+      "step5SessionsAction": "Generate sessions"
+    }
   },
   "results": {
     "title": "Results",

@@ -33,6 +33,8 @@ function EvaluatePage() {
   const [sessionId, setSessionId] = useState(null);
   const [drafts, setDrafts] = useState({});
   const [overrideReason, setOverrideReason] = useState('');
+  // null means all active parameters are shown; an array of IDs filters the grid columns.
+  const [selectedParamIds, setSelectedParamIds] = useState(null);
 
   const canViewScores = can('scores.view');
 
@@ -91,6 +93,24 @@ function EvaluatePage() {
     () => new Map(parameters.map((parameter) => [parameter.id, parameter])),
     [parameters]
   );
+  const visibleParameters = useMemo(
+    () =>
+      selectedParamIds === null
+        ? parameters
+        : parameters.filter((parameter) => selectedParamIds.includes(parameter.id)),
+    [parameters, selectedParamIds]
+  );
+
+  function toggleParameter(parameterId) {
+    setSelectedParamIds((current) => {
+      const activeIds =
+        current === null ? parameters.map((parameter) => parameter.id) : current;
+      if (activeIds.includes(parameterId)) {
+        return activeIds.filter((id) => id !== parameterId);
+      }
+      return [...activeIds, parameterId];
+    });
+  }
 
   // Existing cells of this session. Blind-entry roles (scores.enter without
   // scores.view) never fetch them: their grid starts empty and the server
@@ -468,15 +488,71 @@ function EvaluatePage() {
         <p className="hint">{t('common:status.loading')}</p>
       )}
       {effectiveSessionId !== null && !isLoading && !loadError && (
-        <EvaluationGrid
-          targets={targets}
-          parameters={parameters}
-          savedByCell={savedByCell}
-          drafts={drafts}
-          cellErrors={cellErrors}
-          onCellChange={handleCellChange}
-          canOverride={can('scores.override')}
-        />
+        <>
+          {parameters.length > 0 && (
+            <div className="section-card">
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+                <div>
+                  <strong className="text-sm">{t('evaluate.chooseParameters')}</strong>
+                  <span className="muted text-xs ms-2">
+                    ({t('evaluate.showingParameters', {
+                      shown: visibleParameters.length,
+                      total: parameters.length,
+                    })})
+                  </span>
+                </div>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <button
+                    type="button"
+                    className="btn-sm"
+                    onClick={() => setSelectedParamIds(null)}
+                    disabled={visibleParameters.length === parameters.length}
+                  >
+                    {t('evaluate.selectAllParameters')}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-sm"
+                    onClick={() => setSelectedParamIds([])}
+                    disabled={visibleParameters.length === 0}
+                  >
+                    {t('evaluate.clearParameters')}
+                  </button>
+                </div>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                {parameters.map((parameter) => {
+                  const isSelected =
+                    selectedParamIds === null || selectedParamIds.includes(parameter.id);
+                  return (
+                    <button
+                      key={parameter.id}
+                      type="button"
+                      aria-pressed={isSelected}
+                      className={`btn-sm ${isSelected ? 'primary' : ''}`}
+                      onClick={() => toggleParameter(parameter.id)}
+                    >
+                      {parameter.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+          {parameters.length > 0 && visibleParameters.length === 0 ? (
+            <p className="empty-state">{t('evaluate.noParametersSelected')}</p>
+          ) : (
+            <EvaluationGrid
+              targets={targets}
+              parameters={visibleParameters}
+              savedByCell={savedByCell}
+              drafts={drafts}
+              cellErrors={cellErrors}
+              onCellChange={handleCellChange}
+              canOverride={can('scores.override')}
+            />
+          )}
+        </>
       )}
     </main>
   );

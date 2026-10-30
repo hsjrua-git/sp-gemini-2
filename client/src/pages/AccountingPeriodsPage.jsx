@@ -265,25 +265,22 @@ function AccountingPeriodsPage() {
                     </td>
                     <td className="num">{period.postedEntryCount}</td>
                     {canAct && (
-                      <td>
+                      <td className="actions">
                         {period.status === 'open' ? (
                           <>
                             {canManage && (
-                              <>
-                                <button
-                                  type="button"
-                                  className="quiet"
-                                  onClick={() => setEditingId(period.id)}
-                                  disabled={close.isPending || reopen.isPending}
-                                >
-                                  {t('accounts.edit')}
-                                </button>{' '}
-                              </>
+                              <button
+                                type="button"
+                                onClick={() => setEditingId(period.id)}
+                                disabled={close.isPending || reopen.isPending}
+                              >
+                                {t('accounts.edit')}
+                              </button>
                             )}
                             {canClose && (
                               <button
                                 type="button"
-                                className="quiet"
+                                className="danger"
                                 onClick={() => {
                                   if (window.confirm(t('periods.closeConfirm'))) {
                                     close.mutate(period.id);
@@ -299,7 +296,6 @@ function AccountingPeriodsPage() {
                           canClose && (
                             <button
                               type="button"
-                              className="quiet"
                               onClick={() => {
                                 if (window.confirm(t('periods.reopenConfirm'))) {
                                   reopen.mutate(period.id);

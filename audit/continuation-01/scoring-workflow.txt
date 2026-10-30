@@ -1,9 +1,0 @@
-PASS student import dry-run, duplicate/invalid classification, commit, repeat preview
-PASS six real generated sessions; repeated generation is a no-op; no premature periods
-PASS score preview is read-only; selected-empty consumes no period; answer attaches session
-PASS unchanged save preserves timestamps/audit; mixed invalid batch writes nothing
-PASS import-tagged score save; five answered sessions become 4+1; GET/POST cube agrees and own scores shadow group
-PASS blind entry cannot GET scores/export and its unlocked preview is redacted
-PASS locked changes refused; override requires reason, saves and audits; locked blind preview redacted
-{"mode":"workflow","passedChecks":7,"checks":["student import dry-run, duplicate/invalid classification, commit, repeat preview","six real generated sessions; repeated generation is a no-op; no premature periods","score preview is read-only; selected-empty consumes no period; answer attaches session","unchanged save preserves timestamps/audit; mixed invalid batch writes nothing","import-tagged score save; five answered sessions become 4+1; GET/POST cube agrees and own scores shadow group","blind entry cannot GET scores/export and its unlocked preview is redacted","locked changes refused; override requires reason, saves and audits; locked blind preview redacted"]}
-Cleanup: synthetic scores removed; entities archived; viewer role restored.

@@ -1,1 +1,0 @@
-accounting smoke: all 9 checks passed

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../auth/AuthContext.jsx';
 import EmptyState from '../components/EmptyState.jsx';
@@ -10,6 +11,7 @@ import ParametersTable from '../components/ParametersTable.jsx';
 function ParametersPage() {
   const { t } = useTranslation(['students', 'common']);
   const { can } = useAuth();
+  const [showAdd, setShowAdd] = useState(false);
 
   // The Parameters screen is a management surface. Reading parameter *values*
   // elsewhere only needs parameters.view, but this page is gated on
@@ -28,14 +30,30 @@ function ParametersPage() {
   }
 
   return (
-    <main>
-      <h1>{t('parameters.title')}</h1>
-      <p className="hint">{t('parameters.hint')}</p>
+    <main className="wide">
+      <div className="page-head">
+        <div>
+          <h1>{t('parameters.title')}</h1>
+          <p className="hint">{t('parameters.hint')}</p>
+        </div>
+        <div className="page-head-actions">
+          <button
+            type="button"
+            className={showAdd ? undefined : 'primary'}
+            aria-expanded={showAdd}
+            onClick={() => setShowAdd((open) => !open)}
+          >
+            {showAdd ? t('common:actions.close') : `+ ${t('parameters.addTitle')}`}
+          </button>
+        </div>
+      </div>
 
-      <section className="section-card">
-        <h2>{t('parameters.addTitle')}</h2>
-        <ParameterForm />
-      </section>
+      {showAdd && (
+        <section className="section-card">
+          <h2>{t('parameters.addTitle')}</h2>
+          <ParameterForm />
+        </section>
+      )}
 
       <section className="section-card">
         <h2>{t('parameters.allTitle')}</h2>

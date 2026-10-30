@@ -299,6 +299,7 @@ function CafePurchasesPage() {
   const [from, setFrom] = useState(toIsoDate(addDays(today, -30)));
   const [to, setTo] = useState(toIsoDate(today));
   const [supplierId, setSupplierId] = useState('');
+  const [showAdd, setShowAdd] = useState(false);
 
   // Same keys as the products page, so its invalidations (and ours) keep
   // both pages in step.
@@ -327,22 +328,34 @@ function CafePurchasesPage() {
           <h1>{t('title')}</h1>
           <p className="hint">{t('hint')}</p>
         </div>
+        <div className="page-head-actions">
+          <button
+            type="button"
+            className={showAdd ? undefined : 'primary'}
+            aria-expanded={showAdd}
+            onClick={() => setShowAdd((open) => !open)}
+          >
+            {showAdd ? t('common:actions.close') : `+ ${t('form.title')}`}
+          </button>
+        </div>
       </div>
 
-      <section className="section-card">
-        <h2>{t('form.title')}</h2>
-        {suppliersQuery.isError || productsQuery.isError ? (
-          <p className="error" role="alert">
-            {errorMessage(suppliersQuery.error ?? productsQuery.error)}
-          </p>
-        ) : (
-          <PurchaseForm
-            products={products}
-            suppliers={suppliers}
-            loading={suppliersQuery.isPending || productsQuery.isPending}
-          />
-        )}
-      </section>
+      {showAdd && (
+        <section className="section-card">
+          <h2>{t('form.title')}</h2>
+          {suppliersQuery.isError || productsQuery.isError ? (
+            <p className="error" role="alert">
+              {errorMessage(suppliersQuery.error ?? productsQuery.error)}
+            </p>
+          ) : (
+            <PurchaseForm
+              products={products}
+              suppliers={suppliers}
+              loading={suppliersQuery.isPending || productsQuery.isPending}
+            />
+          )}
+        </section>
+      )}
 
       <section className="section-card">
         <h2>{t('list.title')}</h2>

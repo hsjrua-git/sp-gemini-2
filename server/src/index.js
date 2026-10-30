@@ -2,6 +2,7 @@ import connectPgSimple from 'connect-pg-simple';
 import express from 'express';
 import session from 'express-session';
 import pool from './db/pool.js';
+import { bootstrapDatabase } from './db/bootstrap.js';
 import { attachUser, authorize, requireLogin, requirePermission } from './middleware/auth.js';
 import { auditRequests } from './middleware/audit.js';
 import { createCsrf } from './middleware/csrf.js';
@@ -120,6 +121,8 @@ app.set('trust proxy', readTrustProxy());
 // index.html; this is the standard, low-risk trade-off for a bundled SPA.
 // In development the HTML is served by the Vite dev server, not this process,
 // so these directives only ever apply to the production build served here.
+const allowIframePreview = process.env.ALLOW_IFRAME_PREVIEW === '1';
+
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -134,12 +137,32 @@ app.use(
         objectSrc: ["'none'"],
         baseUri: ["'self'"],
         formAction: ["'self'"],
-        frameAncestors: ["'none'"],
+        frameAncestors: allowIframePreview
+          ? ["'self'", 'https://*.google.com', 'https://*.run.app']
+          : ["'none'"],
       },
     },
+    frameguard: allowIframePreview ? false : undefined,
     crossOriginEmbedderPolicy: false,
   })
 );
+
+if (allowIframePreview) {
+  app.use((req, res, next) => {
+    const origSetHeader = res.setHeader.bind(res);
+    res.setHeader = (name, value) => {
+      if (req.secure && typeof name === 'string' && name.toLowerCase() === 'set-cookie') {
+        const rewrite = (c) =>
+          typeof c === 'string' && /;\s*SameSite=Lax/i.test(c) && /;\s*Secure/i.test(c)
+            ? c.replace(/;\s*SameSite=Lax/i, '; SameSite=None; Partitioned')
+            : c;
+        value = Array.isArray(value) ? value.map(rewrite) : rewrite(value);
+      }
+      return origSetHeader(name, value);
+    };
+    next();
+  });
+}
 // Query strings contain student-name searches and report filters. Keep those
 // out of access logs while retaining the useful method/path/status metadata.
 morgan.token('path-only', (req) => req.originalUrl.split('?')[0]);
@@ -509,6 +532,7 @@ const port = process.env.PORT || 3000;
 // Bind to all interfaces by default so other machines on the LAN can reach it.
 // Set HOST=127.0.0.1 in .env to keep it to this computer only.
 const host = process.env.HOST || '0.0.0.0';
+await bootstrapDatabase(pool);
 const readiness = await databaseReady.check();
 if (!readiness.ok) console.error(`${readiness.code}: ${readiness.error}`);
 app.listen(port, host, () => {

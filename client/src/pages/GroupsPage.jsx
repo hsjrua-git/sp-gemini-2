@@ -292,6 +292,7 @@ function GroupRow({ group, groups, canManage, canAssign, onManage, expanded, onT
                 </button>
                 <button
                   type="button"
+                  className="danger"
                   onClick={() => {
                     if (
                       window.confirm(
@@ -326,6 +327,7 @@ function GroupsPage() {
   const [managing, setManaging] = useState(null);
   const [search, setSearch] = useState('');
   const [collapsed, setCollapsed] = useState([]);
+  const [showAdd, setShowAdd] = useState(false);
 
   const groupsQuery = useQuery({ queryKey: ['groups'], queryFn: () => listGroups() });
   const tree = useMemo(
@@ -346,10 +348,26 @@ function GroupsPage() {
 
   return (
     <main className="wide">
-      <h1>{t('groups.title')}</h1>
-      <p className="hint">{t('groups.hint')}</p>
+      <div className="page-head">
+        <div>
+          <h1>{t('groups.title')}</h1>
+          <p className="hint">{t('groups.hint')}</p>
+        </div>
+        {canManage && (
+          <div className="page-head-actions">
+            <button
+              type="button"
+              className={showAdd ? undefined : 'primary'}
+              aria-expanded={showAdd}
+              onClick={() => setShowAdd((open) => !open)}
+            >
+              {showAdd ? t('common:actions.close') : `+ ${t('groups.addTitle')}`}
+            </button>
+          </div>
+        )}
+      </div>
 
-      {canManage && (
+      {canManage && showAdd && (
         <section className="section-card">
           <h2>{t('groups.addTitle')}</h2>
           <NewGroupForm groups={tree} />
@@ -357,8 +375,10 @@ function GroupsPage() {
       )}
 
       <section className="section-card">
-        <h2>{t('groups.listTitle')}</h2>
-        <input type="search" aria-label={t('workflows:tree.search', { label: t('groups.title') })} placeholder={t('workflows:tree.search', { label: t('groups.title') })} value={search} onChange={event => setSearch(event.target.value)} />
+        <div className="toolbar" style={{ justifyContent: 'space-between' }}>
+          <h2>{t('groups.listTitle')}</h2>
+          <input type="search" className="search" aria-label={t('workflows:tree.search', { label: t('groups.title') })} placeholder={t('workflows:tree.search', { label: t('groups.title') })} value={search} onChange={event => setSearch(event.target.value)} />
+        </div>
         {groupsQuery.isPending && (
           <p className="hint">{t('common:status.loading')}</p>
         )}

@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
 
 // A pg-Pool-compatible facade over a single PGlite (Postgres-in-WASM) connection.
@@ -93,25 +95,67 @@ export function createPglitePool(dataDir) {
         : String(value ?? '').slice(0, 10),
     1186: parsePgInterval,
   };
-  const db =
-    dataDir && typeof dataDir === 'object'
-      ? new PGlite({ ...dataDir, parsers: { ...parsers, ...dataDir.parsers } })
-      : dataDir
-        ? new PGlite(dataDir, { parsers })
-        : new PGlite({ parsers });
-  if (db.parsers) {
-    Object.assign(db.parsers, parsers);
-  }
+  let db = null;
   const mutex = new Mutex();
+  let readyPromise = null;
+
+  function createInstance(cleanRestart = false) {
+    if (typeof dataDir === 'string' && dataDir) {
+      if (cleanRestart || (fs.existsSync(dataDir) && !fs.existsSync(path.join(dataDir, 'PG_VERSION')))) {
+        fs.rmSync(dataDir, { recursive: true, force: true });
+      } else if (fs.existsSync(path.join(dataDir, 'postmaster.pid'))) {
+        fs.rmSync(path.join(dataDir, 'postmaster.pid'), { force: true });
+      }
+    }
+    const instance =
+      dataDir && typeof dataDir === 'object'
+        ? new PGlite({ ...dataDir, parsers: { ...parsers, ...dataDir.parsers } })
+        : dataDir
+          ? new PGlite(dataDir, { parsers })
+          : new PGlite({ parsers });
+    if (instance.parsers) {
+      Object.assign(instance.parsers, parsers);
+    }
+    return instance;
+  }
+
+  function getDb() {
+    if (!db) {
+      db = createInstance(false);
+    }
+    return db;
+  }
+
+  function ensureReady() {
+    if (!readyPromise) {
+      const instance = getDb();
+      readyPromise = Promise.resolve(instance.waitReady)
+        .catch(async (err) => {
+          if (typeof dataDir === 'string' && dataDir) {
+            db = createInstance(true);
+            await db.waitReady;
+            return db;
+          }
+          throw err;
+        })
+        .then(() => {
+          if (db.parsers) {
+            Object.assign(db.parsers, parsers);
+          }
+          return db;
+        });
+    }
+    return readyPromise;
+  }
 
   return {
+    isPglite: true,
     // Exposed so scripts can await readiness / inspect the raw instance.
-    _db: db,
+    get _db() {
+      return getDb();
+    },
     async ready() {
-      await db.waitReady;
-      if (db.parsers) {
-        Object.assign(db.parsers, parsers);
-      }
+      await ensureReady();
       return this;
     },
     query(text, params, callback) {
@@ -119,7 +163,15 @@ export function createPglitePool(dataDir) {
         callback = params;
         params = undefined;
       }
-      const promise = run(db, text, params);
+      const promise = (async () => {
+        const instance = await ensureReady();
+        const release = await mutex.acquire();
+        try {
+          return await run(instance, text, params);
+        } finally {
+          release();
+        }
+      })();
       if (typeof callback === 'function') {
         promise.then(
           (result) => callback(null, result),
@@ -129,6 +181,7 @@ export function createPglitePool(dataDir) {
       return promise;
     },
     async connect() {
+      const instance = await ensureReady();
       const release = await mutex.acquire();
       let released = false;
       return {
@@ -137,7 +190,7 @@ export function createPglitePool(dataDir) {
             callback = params;
             params = undefined;
           }
-          const promise = run(db, text, params);
+          const promise = run(instance, text, params);
           if (typeof callback === 'function') {
             promise.then(
               (result) => callback(null, result),
@@ -159,7 +212,9 @@ export function createPglitePool(dataDir) {
       return this;
     },
     async end() {
-      await db.close();
+      if (db) {
+        await db.close();
+      }
     },
   };
 }

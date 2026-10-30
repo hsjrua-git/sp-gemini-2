@@ -1,1 +1,0 @@
-{"mode": "ui", "zipCrcs": "pass", "xmlAndRelationships": "pass", "sheetRows": {"Scores": 168, "Changes": 106}, "typedValues": "pass", "formulas": 0, "sha256": "4fbbfa069cfd4f14dee39af57ef9963871b345457dcdf302825cf00392e55a8a"}

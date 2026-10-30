@@ -123,6 +123,7 @@ function TeachersPage() {
   const debounced = useDebouncedValue(search, 250);
   const [includeArchived, setIncludeArchived] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [showAdd, setShowAdd] = useState(false);
 
   const teachersQuery = useQuery({
     queryKey: ['teachers', { search: debounced, includeArchived }],
@@ -148,12 +149,24 @@ function TeachersPage() {
           <h1>{t('teachers.title')}</h1>
           <p className="hint">{t('teachers.hint')}</p>
         </div>
+        {can('teachers.manage') && editingId === null && (
+          <div className="page-head-actions">
+            <button
+              type="button"
+              className={showAdd ? undefined : 'primary'}
+              aria-expanded={showAdd}
+              onClick={() => setShowAdd((open) => !open)}
+            >
+              {showAdd ? t('common:actions.close') : `+ ${t('teachers.addTitle')}`}
+            </button>
+          </div>
+        )}
       </div>
 
-      {can('teachers.manage') && editingId === null && (
+      {can('teachers.manage') && editingId === null && showAdd && (
         <section className="section-card">
           <h2>{t('teachers.addTitle')}</h2>
-          <TeacherForm teacher={null} onDone={() => {}} />
+          <TeacherForm teacher={null} onDone={() => setShowAdd(false)} />
         </section>
       )}
 
@@ -231,11 +244,10 @@ function TeachersPage() {
                       </td>
                       <td>{teacher.nationalId}</td>
                       {can('teachers.manage') && (
-                        <td>
+                        <td className="actions">
                           {teacher.archivedAt ? (
                             <button
                               type="button"
-                              className="quiet"
                               disabled={change}
                               onClick={() => restore.mutate(teacher)}
                             >
@@ -245,15 +257,14 @@ function TeachersPage() {
                             <>
                               <button
                                 type="button"
-                                className="quiet"
                                 disabled={change}
                                 onClick={() => setEditingId(teacher.id)}
                               >
                                 {t('common:actions.edit')}
-                              </button>{' '}
+                              </button>
                               <button
                                 type="button"
-                                className="quiet"
+                                className="danger"
                                 disabled={change}
                                 onClick={() => archive.mutate(teacher.id)}
                               >

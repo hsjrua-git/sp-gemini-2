@@ -1,1 +1,0 @@
-{"fixture":"Audit UI 0d7a5d183f","viewerRestored":true,"blindRoleAbsent":true,"remainingEvaluationRows":0,"inactiveCounts":{"sessions":2,"assignments":1,"parameters":1,"student_groups":1,"students":2}}

@@ -16,52 +16,34 @@
 // element.animate(). All durations are in milliseconds.
 
 export const MOTION = {
-  // The outgoing page clears quickly — it's the rebuild that should feel slow.
+  // The outgoing page clears quickly so navigation feels immediate.
   exit: {
-    duration: 400,
-    stagger: 40,
+    duration: 180,
+    stagger: 20,
     maxStep: 5,
     easing: 'cubic-bezier(0.4, 0, 0.7, 0.25)',
   },
-  // The incoming page rebuilds unhurriedly, section by section.
+  // The incoming page rebuilds smoothly and snappily, section by section.
   enter: {
-    duration: 640,
-    stagger: 90,
+    duration: 320,
+    stagger: 45,
     maxStep: 6,
-    easing: 'cubic-bezier(0.33, 1, 0.68, 1)',
+    easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
   },
   // Buttons and fields inside an entering section, after the section itself.
   micro: {
-    duration: 380,
-    lead: 130,
-    stagger: 40,
+    duration: 220,
+    lead: 60,
+    stagger: 22,
     max: 8,
-    easing: 'cubic-bezier(0.33, 1, 0.68, 1)',
+    easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
   },
-  swapCap: 1200, // longest we'll wait for the target chunk before swapping anyway
-  // First, uncached visits mount a page as a data-less shell; animating that
-  // straight away means the real content pops in mid-flight (App.jsx holds the
-  // incoming page hidden after the swap until it is READY, then animates it once,
-  // fully formed). "Ready" is a dual gate, because neither signal alone is enough:
-  //   - react-query has no fetch in flight (`queryClient.isFetching() === 0`), AND
-  //   - the page DOM has been mutation-quiet for `settleQuiet` ms.
-  // The fetch gate is needed because the DOM is naturally quiet *during* a network
-  // wait (nothing has changed yet), so DOM-quiet alone would fire mid-load. The
-  // DOM-quiet gate is needed because a query resolving isn't the same instant as
-  // React committing its data, and because many pages gate a second query on the
-  // first (e.g. `results` is `enabled` only once `periods` resolves) — between the
-  // two, `isFetching()` momentarily reads 0 while the page is still a shell, so the
-  // fetch gate alone reveals too early. Requiring a quiet beat AFTER the last fetch
-  // drains bridges both the commit lag and that dependent-query gap.
-  // A cached second visit has no fetch to wait for, so it settles at `settleGrace`.
-  settleGrace: 120, // if no fetch has started within this, treat the page as static
-  settleQuiet: 100, // required DOM-quiet beat after the last fetch drains
-  settleCap: 1400, //  never hold the entrance longer than this, come what may
-  // Late (data-driven) sections that mount after the swap are animated in with
-  // the same position/type motion as the initial entrance. Keep watching until
-  // the DOM has been quiet for `lateWindow`, but never longer than `lateCap`.
-  lateWindow: 900, // quiet period (ms) after the last late section before we stop
-  lateCap: 2600, // absolute ceiling (ms) on how long we keep watching
+  swapCap: 450, // longest we'll wait for the target chunk before swapping anyway
+  settleGrace: 40, // if no fetch has started within this, treat the page as static
+  settleQuiet: 35, // required DOM-quiet beat after the last fetch drains
+  settleCap: 360, // never hold the entrance longer than this
+  lateWindow: 650, // quiet period (ms) after the last late section before we stop
+  lateCap: 1800, // absolute ceiling (ms) on how long we keep watching
 };
 
 // How far sliding/rising sections travel. Kept modest so a slow clock reads as a

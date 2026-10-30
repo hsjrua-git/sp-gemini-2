@@ -365,11 +365,10 @@ function JournalList({ accounts, canPost }) {
                     </span>
                   </td>
                   {canPost && (
-                    <td>
+                    <td className="actions">
                       {entry.status === 'draft' && (
                         <button
                           type="button"
-                          className="quiet"
                           onClick={() => {
                             if (window.confirm(t('actions.postConfirm'))) {
                               post.mutate(entry.id);
@@ -384,7 +383,7 @@ function JournalList({ accounts, canPost }) {
                         !['opening', 'closing'].includes(entry.sourceType) && (
                         <button
                           type="button"
-                          className="quiet"
+                          className="danger"
                           onClick={() => {
                             if (window.confirm(t('actions.voidConfirm'))) {
                               voidIt.mutate(entry.id);
@@ -434,6 +433,7 @@ function JournalList({ accounts, canPost }) {
 function AccountingJournalPage() {
   const { can } = useAuth();
   const { t } = useTranslation(['accountingJournal', 'common']);
+  const [showNew, setShowNew] = useState(false);
   const accountsQuery = useQuery({
     queryKey: ['accounting-accounts', { includeInactive: false }],
     queryFn: () => listAccounts(),
@@ -449,9 +449,21 @@ function AccountingJournalPage() {
           <h1>{t('title')}</h1>
           <p className="hint">{t('hint')}</p>
         </div>
+        {canEnter && (
+          <div className="page-head-actions">
+            <button
+              type="button"
+              className={showNew ? undefined : 'primary'}
+              aria-expanded={showNew}
+              onClick={() => setShowNew((open) => !open)}
+            >
+              {showNew ? t('common:actions.close') : `+ ${t('newEntry')}`}
+            </button>
+          </div>
+        )}
       </div>
 
-      {canEnter && <NewEntryForm accounts={accounts} />}
+      {canEnter && showNew && <NewEntryForm accounts={accounts} />}
       <JournalList accounts={accounts} canPost={canPost} />
     </main>
   );

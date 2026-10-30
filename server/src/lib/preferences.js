@@ -10,6 +10,8 @@ export const PALETTES = [
   'meadow',
   'cobalt',
   'crimson',
+  'aurum',
+  'aurum-glass',
 ];
 export const PAGE_SIZES = [10, 25, 50, 100];
 export const SORTS = ['newest', 'oldest', 'name', 'code'];
@@ -23,6 +25,7 @@ export const DEFAULT_PREFERENCES = {
   theme: 'dark',
   palette: 'aurora',
   language: 'fa',
+  customCursor: true,
   studentsPageSize: 25,
   studentsSort: 'newest',
   studentsShowCode: true,
@@ -31,7 +34,7 @@ export const DEFAULT_PREFERENCES = {
   studentShowAllPeriods: false,
   hiddenParameterIds: [],
   csvDelimiter: ',',
-  reportScope: DEFAULT_REPORT_SCOPE,
+  reportScope: DEFAULT_PREFERENCES_REPORT_SCOPE(),
   dashboardConstellation: {
     dimension: 'quality',
     basis: 'value',
@@ -44,11 +47,16 @@ export const DEFAULT_PREFERENCES = {
   },
 };
 
+function DEFAULT_PREFERENCES_REPORT_SCOPE() {
+  return DEFAULT_REPORT_SCOPE;
+}
+
 const CHECKS = {
   reportScope: validReportScope,
   theme: (value) => THEMES.includes(value),
   palette: (value) => PALETTES.includes(value),
   language: (value) => LANGUAGES.includes(value),
+  customCursor: (value) => typeof value === 'boolean',
   studentsPageSize: (value) => PAGE_SIZES.includes(value),
   studentsSort: (value) => SORTS.includes(value),
   studentsShowCode: (value) => typeof value === 'boolean',

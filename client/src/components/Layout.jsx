@@ -220,6 +220,39 @@ function Layout() {
   // (showNav false) the rail stays expanded so the pinned account actions keep
   // their labels and Change password stays reachable.
   const railCollapsed = showNav && !isMobile && navCollapsed;
+  const [railTip, setRailTip] = useState(null);
+
+  const showRailTip = (event) => {
+    if (!railCollapsed) return;
+    const target = event.target.closest('[data-rail-tip]');
+    const sidebar = sidebarRef.current;
+    if (!target || !sidebar) {
+      setRailTip(null);
+      return;
+    }
+    const label = target.getAttribute('data-rail-tip');
+    if (!label) {
+      setRailTip(null);
+      return;
+    }
+    const rect = target.getBoundingClientRect();
+    const sidebarRect = sidebar.getBoundingClientRect();
+    const isRtl = document.documentElement.dir === 'rtl';
+    setRailTip({
+      label,
+      top: rect.top + rect.height / 2,
+      isRtl,
+      edge: isRtl
+        ? window.innerWidth - sidebarRect.left + 10
+        : sidebarRect.right + 10,
+    });
+  };
+
+  const hideRailTip = (event) => {
+    if (!event.currentTarget.contains(event.relatedTarget)) {
+      setRailTip(null);
+    }
+  };
 
   return (
     <div
@@ -238,6 +271,10 @@ function Layout() {
         ref={sidebarRef}
         tabIndex={-1}
         inert={isMobile && !drawerOpen}
+        onPointerOver={showRailTip}
+        onPointerOut={hideRailTip}
+        onFocus={showRailTip}
+        onBlur={hideRailTip}
       >
         <div className="sidebar-top">
           {showNav && (
@@ -247,9 +284,17 @@ function Layout() {
               aria-label={t(
                 navCollapsed ? 'aria.expandSidebar' : 'aria.collapseSidebar'
               )}
+              data-rail-tip={
+                railCollapsed
+                  ? t(navCollapsed ? 'aria.expandSidebar' : 'aria.collapseSidebar')
+                  : undefined
+              }
               aria-pressed={navCollapsed}
               aria-controls="primary-navigation"
-              onClick={() => setNavCollapsed((collapsed) => !collapsed)}
+              onClick={() => {
+                setRailTip(null);
+                setNavCollapsed((collapsed) => !collapsed);
+              }}
             >
               <ChevronsLeftIcon className="rail-toggle-icon" size={18} />
             </button>
@@ -260,10 +305,11 @@ function Layout() {
           <nav className="sidebar-nav">
             {railCollapsed ? (
               /* The slim icon rail stays FLAT (closest to the old rail): one
-                 icon per page across every panel, tooltips when collapsed. */
+                 icon per page across every panel, with instant themed tooltips. */
               <ul className="nav-flat">
                 {flatItems.map((item) => {
                   const Icon = item.icon;
+                  const label = item.key ? t(`items.${item.key}`) : '';
                   return (
                     <li key={item.to}>
                       <NavLink
@@ -272,12 +318,13 @@ function Layout() {
                         className={() =>
                           `nav-link${item.to === flatActiveTo ? ' active' : ''}`
                         }
-                        title={item.key ? t(`items.${item.key}`) : undefined}
+                        aria-label={label || undefined}
+                        data-rail-tip={label || undefined}
                       >
                         <span className="nav-icon" aria-hidden="true">
                           {Icon && <Icon size={18} />}
                         </span>
-                        <span className="nav-label">{item.key ? t(`items.${item.key}`) : ''}</span>
+                        <span className="nav-label">{label}</span>
                       </NavLink>
                     </li>
                   );
@@ -305,7 +352,6 @@ function Layout() {
                           className={() =>
                             `nav-link${item.to === activeTo ? ' active' : ''}`
                           }
-                          title={item.key ? t(`items.${item.key}`) : undefined}
                         >
                           <span className="nav-icon" aria-hidden="true">
                             {Icon && <Icon size={18} />}
@@ -355,16 +401,14 @@ function Layout() {
           </nav>
         )}
 
-        {/* Personal actions pinned at the foot of the rail (ref 5): who's signed
-            in, then Preferences / Change password / Sign out. Preferences and
-            Sign out stay visible in both the expanded and collapsed rail; Change
-            password rides along only when there's room for its label. This is
-            the app's single home for these actions — there is no separate topbar
-            account menu. */}
+        {/* Personal actions pinned at the foot of the rail: who's signed
+            in, then Preferences / Change password / Sign out. All three stay
+            accessible in both expanded and collapsed rail modes with instant
+            theme-matched tooltips when collapsed. */}
         <div className="sidebar-account">
           <div
             className="sidebar-account-id"
-            title={railCollapsed ? `${user.fullName} · ${user.role}` : undefined}
+            data-rail-tip={railCollapsed ? `${user.fullName} · ${user.role}` : undefined}
           >
             <span className="avatar" aria-hidden="true">
               {initialsOf(user.fullName)}
@@ -378,7 +422,8 @@ function Layout() {
             <NavLink
               to="/preferences"
               className="nav-link"
-              title={railCollapsed ? t('items.preferences') : undefined}
+              aria-label={railCollapsed ? t('items.preferences') : undefined}
+              data-rail-tip={railCollapsed ? t('items.preferences') : undefined}
             >
               <span className="nav-icon" aria-hidden="true">
                 <PreferencesIcon size={18} />
@@ -387,8 +432,9 @@ function Layout() {
             </NavLink>
             <NavLink
               to="/change-password"
-              className="nav-link account-collapsed-hide"
-              title={railCollapsed ? t('items.changePassword') : undefined}
+              className="nav-link"
+              aria-label={railCollapsed ? t('items.changePassword') : undefined}
+              data-rail-tip={railCollapsed ? t('items.changePassword') : undefined}
             >
               <span className="nav-icon" aria-hidden="true">
                 <LockIcon size={18} />
@@ -400,7 +446,8 @@ function Layout() {
               className="nav-link account-signout"
               onClick={() => logout.mutate()}
               disabled={logout.isPending}
-              title={railCollapsed ? t('account.signout') : undefined}
+              aria-label={railCollapsed ? t('account.signout') : undefined}
+              data-rail-tip={railCollapsed ? t('account.signout') : undefined}
             >
               <span className="nav-icon" aria-hidden="true">
                 <SignOutIcon size={18} />
@@ -414,6 +461,18 @@ function Layout() {
           </div>
         </div>
       </aside>
+      {railCollapsed && railTip && (
+        <div
+          className="rail-tooltip-popup"
+          role="tooltip"
+          style={{
+            top: `${railTip.top}px`,
+            [railTip.isRtl ? 'right' : 'left']: `${railTip.edge}px`,
+          }}
+        >
+          {railTip.label}
+        </div>
+      )}
 
       {/* Backdrop only matters on small screens, where the sidebar floats over
           the page; tapping it dismisses the drawer. */}

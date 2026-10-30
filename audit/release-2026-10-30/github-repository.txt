@@ -1,1 +1,0 @@
-{"defaultBranchRef":{"name":"main"},"isEmpty":false,"nameWithOwner":"hsjrua-git/sp-gemini-2","url":"https://github.com/hsjrua-git/sp-gemini-2","visibility":"PRIVATE"}

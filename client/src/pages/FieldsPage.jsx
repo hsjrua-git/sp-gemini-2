@@ -150,6 +150,7 @@ function FieldRow({ field }) {
       <td className="actions">
         <button
           type="button"
+          className="danger"
           onClick={() => {
             if (
               window.confirm(t('fields.archiveConfirm', { label: field.label }))
@@ -174,6 +175,7 @@ function FieldRow({ field }) {
 function FieldsPage() {
   const { t } = useTranslation(['admin', 'common']);
   const { can } = useAuth();
+  const [showAdd, setShowAdd] = useState(false);
   const query = useQuery({
     queryKey: ['field-definitions'],
     queryFn: () => listFieldDefinitions(),
@@ -192,13 +194,29 @@ function FieldsPage() {
 
   return (
     <main className="wide">
-      <h1>{t('fields.title')}</h1>
-      <p className="hint">{t('fields.hint')}</p>
+      <div className="page-head">
+        <div>
+          <h1>{t('fields.title')}</h1>
+          <p className="hint">{t('fields.hint')}</p>
+        </div>
+        <div className="page-head-actions">
+          <button
+            type="button"
+            className={showAdd ? undefined : 'primary'}
+            aria-expanded={showAdd}
+            onClick={() => setShowAdd((open) => !open)}
+          >
+            {showAdd ? t('common:actions.close') : `+ ${t('fields.addTitle')}`}
+          </button>
+        </div>
+      </div>
 
-      <section className="section-card">
-        <h2>{t('fields.addTitle')}</h2>
-        <NewFieldForm />
-      </section>
+      {showAdd && (
+        <section className="section-card">
+          <h2>{t('fields.addTitle')}</h2>
+          <NewFieldForm />
+        </section>
+      )}
 
       <section className="section-card">
         <h2>{t('fields.listTitle')}</h2>

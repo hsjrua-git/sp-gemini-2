@@ -1,2 +1,0 @@
-To https://github.com/hsjrua-git/sp-gemini-2.git
- * [new branch]      HEAD -> main

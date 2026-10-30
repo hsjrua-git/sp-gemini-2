@@ -132,9 +132,20 @@ test('the palette must be one of the known presets', () => {
   assert.deepEqual(parsePreferencesUpdate({ palette: 'gradebook' }), {
     values: { palette: 'gradebook' },
   });
+  assert.deepEqual(parsePreferencesUpdate({ palette: 'aurum' }), {
+    values: { palette: 'aurum' },
+  });
+  assert.deepEqual(parsePreferencesUpdate({ palette: 'aurum-glass' }), {
+    values: { palette: 'aurum-glass' },
+  });
+  assert.deepEqual(parsePreferencesUpdate({ customCursor: false }), {
+    values: { customCursor: false },
+  });
   assert.ok(parsePreferencesUpdate({ palette: 'indigo' }).error);
   assert.ok(parsePreferencesUpdate({ palette: 5 }).error);
+  assert.ok(parsePreferencesUpdate({ customCursor: 'yes' }).error);
   assert.equal(mergePreferences({}).palette, 'aurora');
+  assert.equal(mergePreferences({}).customCursor, true);
 });
 
 test('hidden parameter lists are validated', () => {

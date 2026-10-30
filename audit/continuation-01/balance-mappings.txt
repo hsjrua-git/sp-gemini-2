@@ -1,6 +1,0 @@
-     event      | is_active | debit | credit 
-----------------+-----------+-------+--------
- balance.refund | t         | 2100  | 1100
- balance.topup  | t         | 1100  | 2100
-(2 rows)
-

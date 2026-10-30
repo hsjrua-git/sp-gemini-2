@@ -35,6 +35,7 @@ function StudentsPage() {
   const [searchText, setSearchText] = useState('');
   const [page, setPage] = useState(1);
   const [groupId, setGroupId] = useState('');
+  const [showAdd, setShowAdd] = useState(false);
   const search = useDebouncedValue(searchText.trim(), 300);
 
   function handleSearchChange(event) {
@@ -48,20 +49,34 @@ function StudentsPage() {
   }
 
   return (
-    <main>
+    <main className="wide">
       <div className="page-head">
         <h1>{t('list.title')}</h1>
-        {can('data.import') && (
+        {(can('students.create') || can('data.import')) && (
           <div className="page-head-actions">
-            <Link className="btn" to="/students/import">
-              {t('list.importFromCsv')}
-            </Link>
+            {can('students.create') && (
+              <button
+                type="button"
+                className={showAdd ? undefined : 'primary'}
+                aria-expanded={showAdd}
+                onClick={() => setShowAdd((open) => !open)}
+              >
+                {showAdd ? t('common:actions.close') : `+ ${t('list.addTitle')}`}
+              </button>
+            )}
+            {can('data.import') && (
+              <Link className="btn" to="/students/import">
+                {t('list.importFromCsv')}
+              </Link>
+            )}
           </div>
         )}
       </div>
-      {can('students.create') && (
+      {can('students.create') && showAdd && (
         <section className="section-card">
-          <h2>{t('list.addTitle')}</h2>
+          <div className="toolbar">
+            <h2>{t('list.addTitle')}</h2>
+          </div>
           <StudentForm />
         </section>
       )}

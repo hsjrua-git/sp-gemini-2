@@ -2,6 +2,7 @@ export const DEFAULT_PREFERENCES = {
   theme: 'dark',
   palette: 'aurora',
   language: 'fa',
+  customCursor: true,
   studentsPageSize: 25,
   studentsSort: 'newest',
   studentsShowCode: true,
