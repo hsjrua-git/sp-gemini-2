@@ -1,0 +1,49 @@
+Server running on port 3303 (127.0.0.1)
+127.0.0.1 - - [30/Oct/2026:10:58:28 +0000] "GET /api/health HTTP/1.1" 200 27 "-" "node"
+127.0.0.1 - - [30/Oct/2026:10:58:29 +0000] "POST /api/auth/login HTTP/1.1" 200 899 "-" "node"
+error: column "checklist" does not exist
+    at /home/hsjrua/Documents/sp-gemini-1/server/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///home/hsjrua/Documents/sp-gemini-1/server/src/routes/taskTemplates.js:33:18 {
+  length: 109,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '83',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+127.0.0.1 - - [30/Oct/2026:10:58:29 +0000] "GET /api/task-templates HTTP/1.1" 500 62 "-" "node"
+error: column "checklist" does not exist
+    at /home/hsjrua/Documents/sp-gemini-1/server/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///home/hsjrua/Documents/sp-gemini-1/server/src/routes/tasks.js:77:18 {
+  length: 110,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '184',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+127.0.0.1 - - [30/Oct/2026:10:58:29 +0000] "GET /api/tasks HTTP/1.1" 500 62 "-" "node"

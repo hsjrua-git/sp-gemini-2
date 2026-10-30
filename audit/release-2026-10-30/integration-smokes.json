@@ -1,0 +1,12 @@
+{
+  "command": [
+    "bash",
+    "-c",
+    "node --test test/permissions.test.js && node src/scripts/workflowSmoke.mjs && node src/scripts/cafeStockSmoke.mjs && node src/scripts/cafeSalesSmoke.mjs && node src/scripts/alertsSmoke.mjs && node src/scripts/invariantRaceSmoke.mjs && node src/scripts/accountingSmoke.mjs"
+  ],
+  "directory": "server",
+  "started": "2026-10-30T10:57:40.231Z",
+  "ended": "2026-10-30T10:58:00.700Z",
+  "code": 0,
+  "signal": null
+}

@@ -1,0 +1,3 @@
+health {"status":200,"body":{"ok":true,"database":"ok"}}
+/api/task-templates {"status":500,"error":"Something went wrong on the server.","code":"42703"}
+/api/tasks?sessionId=00000000-0000-0000-0000-000000000000 {"status":500,"error":"Something went wrong on the server.","code":"42703"}

@@ -1,0 +1,12 @@
+{
+  "command": [
+    "node",
+    "audit/checks/release-schema-reproduction.mjs",
+    "guarded"
+  ],
+  "directory": ".",
+  "started": "2026-10-30T10:59:49.760Z",
+  "ended": "2026-10-30T10:59:50.554Z",
+  "code": 0,
+  "signal": null
+}

@@ -1,0 +1,41 @@
+{
+  "capturedAt": "2026-10-30T11:18:10.153675+00:00",
+  "files": [
+    {
+      "file": "stale-schema-fa.jpeg",
+      "source": "/tmp/opencode-browser-DZBFCc/0/screenshot.jpeg",
+      "bytes": 19640,
+      "sha256": "5668047e9116b2a4493b33661d26b731ea74df5469f165312969b815c71d1d23"
+    },
+    {
+      "file": "configured-task-templates.jpeg",
+      "source": "/tmp/opencode-browser-6Ls0Z9/0/screenshot.jpeg",
+      "bytes": 63490,
+      "sha256": "761d9c17c129fee1958bd1bd8af34df9855972b3c548012fd258d0746ef4275f"
+    },
+    {
+      "file": "configured-task-review.jpeg",
+      "source": "/tmp/opencode-browser-Xbg0VV/0/screenshot.jpeg",
+      "bytes": 78863,
+      "sha256": "9c286421c33382691eaec298edaff4e6d9904042eceac2cabdf019c342b3154a"
+    },
+    {
+      "file": "stale-schema-server-stack.txt",
+      "source": "/home/hsjrua/.local/share/opencode/shell/592025cb7880b4e42e3fb7301389f1a1c285e06b/sh_18c756d9b001BFF0WQu0zh5O6o.out",
+      "bytes": 1768,
+      "sha256": "2dafa3f9891520192cc74d6ef48722c17745508e09c59440412bf97729637d96"
+    },
+    {
+      "file": "configured-server-snapshot.txt",
+      "source": "/home/hsjrua/.local/share/opencode/shell/592025cb7880b4e42e3fb7301389f1a1c285e06b/sh_18c7a8a8c0013ZRfk9Vt0GgjTm.out",
+      "bytes": 17606,
+      "sha256": "5bd95a5762cc8dda78caa2be5d3e48713c75f383dbb5b203f82130f5c68d0c98"
+    },
+    {
+      "file": "release-server-snapshot.txt",
+      "source": "/tmp/opencode/release-api-final.log",
+      "bytes": 45171,
+      "sha256": "7db7221364ab7b863dbfb897b829078b875d868c2a08b1f6809479b5aeeb6409"
+    }
+  ]
+}

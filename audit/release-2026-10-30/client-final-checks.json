@@ -1,0 +1,12 @@
+{
+  "command": [
+    "bash",
+    "-c",
+    "npm run lint && npm test -- --maxWorkers=2 && npm run build"
+  ],
+  "directory": "client",
+  "started": "2026-10-30T10:59:26.755Z",
+  "ended": "2026-10-30T11:00:31.135Z",
+  "code": 0,
+  "signal": null
+}

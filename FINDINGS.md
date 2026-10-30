@@ -1,3 +1,23 @@
+# Release repair — 2026-10-30
+
+## Fixed
+
+- Reproduced task/template HTTP 500s caused by the normal database being two
+  migrations behind. Backed up, restore-tested, then applied 036/037 locally with
+  authorization; original data across 40 tables was preserved.
+- Added migration-aware health/API readiness checks and translated upgrade/outage
+  messages, with regressions for pre-session blocking and automatic recovery.
+
+## Verification and remaining
+
+502 tests and 50 smoke assertions passed; 59 authenticated reads passed on each
+of three configurations. The normal app's 32-route browser sweep found no errors
+or overflow. [Release record](docs/release-2026-10-30-sp-gemini-2.md).
+Earlier A09/A12/A23/A24 policy deferrals and documented performance/device limits
+remain; the historical blanket closure below does not supersede that record.
+
+---
+
 # Findings — final independent audit disposition (2026-10-29)
 
 The 2026-10-25 material below is retained as a historical record, but its

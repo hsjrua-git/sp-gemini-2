@@ -1,0 +1,315 @@
+npm notice run server@1.0.0 test
+npm notice run node --test test/*.test.js
+✔ alert status defaults to open and accepts only the three slices (23.837977ms)
+✔ alert patches carry exactly one boolean: resolved (0.66179ms)
+✔ paths are normalised before matching (4.558878ms)
+✔ known changes get friendly action names (4.562987ms)
+✔ sign-in outcomes are recorded, other failures are not (5.16086ms)
+✔ unknown changes are still recorded; self-logged ones are skipped (2.985163ms)
+✔ request bodies are redacted and size-limited (7.779894ms)
+✔ entity ids come from the last path segment when it is a UUID (10.657647ms)
+✔ recordAudit stores row snapshots; omitted ones become null (3.841044ms)
+✔ audit output recursively strips restricted custom field values (4.119963ms)
+✔ every permission key is unique and well-formed (7.453172ms)
+✔ isPermissionKey only accepts known keys (0.454092ms)
+✔ withPrerequisites pulls in required keys transitively (0.710721ms)
+✔ scores.enter does NOT drag in scores.view (blind entry allowed) (3.367816ms)
+✔ data.export includes every read capability its page and cube require (0.478705ms)
+✔ missingPrerequisites finds gaps in a chosen set (2.398599ms)
+✔ userCan reflects the permission array (2.781988ms)
+✔ requireLogin gates on a signed-in user (0.627168ms)
+✔ authorize: unauthenticated is 401, before any permission check (0.549663ms)
+✔ authorize: a must-change-password user is blocked with a code (0.561698ms)
+✔ authorize: a method absent from the policy is refused (0.695454ms)
+✔ authorize: `true` allows any signed-in user (0.423813ms)
+✔ authorize: a key is enforced against the user permissions (0.615002ms)
+✔ authorize: an array allows any listed permission (0.63088ms)
+✔ authorize: HEAD is treated as GET (1.833376ms)
+✔ requirePermission enforces one specific key regardless of method (0.92608ms)
+✔ requireAnyPermission passes when at least one key is held (1.156061ms)
+✔ backup retention preserves path boundaries: "backups with spaces" (379.809018ms)
+✔ backup retention preserves path boundaries: "backups\twith\nlines and 'quotes'" (457.361166ms)
+✔ KEEP=0 prunes all completed dumps but preserves unrelated files (172.930232ms)
+✔ failed dump preserves existing backups and removes its temporary file (132.027816ms)
+✔ purchase accepts decimal thousandths without rounding finer quantities (77.905585ms)
+✔ sale accepts decimal thousandths without rounding finer quantities (97.683545ms)
+✔ waste accepts decimal thousandths without rounding finer quantities (47.518251ms)
+✔ adjustment accepts decimal thousandths without rounding finer quantities (19.814803ms)
+✔ products need a trimmed name and a whole-Toman price (69.796434ms)
+✔ product partial updates validate only the carried fields (34.948546ms)
+✔ suppliers take an optional phone and note; blanks clear to null (81.320055ms)
+✔ issue sets a readable csrf cookie only when one is absent (13.17799ms)
+✔ issue resolves secure:'auto' from the connection, not the literal string (0.79418ms)
+✔ issue honours an explicit secure boolean regardless of the connection (1.127979ms)
+✔ checkOrigin lets safe methods and same-origin writes through (1.335992ms)
+✔ checkOrigin allows a mutation that carries neither Origin nor Referer (1.652487ms)
+✔ checkOrigin refuses a cross-origin write (0.791065ms)
+✔ checkOrigin permits an explicitly trusted native-app origin (0.779845ms)
+✔ checkOrigin also honours the Referer host when there is no Origin (0.520253ms)
+✔ checkOrigin is a no-op when origin enforcement is disabled (dev/proxy) (2.280821ms)
+✔ verifyToken passes only when header matches the cookie (1.730331ms)
+✔ issue and verifyToken tolerate malformed percent-encoded cookies without throwing URIError (7.570458ms)
+✔ verifyToken refuses mismatched Unicode tokens without a byte-length exception (1.022923ms)
+✔ comments are optional, trimmed, and blank means none (5.935259ms)
+✔ accepts a well-formed cell (1.582362ms)
+✔ rejects malformed requests (2.713252ms)
+✔ one save may carry up to 5000 entries (67.022897ms)
+✔ accepts valid cells, including the range limits and the group row (12.572468ms)
+✔ null values skip the range checks (0.82054ms)
+✔ flags values outside a parameter range, per dimension (0.901708ms)
+✔ flags a duplicate cell (same target and parameter) once (0.898015ms)
+✔ flags targets and parameters the assignment does not know (15.433115ms)
+✔ problems carry the entry’s index and cell identity (3.908741ms)
+✔ "all" columns keep active parameters and anything scored; unscored archived drop (8.163313ms)
+✔ cells of deleted students and dropped columns are filtered out; the rest pass through (1.48107ms)
+✔ an explicit parameter selection pins the columns regardless of relevance (1.237212ms)
+✔ the roster is returned in full and the metadata is passed through (1.651308ms)
+✔ current and future sessions get 7 days, older ones 1 (10.134297ms)
+✔ locks_at is the session date plus its window, at midnight UTC (1.380334ms)
+✔ cell keys cover the membership and the parameter, or the whole group (12.502719ms)
+✔ changing a locked value, comment or selection is flagged (5.540514ms)
+✔ identical entries and non-locked rows are not flagged (1.151994ms)
+✔ blind writes to locked cells are value-independent, including blank group cells (5.385348ms)
+✔ the whole-group row uses the group cell key (4.823102ms)
+✔ entries without an existing row are not flagged (0.511266ms)
+✔ missing comment keys count as no comment (4.074944ms)
+✔ override reasons are trimmed, whitespace-collapsed and length-checked (8.237428ms)
+✔ money conversion preserves exact safe bigint values (3.107241ms)
+✔ money conversion refuses precision loss (1.314784ms)
+✔ recognises valid calendar dates only (4.153031ms)
+✔ today's date uses the computer's local calendar day (2.730115ms)
+﹣ every route in the list refuses an unauthenticated request (1.628122ms) # integration test — start the server and run `npm run test-permissions`
+﹣ a signed-in viewer never gets a 401, and privileged routes stay closed to staff (0.477506ms) # integration test — start the server and run `npm run test-permissions`
+﹣ staff can assign group members (groups.assign), even though they cannot manage groups (1.031884ms) # integration test — start the server and run `npm run test-permissions`
+﹣ schema-4 score roles can read assignment/session context (1.096632ms) # integration test — start the server and run `npm run test-permissions`
+﹣ accounting.close works without unrelated accounting.manage (2.302006ms) # integration test — start the server and run `npm run test-permissions`
+﹣ admin can reach every route without a permission error (1.710567ms) # integration test — start the server and run `npm run test-permissions`
+✔ PGlite interval parser mirrors the fields scheduling reads from pg (17.248986ms)
+✔ missing or broken stored settings fall back to defaults (6.006784ms)
+✔ valid stored settings are kept and the rest use defaults (0.749112ms)
+✔ partial dashboard settings are filled from nested defaults (0.558784ms)
+✔ dashboard parameters distinguish all, none and explicit validated selections (1.046715ms)
+✔ the defaults object is never shared or changed (0.393461ms)
+✔ updates accept known settings with valid values (0.61388ms)
+✔ updates with unknown settings or bad values are refused (0.482188ms)
+✔ the palette must be one of the known presets (0.444591ms)
+✔ hidden parameter lists are validated (1.704455ms)
+✔ saving personal settings is not written to the audit log (0.853989ms)
+✔ the spreadsheet separator is a comma or a semicolon (0.478683ms)
+✔ a group assignment leads with the whole-group row, then its members (19.874767ms)
+✔ current and previous scores are separated; other periods are ignored (6.275016ms)
+✔ a cell is answered when any value or comment is set; both-null is selected but unanswered (7.422904ms)
+✔ an individual assignment has exactly its member and no group row (0.56578ms)
+✔ period 1 has no previous scores; rows without scores stay empty (0.603251ms)
+✔ members inherit both dimensions and previous values from eligible group cells (7.946437ms)
+✔ own selected-empty and partial cells shadow the entire group cell within a session (0.621694ms)
+✔ fallback is resolved per session before the existing latest-non-null period merge (0.574763ms)
+✔ fallback checks inclusive join/leave dates for each current and previous session (0.743961ms)
+✔ a full valid view config is accepted and normalised (10.845819ms)
+✔ a minimal config gets defaults (latest period, quality dimension) (1.057423ms)
+✔ the config must be an object carrying a valid assignmentId (0.560739ms)
+✔ seq is optional and must be a whole number from 1 (null = latest) (0.53031ms)
+✔ dimension defaults to quality and must be quality or quantity (1.6096ms)
+✔ filters are checked (3.456835ms)
+✔ columns, sort, search and the change flag are checked (1.530156ms)
+✔ view names are trimmed and length-checked (1.897497ms)
+✔ the per-user cap constant matches what the route enforces and reports (0.508663ms)
+✔ saved views are personal and not written to the audit log (10.278001ms)
+✔ intervals are described in days or months, never raw SQL (29.059034ms)
+✔ an assignment needs teacher, interval, anchor and exactly one target (11.639403ms)
+✔ assignment updates stay partial and keep the target coherent (6.19831ms)
+✔ a new cell has no `from` (9.300621ms)
+✔ a changed cell reports from and to for every dimension (5.904686ms)
+✔ an unchanged cell matches on all five facts, missing comments included (1.257654ms)
+✔ selection-only and comment-only changes count as changes (0.611046ms)
+✔ removing a cell that does not exist changes nothing (0.526644ms)
+✔ a locked cell is flagged only when it actually changed (8.977487ms)
+✔ the whole-group row resolves through the group key (0.549646ms)
+✔ cells with problems are left out of the preview (0.529623ms)
+✔ a blind-entry preview redacts the existing cell and never hints at it (6.48161ms)
+✔ counts summarise the preview and its problems (9.279635ms)
+✔ redacted counts bucket writes under save, not new/change/unchanged (4.227424ms)
+✔ session plans require an explicit target and valid bounded scope (25.849407ms)
+✔ a valid import request gets its defaults (12.258516ms)
+✔ bad import requests are refused (2.618046ms)
+✔ valid rows are ok, and names are tidied (1.341662ms)
+✔ invalid names are reported and never imported (0.855887ms)
+✔ names that already exist are skipped, ignoring case (0.655537ms)
+✔ a repeated name in the file is flagged from its second appearance (0.999425ms)
+✔ duplicates are imported when explicitly allowed (1.343618ms)
+✔ counts summarise what will happen (0.582265ms)
+✔ names with combined or separate accents compare equal (0.989681ms)
+✔ imports write their own audit entry, so the generic log skips them (4.258919ms)
+✔ full name keeps its rules (6.779529ms)
+✔ gender accepts the two values and clears on empty (0.567968ms)
+✔ birth date must be a real, past ISO date (4.611489ms)
+✔ father name is optional text with a length range (1.595329ms)
+✔ national id must be exactly 10 digits (0.906861ms)
+✔ definitions reject progress, duplicate ids, oversized and malformed lists (3.31822ms)
+✔ assigned snapshots retain independent progress and server completion times (1.822115ms)
+✔ a task needs a trimmed title of 1-120 characters (5.198142ms)
+✔ descriptions are optional and blank clears to null (0.905186ms)
+✔ partial updates validate only the carried fields (1.883104ms)
+✔ a new teacher needs a full identity (35.990434ms)
+✔ teacher updates are partial but validated (6.05445ms)
+✔ you cannot demote or deactivate yourself (4.201412ms)
+✔ you can still change your own name (0.500879ms)
+✔ the last user who can manage users/roles cannot be removed (0.401074ms)
+✔ changes are allowed when someone else keeps the keys (2.402582ms)
+✔ new users are validated and normalised (12.108375ms)
+✔ new users with bad details are refused (1.476248ms)
+✔ updates accept only known fields (2.97845ms)
+ℹ tests 159
+ℹ suites 0
+ℹ pass 153
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 6
+ℹ todo 0
+ℹ duration_ms 5834.623755
+npm notice run server@1.0.0 test:core
+npm notice run node --test --test-concurrency=2 src/core/**/*.test.js
+✔ getAuditEntries: validates the category and actor filters (32392.356626ms)
+✔ getAuditEntries: reads recorded rows, newest first, paginated (19247.192029ms)
+✔ getAuditEntries: filters by category and by actor (11633.352257ms)
+✔ getMe: returns the local admin holding every permission (28688.086165ms)
+✔ can: always true for the single admin (16.248367ms)
+✔ getEvaluations: needs a filter, validates ids, reads stored rows (23522.456704ms)
+✔ saveEvaluationsBulk: input + precondition guards (11446.265174ms)
+✔ an individual assignment refuses whole-group rows (14007.614759ms)
+✔ group targets are memberships active on the session date, not today (11890.49956ms)
+✔ semantic problems: range, unknown target, unknown parameter, duplicates (13328.385625ms)
+✔ dryRun previews without writing and is never redacted (11636.281089ms)
+✔ a save creates cells; identical re-save is a no-op; unselect deletes (11853.442812ms)
+✔ a real save records one audit row with old/new cell snapshots (11671.936968ms)
+✔ a locked cell needs a written override reason (audited) (8146.460598ms)
+✔ create returns a field with defaults and an incrementing sort order (17534.652392ms)
+✔ create validates label, type and choice requirements (12985.013042ms)
+✔ duplicate label (case-insensitive) is a CONFLICT (12288.810038ms)
+✔ list hides archived by default and shows restricted (single admin) (13099.850301ms)
+✔ update: label / restricted / sortOrder, plus guards (14345.84502ms)
+✔ update choices refuses to drop a value a student is using (8996.863439ms)
+✔ archive is idempotent, frees the label, and 404s a missing field (7436.111953ms)
+✔ create and update write audit rows attributed to the local actor (8717.44419ms)
+✔ create top-level and child groups; guards on parent and duplicate name (11475.266516ms)
+✔ list: all with member counts, archived toggle, and by studentId (9098.553878ms)
+✔ membership: add only live students, no-op re-add, remove, archived guard (7479.372751ms)
+✔ update: rename, move, cycle prevention, archive-with-children, guards (7049.826713ms)
+✔ archive is idempotent, refuses with live children, and 404s a missing group (8327.608458ms)
+✔ group actions write audit rows attributed to the local actor (10641.535126ms)
+✔ createParameter: validates, mints the sort order, and audits (10793.892811ms)
+✔ listParameters: active only by default, archived on request (7721.711184ms)
+✔ updateParameter: guards, snapshots, and the range lock (7806.23215ms)
+✔ listPeriods validates the id and 404s an unknown assignment (12404.143993ms)
+✔ only answered sessions attach, four per persisted period (11125.058568ms)
+✔ removing the final answer detaches; archive and restore reattach history (8519.806968ms)
+✔ getPreferences: returns defaults when nothing is stored (12803.849556ms)
+✔ updatePreferences: validates the patch (10959.173562ms)
+✔ updatePreferences: merges partial patches and persists them (9293.626865ms)
+✔ resetPreferences: forgets stored settings and returns defaults (7941.716381ms)
+✔ getResults: validation, 404s, and a not-yet-bucketed period (12319.397267ms)
+✔ getResults: grid rows, both dimensions, and the previous-seq deltas (9244.265931ms)
+✔ getResults: group fallback uses each session date and selected-empty shadows (10540.16855ms)
+✔ getTrends: per (parameter, assignment, period) averages with a dimension choice (9321.579472ms)
+✔ getTrends: effective members, inclusive dates and empty shadows precede averaging (9936.892686ms)
+✔ getSummary: expected = selected cells; group rows expand per member and member rows shadow (9395.143493ms)
+✔ createView: validates name and config (12291.168418ms)
+✔ createView + listViews: normalizes, defaults, stores and lists alphabetically (10747.835443ms)
+✔ createView: duplicate name collides (9632.466526ms)
+✔ updateView: guards, renames, and rejects duplicate names (12562.515023ms)
+✔ deleteView: guards and removes (11655.870843ms)
+✔ create returns a student with a generated code and uuid (14548.742258ms)
+✔ create rejects an invalid name with VALIDATION (10501.230382ms)
+✔ get / update / soft-delete round-trip (8494.02669ms)
+✔ immutable code and empty update are rejected (6720.570325ms)
+✔ malformed id reads as NOT_FOUND, not a crash (6609.39053ms)
+✔ list supports search, sort and paging (5826.706316ms)
+✔ custom extra fields validate, persist and clear (5953.802335ms)
+✔ import dry-run classifies without writing; real run inserts + audits (6543.849421ms)
+ℹ tests 57
+ℹ suites 0
+ℹ pass 57
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 346295.371723
+npm notice run server@1.0.0 verify-pglite
+npm notice run node src/db/verifyPglite.mjs
+Applying 37 migration(s) on PGlite:
+  ✓ applied 001_create_students.sql
+  ✓ applied 002_create_settings.sql
+  ✓ applied 003_create_parameters.sql
+  ✓ applied 004_create_evaluations.sql
+  ✓ applied 005_create_users_and_sessions.sql
+  ✓ applied 006_create_audit_log.sql
+  ✓ applied 007_add_score_locks.sql
+  ✓ applied 008_create_user_preferences.sql
+  ✓ applied 009_create_saved_views.sql
+  ✓ applied 010_create_roles.sql
+  ✓ applied 011_create_student_groups.sql
+  ✓ applied 012_add_score_notes.sql
+  ✓ applied 013_create_field_definitions.sql
+  ✓ applied 014_audit_log_filter_indexes.sql
+  ✓ applied 015_viewer_drop_export.sql
+  ✓ applied 016_student_identity_membership.sql
+  ✓ applied 017_create_teachers.sql
+  ✓ applied 018_create_scheduling.sql
+  ✓ applied 019_create_sessions.sql
+  ✓ applied 020_create_tasks.sql
+  ✓ applied 021_create_alerts.sql
+  ✓ applied 022_create_cafe_catalog.sql
+  ✓ applied 023_create_cafe_stock.sql
+  ✓ applied 024_create_cafe_sales.sql
+  ✓ applied 025_create_accounting_core.sql
+  ✓ applied 026_create_accounting_chart.sql
+  ✓ applied 027_create_kiosk_role.sql
+  ✓ applied 028_create_agent_permission.sql
+  ✓ applied 029_adopt_schema4.sql
+  ✓ applied 030_audit_fixes.sql
+  ✓ applied 031_enforce_runtime_invariants.sql
+  ✓ applied 032_harden_hierarchies_and_system_entries.sql
+  ✓ applied 033_restore_score_role_least_privilege.sql
+  ✓ applied 034_complete_schema4_runtime_guards.sql
+  ✓ applied 035_align_schema4_answered_periods.sql
+  ✓ applied 036_quality_percent_and_parameter_hierarchy.sql
+  ✓ applied 037_task_checklists.sql
+
+Runtime sanity checks:
+  ✓ gen_random_uuid() produced a uuid (03b2b712-672e-41c4-8c24-011c71bdcae9)
+  ✓ now() default populated created_at
+  ✓ student_code_format CHECK — correctly rejected
+  ✓ five system roles seeded (Administrator, Staff, Viewer, Accountant, Kiosk)
+  ✓ migration 015 removed data.export from Viewer
+  ✓ Staff retains data.export
+  ✓ score roles keep minimal schedule context
+  ✓ schema-4 retired permission rows removed
+  ✓ date parser keeps YYYY-MM-DD text
+  ✓ interval parser matches pg object shape
+  ✓ student_groups top-level name unique index — correctly rejected
+  ✓ student_groups group_not_own_parent CHECK — correctly rejected
+  ✓ student_groups multi-hop cycle trigger — correctly rejected
+  ✓ acct_fiscal_periods overlap trigger — correctly rejected
+  ✓ users username unique index — correctly rejected
+  ✓ schema-4 session identity generated in the database
+  ✓ selected empty cell is incomplete and outside every period
+  ✓ locked evaluation needs override reason — correctly rejected
+  ✓ written override unlocks the schema-4 update
+  ✓ first answer attaches the session to period 1
+  ✓ session with active cells cannot be canceled — correctly rejected
+  ✓ archiving detaches answered history
+  ✓ restoring answered history reattaches it
+  ✓ session identity is immutable — correctly rejected
+  ✓ individual assignment refuses whole-group evaluation — correctly rejected
+  ✓ task membership must belong to the assignment target — correctly rejected
+  ✓ once-ever opening entry unique index — correctly rejected
+  ✓ accounting mapping debit/credit differ CHECK — correctly rejected
+  ✓ acct_accounts multi-hop cycle trigger — correctly rejected
+  ✓ opening/closing entries cannot be voided — correctly rejected
+  ✓ duplicate timestamp triggers removed
+  ✓ resetData wiped domain/ledger/transcript rows, removed non-admin user, and re-seeded intervals
+
+Tables created (45):
+  acct_accounts, acct_fiscal_periods, acct_invariant_locks, acct_journal_entries, acct_journal_lines, acct_mappings, alerts, assignments, audit_log, cafe_products, cafe_purchase_items, cafe_purchases, cafe_sale_items, cafe_sales, cafe_stock, cafe_stock_movements, cafe_suppliers, evaluations, hierarchy_invariant_locks, intervals, parameters, period_analysis, period_summary, periods, role_permissions, roles, saved_views, schema_migrations, secrets, session_missing_parameters, session_status, sessions, student_balance_transactions, student_balances, student_field_definitions, student_group_members, student_groups, students, task_templates, tasks, teachers, user_preferences, user_sessions, users, voice_transcripts
+
+RESULT: PASS — all migrations applied and every sanity check passed on PGlite.

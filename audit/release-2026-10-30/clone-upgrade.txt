@@ -1,0 +1,2 @@
+Applied 036_quality_percent_and_parameter_hierarchy.sql
+Applied 037_task_checklists.sql

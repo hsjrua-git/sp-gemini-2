@@ -1,0 +1,12 @@
+{
+  "command": [
+    "bash",
+    "-c",
+    "npm test && npm run test:core && npm run verify-pglite"
+  ],
+  "directory": "server",
+  "started": "2026-10-30T10:52:39.997Z",
+  "ended": "2026-10-30T10:58:45.148Z",
+  "code": 0,
+  "signal": null
+}

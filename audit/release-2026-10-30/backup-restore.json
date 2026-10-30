@@ -1,0 +1,15 @@
+{
+  "command": [
+    "pg_restore",
+    "--exit-on-error",
+    "--no-owner",
+    "--no-acl",
+    "--dbname=postgresql://audit_owner@127.0.0.1:55439/student_panel_upgrade_checks",
+    "/tmp/opencode/sp-gemini-2-backup-2026-10-30/database.dump"
+  ],
+  "directory": ".",
+  "started": "2026-10-30T10:57:25.462Z",
+  "ended": "2026-10-30T10:57:30.684Z",
+  "code": 0,
+  "signal": null
+}

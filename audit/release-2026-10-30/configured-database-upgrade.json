@@ -1,0 +1,12 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "migrate"
+  ],
+  "directory": "server",
+  "started": "2026-10-30T11:02:46.262Z",
+  "ended": "2026-10-30T11:02:47.000Z",
+  "code": 0,
+  "signal": null
+}

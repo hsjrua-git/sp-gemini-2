@@ -1,0 +1,1 @@
+{"identity":{"database":"sp_gemini_1_audit","port":5432},"backup":"/tmp/opencode/sp-gemini-2-backup-2026-10-30/database.dump","bytes":204834,"sha256":"0b4716ae5141ca07344f14ec731c4438cbc4cd045654007f694f308eceba56ea","tables":40}

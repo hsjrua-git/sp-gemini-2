@@ -1,0 +1,32 @@
+✔ every route in the list refuses an unauthenticated request (3107.503162ms)
+✔ a signed-in viewer never gets a 401, and privileged routes stay closed to staff (4714.638726ms)
+✔ staff can assign group members (groups.assign), even though they cannot manage groups (33.8609ms)
+✔ schema-4 score roles can read assignment/session context (177.032525ms)
+✔ accounting.close works without unrelated accounting.manage (19.56877ms)
+✔ admin can reach every route without a permission error (2148.575726ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 12369.25942
+PASS far-future start seeks directly and preserves long sequence codes
+PASS date previews accept exactly 1000 and reject 1001 sessions
+PASS two planned periods create eight sessions without answered periods
+PASS monthly previews preserve month-end anchors after a distant start
+PASS parameter cycles and archiving a parent with active children are refused
+PASS quality accepts 0/100 independently of quantity bounds and rejects overflow
+PASS generation requires preview and concurrent confirmation creates only once
+PASS committed session dates and codes exactly match the preview
+PASS multi-target assignment rolls back entirely on one invalid target
+PASS checklist snapshots are independent; concurrent evaluator progress is retained; viewer cannot mutate
+PASS scoped Results and Export agree for 880 cells, both dimensions and previous values
+Workflow smoke: 11 checks passed
+cafe stock smoke: all 6 checks passed
+cafe sales smoke: all 8 checks passed
+cafe reports smoke: all 5 checks passed
+alerts smoke: all 6 checks passed
+runtime invariant race smoke: all 5 checks passed
+accounting smoke: all 9 checks passed

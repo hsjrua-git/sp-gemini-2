@@ -1,0 +1,3 @@
+health {"status":200,"body":{"ok":true,"database":"ok","schema":"ok"}}
+/api/task-templates {"status":200,"ok":true}
+/api/tasks?sessionId=00000000-0000-0000-0000-000000000000 {"status":200,"ok":true}

@@ -1,0 +1,4 @@
+health {"status":503,"body":{"ok":false,"database":"ok","schema":"outdated","code":"DATABASE_MIGRATIONS_PENDING","error":"Database upgrade required. Run npm run migrate from server/ and retry.","pendingMigrations":2}}
+/api/auth/me {"status":503,"body":{"ok":false,"database":"ok","schema":"outdated","code":"DATABASE_MIGRATIONS_PENDING","error":"Database upgrade required. Run npm run migrate from server/ and retry.","pendingMigrations":2}}
+/api/task-templates {"status":503,"body":{"ok":false,"database":"ok","schema":"outdated","code":"DATABASE_MIGRATIONS_PENDING","error":"Database upgrade required. Run npm run migrate from server/ and retry.","pendingMigrations":2}}
+/api/tasks?sessionId=00000000-0000-0000-0000-000000000000 {"status":503,"body":{"ok":false,"database":"ok","schema":"outdated","code":"DATABASE_MIGRATIONS_PENDING","error":"Database upgrade required. Run npm run migrate from server/ and retry.","pendingMigrations":2}}

@@ -1,0 +1,11 @@
+{
+  "command": [
+    "node",
+    "src/db/migrate.js"
+  ],
+  "directory": "server",
+  "started": "2026-10-30T11:01:53.252Z",
+  "ended": "2026-10-30T11:01:53.512Z",
+  "code": 0,
+  "signal": null
+}
