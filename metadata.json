@@ -1,0 +1,7 @@
+{
+  "name": "Student Panel",
+  "description": "Student tracking, evaluation, cafe POS, and accounting management system.",
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
