@@ -1,0 +1,52 @@
+{
+  "title": "Cafe purchases",
+  "hint": "Record supplies bought from suppliers and review past purchases. Each purchase updates stock and the moving average cost.",
+  "money": {
+    "unit": "Toman"
+  },
+  "form": {
+    "title": "Record a purchase",
+    "supplier": "Supplier",
+    "supplierPlaceholder": "Choose a supplier",
+    "noSuppliers": "No active suppliers yet.",
+    "noSuppliersLink": "Add one on the Cafe products page",
+    "note": "Note (optional)",
+    "purchasedAt": "Purchase date (optional — empty means today)",
+    "items": "Purchase items",
+    "product": "Product",
+    "productPlaceholder": "Choose a product",
+    "noProducts": "No active products yet; add products first.",
+    "noProductsLink": "Add products on the Cafe products page",
+    "qty": "Quantity",
+    "qtyPlaceholder": "e.g. 2 or 1.5",
+    "unitCost": "Unit cost ({{unit}})",
+    "unitCostPlaceholder": "e.g. 25000",
+    "lineTotal": "Line total",
+    "addItem": "Add line",
+    "removeItem": "Remove line",
+    "grandTotal": "Total: {{total}} {{unit}}",
+    "submit": "Record purchase",
+    "recorded": "Purchase from \"{{supplier}}\" recorded ({{total}} {{unit}}).",
+    "invalidQty": "The quantity must be positive, with at most three decimals.",
+    "invalidUnitCost": "The unit cost must be a whole number of Toman (0 or more).",
+    "chooseSupplier": "Choose a supplier.",
+    "chooseProduct": "Every line needs a product.",
+    "needOneItem": "At least one complete line is required.",
+    "duplicateProduct": "Each product may appear once; merge duplicate lines."
+  },
+  "list": {
+    "title": "Recorded purchases",
+    "from": "From",
+    "to": "To",
+    "allSuppliers": "All suppliers",
+    "filterSupplier": "Filter by supplier",
+    "colSupplier": "Supplier",
+    "colItems": "Items",
+    "colTotal": "Total",
+    "itemCount": "{{lines}} items",
+    "moreItems": "+{{more}} more",
+    "truncated": "Only the most recent purchases are shown; narrow the range or supplier to see more.",
+    "emptyTitle": "No purchases in this range",
+    "emptyDescription": "Widen the range, or record the first purchase with the form above."
+  }
+}

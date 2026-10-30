@@ -1,0 +1,45 @@
+{
+  "title": "Cafe reports",
+  "hint": "Sales, cost and profit over the selected range, plus the standing pictures: stock value and outstanding student debt.",
+  "money": {
+    "unit": "Toman"
+  },
+  "range": {
+    "from": "From",
+    "to": "To"
+  },
+  "totals": {
+    "title": "Range totals",
+    "saleCount": "Sales",
+    "revenue": "Revenue",
+    "cost": "Cost",
+    "profit": "Profit",
+    "purchases": "Purchases total",
+    "waste": "Waste value"
+  },
+  "daily": {
+    "title": "Daily breakdown",
+    "colDay": "Day",
+    "colSaleCount": "Sales",
+    "colRevenue": "Revenue",
+    "colCost": "Cost",
+    "colProfit": "Profit"
+  },
+  "top": {
+    "title": "Top products",
+    "colProduct": "Product",
+    "colQty": "Qty",
+    "colRevenue": "Revenue"
+  },
+  "empty": {
+    "title": "No sales in this range",
+    "description": "Change the range or check back after the next sales."
+  },
+  "standing": {
+    "title": "Standing numbers",
+    "inventoryValue": "Current stock value",
+    "activeProducts": "Active products",
+    "debtorCount": "Students in debt",
+    "outstandingDebt": "Outstanding debt"
+  }
+}

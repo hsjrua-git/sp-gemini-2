@@ -1,0 +1,37 @@
+# Example reverse proxy for Student Panel using Caddy.
+#
+# Why: the app speaks plain HTTP. On its own, login credentials and the session
+# cookie travel unencrypted — fine only on a trusted, isolated LAN. Put it
+# behind HTTPS whenever it can be reached beyond that. Caddy is the least-effort
+# option: it gets and renews certificates automatically.
+#
+# Install (Debian/Ubuntu): https://caddyserver.com/docs/install
+#   1. Point a DNS name at this machine (e.g. panel.example.com), OR use a
+#      local name + your own internal CA for a LAN-only box.
+#   2. Put this file at /etc/caddy/Caddyfile (edit the domain + port).
+#   3. In server/.env set  HOST=127.0.0.1  (only Caddy should reach Node),
+#      TRUST_PROXY=1  (trust this one proxy's X-Forwarded-* headers), and
+#      SESSION_COOKIE_SECURE=true  (you now always serve over HTTPS).
+#   4. sudo systemctl reload caddy
+#
+# With TRUST_PROXY=1 the app reads the real client IP and protocol from the
+# headers Caddy sets below (one hop).
+
+panel.example.com {
+	encode gzip
+
+	# Forward everything to the Node process on localhost. Caddy adds
+	# X-Forwarded-Proto/-For automatically, which is how the app knows the
+	# original request was HTTPS.
+	reverse_proxy 127.0.0.1:3000
+}
+
+# --- LAN-only alternative (no public DNS) ----------------------------------
+# For an internal box reached by IP or a local hostname, you can let Caddy issue
+# a self-signed cert with its internal CA. Browsers will warn until you trust
+# that CA, but traffic is still encrypted. Replace the block above with:
+#
+# panel.lan {
+# 	tls internal
+# 	reverse_proxy 127.0.0.1:3000
+# }

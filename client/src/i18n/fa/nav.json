@@ -1,0 +1,78 @@
+{
+  "panels": {
+    "evaluation": "ارزشیابی",
+    "cafe": "کافه",
+    "accounting": "حسابداری",
+    "ai": "هوش مصنوعی",
+    "administration": "مدیریت"
+  },
+  "allPanels": "همه بخش‌ها",
+  "titles": {
+    "preferences": "تنظیمات شخصی",
+    "changePassword": "تغییر گذرواژه",
+    "importStudents": "وارد کردن دانش‌آموزان",
+    "importScores": "وارد کردن نمرات",
+    "studentDetail": "جزئیات دانش‌آموز"
+  },
+  "account": {
+    "signout": "خروج",
+    "signingOut": "در حال خروج…"
+  },
+  "aria": {
+    "primaryNav": "ناوبری اصلی",
+    "toggleMenu": "باز و بستن منو",
+    "closeMenu": "بستن منو",
+    "expandSidebar": "باز کردن نوار کناری",
+    "collapseSidebar": "جمع کردن نوار کناری"
+  },
+  "skipToContent": "پرش به محتوا",
+  "connection": {
+    "offline": "ارتباط با سرور برقرار نمی‌شود. از روشن بودن سرور مطمئن شوید؛ اتصال به‌طور خودکار برقرار می‌شود."
+  },
+  "auth": {
+    "sessionErrorTitle": "نشست شما بارگذاری نشد"
+  },
+  "errors": {
+    "ui": {
+      "title": "مشکلی پیش آمد",
+      "description": "این صفحه با خطای غیرمنتظره روبه‌رو شد. معمولاً بارگذاری دوباره صفحه مشکل را برطرف می‌کند.",
+      "reload": "بارگذاری دوباره"
+    }
+  },
+  "notFound": {
+    "title": "صفحه پیدا نشد",
+    "hint": "این صفحه وجود ندارد یا جابه‌جا شده است.",
+    "home": "رفتن به فهرست دانش‌آموزان"
+  },
+  "items": {
+    "agent": "دستیار صوتی",
+    "transcripts": "گفت‌وگوها",
+    "dashboard": "داشبورد",
+    "results": "نتایج",
+    "export": "خروجی",
+    "students": "دانش‌آموزان",
+    "evaluate": "ثبت نمرات",
+    "teachers": "معلمان",
+    "schedule": "برنامه هفتگی",
+    "sessions": "جلسات",
+    "taskTemplates": "الگوهای تکلیف",
+    "products": "محصولات",
+    "purchases": "خریدها",
+    "inventory": "انبار",
+    "reports": "گزارش‌ها",
+    "sales": "فروش",
+    "parameters": "شاخص‌ها",
+    "groups": "گروه‌ها",
+    "fields": "فیلدها",
+    "settings": "تنظیمات",
+    "users": "کاربران",
+    "roles": "نقش‌ها",
+    "audit": "گزارش فعالیت‌ها",
+    "preferences": "تنظیمات شخصی",
+    "changePassword": "تغییر گذرواژه",
+    "journal": "دفتر روزنامه",
+    "accounts": "کدینگ حساب‌ها",
+    "accountingReports": "گزارش‌های مالی",
+    "periods": "دوره‌های مالی"
+  }
+}

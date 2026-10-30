@@ -1,0 +1,71 @@
+{
+  "appName": "Student Panel",
+  "language": {
+    "fa": "فارسی",
+    "en": "English",
+    "switch": "Change language"
+  },
+  "actions": {
+    "save": "Save",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "add": "Add",
+    "create": "Create",
+    "close": "Close",
+    "back": "Back",
+    "search": "Search",
+    "apply": "Apply",
+    "reset": "Reset",
+    "refresh": "Refresh",
+    "restore": "Restore",
+    "archive": "Archive",
+    "unarchive": "Unarchive",
+    "confirm": "Confirm",
+    "retry": "Try again",
+    "view": "View",
+    "done": "Done"
+  },
+  "status": {
+    "loading": "Loading…",
+    "empty": "Nothing here yet.",
+    "errorTitle": "Something went wrong"
+  },
+  "table": {
+    "actions": "Actions",
+    "name": "Name",
+    "code": "Code",
+    "note": "Note",
+    "date": "Date",
+    "showing": "Showing {{count}} items",
+    "of": "of {{count}}",
+    "truncated": "Only the first {{shown}} of {{total}} are shown; narrow the range to see more."
+  },
+  "date": {
+    "label": "Date",
+    "gregorian": "Gregorian",
+    "jalali": "Jalali",
+    "jalaliPlaceholder": "e.g. 1405/08/03",
+    "invalidJalali": "That is not a valid Jalali date."
+  },
+  "changes": {
+    "add": "Added",
+    "remove": "Removed",
+    "fromHereOn": ", from this period on",
+    "thisOnly": ", this period only",
+    "to": "to"
+  },
+  "login": {
+    "title": "Welcome back",
+    "subtitle": "Sign in to continue to your panel.",
+    "username": "Username",
+    "password": "Password",
+    "submit": "Sign in",
+    "submitting": "Signing in…"
+  },
+  "preferences": {
+    "languageTitle": "Language",
+    "languageHint": "Choose the interface language. Numbers and dates follow it too."
+  }
+}

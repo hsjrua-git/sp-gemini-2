@@ -1,0 +1,59 @@
+{
+  "name": "client",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "analyze": "ANALYZE=1 vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "cap:add:android": "cap add android",
+    "cap:sync": "node scripts/checkMobileEnv.mjs && vite build --mode mobile && cap sync android",
+    "cap:open:android": "cap open android",
+    "cap:run:android": "node scripts/checkMobileEnv.mjs && vite build --mode mobile && cap sync android && cap run android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.6.9",
+    "@capacitor/core": "^7.6.9",
+    "@tanstack/react-query": "^5.103.1",
+    "fflate": "0.8.3",
+    "i18next": "^26.5.10",
+    "jalaali-js": "^2.0.1",
+    "papaparse": "^5.7.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-i18next": "^17.1.8",
+    "react-is": "^19.3.0",
+    "react-router": "^8.4.0",
+    "recharts": "^3.10.1",
+    "three": "0.186.1",
+    "write-excel-file": "4.1.1"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.6.9",
+    "@eslint/js": "^10.0.1",
+    "@tailwindcss/postcss": "^4.1.4",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@testing-library/user-event": "^14.5.2",
+    "tailwindcss": "^4.1.4",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@vitejs/plugin-react": "^6.1.1",
+    "eslint": "^10.10.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.6",
+    "globals": "^17.12.0",
+    "jsdom": "^25.0.1",
+    "rollup-plugin-visualizer": "^6.0.4",
+    "vite": "^8.3.3",
+    "vitest": "^5.0.3"
+  }
+}

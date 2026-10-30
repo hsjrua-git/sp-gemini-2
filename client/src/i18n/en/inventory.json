@@ -1,0 +1,78 @@
+{
+  "title": "Cafe inventory",
+  "hint": "Live stock per product, each product's movement ledger, and recording waste or count corrections. Click a row to open that product's stock card.",
+  "money": {
+    "unit": "Toman"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "kind": {
+    "purchase": "Purchase",
+    "sale": "Sale",
+    "waste": "Waste",
+    "adjustment": "Adjustment"
+  },
+  "stock": {
+    "title": "Product stock",
+    "colQty": "Qty",
+    "colAvgCost": "Average cost",
+    "colValue": "Stock value",
+    "colStatus": "Status",
+    "cardButton": "Stock card",
+    "emptyTitle": "No stock yet",
+    "emptyDescription": "Stock builds up once the first purchase is recorded on the purchases page."
+  },
+  "card": {
+    "currentQty": "Current stock: {{qty}}",
+    "colTime": "Time",
+    "colKind": "Kind",
+    "colQty": "Qty",
+    "colUnitCost": "Unit cost",
+    "colRunning": "Running",
+    "colNote": "Note",
+    "colUser": "User",
+    "empty": "No movements recorded for this product yet."
+  },
+  "form": {
+    "title": "Record waste or adjust stock",
+    "kindLabel": "Entry type",
+    "kindWaste": "Waste",
+    "kindAdjustment": "Count adjustment",
+    "wasteHint": "Waste is entered as a positive amount (the quantity thrown away) and is valued at the average cost.",
+    "adjustmentHint": "A count adjustment is signed: negative means stock is missing, positive means extra; it is not valued.",
+    "wasteLineHint": "Enter as a positive amount",
+    "adjustmentLineHint": "negative = missing, positive = extra",
+    "lineValue": "≈ {{value}} {{unit}}",
+    "product": "Product",
+    "productPlaceholder": "Select a product",
+    "noProducts": "There is no active product yet; add one first.",
+    "noProductsLink": "Add a product on the cafe products page",
+    "qty": "Qty",
+    "qtyWastePlaceholder": "e.g. 2 or 0.5",
+    "qtyAdjustmentPlaceholder": "e.g. 3 or -1",
+    "removeItem": "Remove line",
+    "addItem": "Add line",
+    "totalAffected": "Total waste value: {{value}} {{unit}}",
+    "note": "Note (optional)",
+    "submit": "Record",
+    "recorded": "Recorded {{lines}} lines.",
+    "needOneLine": "At least one complete line is required.",
+    "chooseProduct": "Every line needs a product.",
+    "invalidQty": "Invalid quantity: waste takes a positive number, an adjustment a non-zero (negative or positive) number, with at most three decimals.",
+    "duplicateProduct": "Each product may appear once; merge duplicate lines."
+  },
+  "movements": {
+    "title": "Recent stock movements",
+    "colTime": "Time",
+    "colProduct": "Product",
+    "colKind": "Kind",
+    "colQty": "Qty",
+    "colNote": "Note",
+    "colUser": "User",
+    "truncated": "Only the last 100 movements are shown.",
+    "emptyTitle": "No movements yet",
+    "emptyDescription": "Purchases, sales, waste and adjustments will be listed here."
+  }
+}

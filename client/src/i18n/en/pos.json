@@ -1,0 +1,70 @@
+{
+  "title": "Cafe Sales",
+  "hint": "Record cafe sales; a student sale is charged to their balance (overdraft is allowed, so the balance may go negative).",
+  "noSell": "You cannot record sales; today's sales are listed below.",
+  "money": {
+    "unit": "Toman"
+  },
+  "customer": {
+    "label": "Customer",
+    "walkIn": "Walk-in customer",
+    "student": "Student"
+  },
+  "finder": {
+    "label": "Choose a student",
+    "placeholder": "Name or code…",
+    "minChars": "Type at least 2 characters to search.",
+    "searching": "Searching…",
+    "noResults": "No student matches that name or code.",
+    "choose": "Choose",
+    "change": "Change",
+    "balanceLabel": "Balance",
+    "debt": "In debt"
+  },
+  "pad": {
+    "title": "Products",
+    "empty": "No active products to sell."
+  },
+  "cart": {
+    "title": "Cart",
+    "studentPrefix": "Selling to",
+    "empty": "The cart is empty — click the products above to add lines.",
+    "colProduct": "Product",
+    "colQty": "Qty",
+    "colUnitPrice": "Unit price",
+    "colLineTotal": "Amount",
+    "qtyPlaceholder": "e.g. 1 or 0.5",
+    "pricePlaceholder": "e.g. 25000",
+    "remove": "Remove",
+    "total": "Total",
+    "note": "Note (optional)",
+    "submit": "Record sale",
+    "submitting": "Recording…",
+    "invalidQty": "Quantity must be positive with at most three decimals (e.g. 0.5).",
+    "invalidPrice": "Unit price must be a whole number of Toman (0 or more).",
+    "needStudent": "Choose the student first.",
+    "emptyCart": "The cart is empty."
+  },
+  "success": {
+    "recorded": "Sale recorded.",
+    "voided": "Sale voided.",
+    "newBalance": "New balance:"
+  },
+  "void": {
+    "action": "Void",
+    "confirm": "Void this sale? Stock and the student's balance are restored."
+  },
+  "today": {
+    "title": "Today's sales",
+    "colTime": "Time",
+    "colCustomer": "Customer",
+    "colItems": "Items",
+    "colTotal": "Amount",
+    "colStatus": "Status",
+    "walkIn": "Walk-in customer",
+    "voided": "Voided",
+    "truncated": "Many sales today; only the most recent are shown.",
+    "emptyTitle": "No sales recorded today yet",
+    "emptyDescription": "Today's sales will be listed here."
+  }
+}

@@ -1,0 +1,33 @@
+# systemd unit for running Student Panel on boot and restarting it on failure.
+#
+# Install:
+#   1. Copy the whole project to /opt/student-panel (or edit the paths below).
+#   2. Create a dedicated user:  sudo useradd --system --home /opt/student-panel student-panel
+#   3. sudo cp deploy/student-panel.service /etc/systemd/system/
+#   4. sudo systemctl daemon-reload
+#   5. sudo systemctl enable --now student-panel
+#
+# Check it:  systemctl status student-panel   and   journalctl -u student-panel -f
+
+[Unit]
+Description=Student Panel
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=student-panel
+WorkingDirectory=/opt/student-panel/server
+# Reads server/.env for SESSION_SECRET, DATABASE_URL, PORT, HOST, etc.
+ExecStart=/usr/bin/node --env-file=.env src/index.js
+Environment=NODE_ENV=production
+Restart=on-failure
+RestartSec=5
+
+# Light hardening.
+NoNewPrivileges=true
+ProtectSystem=full
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
