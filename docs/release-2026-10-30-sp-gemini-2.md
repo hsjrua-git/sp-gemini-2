@@ -121,6 +121,7 @@ protected original evidence files, all six supplied handoff/schema hashes, and
 all 26 earlier workflow capture hashes. Supplied handoffs and `partly-schema/`
 remain local/untracked. New captures/log snapshots have their own hash manifest.
 
-Publication target: private **`hsjrua-git/sp-gemini-2`**, with the verified branch
-published as `main`; GitHub verification is recorded in the publication receipt.
+Published to private **[`hsjrua-git/sp-gemini-2`](https://github.com/hsjrua-git/sp-gemini-2)**
+as `main`; GitHub visibility, default branch and exact initial SHA are recorded
+in the [publication receipt](../audit/release-2026-10-30/publication.md).
 The normal app at port 3000 and isolated review app at port 3302 remain running.
